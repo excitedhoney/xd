@@ -1,0 +1,19 @@
+//
+//  VideoWitnessViewCtrl.h
+//  ApexiPhoneOpenAccount
+//
+//  Created by mac  on 14-3-10.
+//  Copyright (c) 2014年 mac . All rights reserved.
+//
+
+#import "BaseViewController.h"
+
+@interface VideoWitnessViewCtrl : BaseViewController<UIScrollViewDelegate>{
+    @public
+    NSString * roomid;
+    NSString * uuid;
+}
+
+-(void) BackToUrls:(id)sender;
+
+@end

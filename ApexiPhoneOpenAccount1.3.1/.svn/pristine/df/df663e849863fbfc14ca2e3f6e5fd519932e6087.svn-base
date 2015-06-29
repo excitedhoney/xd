@@ -1,0 +1,51 @@
+1.视频页面的旋转代码备份
+-(void)currentOrien:(NSNotification *)noti{
+    localView.transform=CGAffineTransformMake(0, 1, -1, 0, 0, 0);
+    return ;
+    
+    if(currentForwardOrBack == 0){
+        switch ([UIDevice currentDevice].orientation) {
+            case  UIDeviceOrientationPortrait:{
+                localView.transform=CGAffineTransformMake(0, 1, -1, 0, 0, 0);
+                
+                break;
+            }
+            case  UIDeviceOrientationLandscapeRight:{
+                localView.transform=CGAffineTransformMake(0, -1, 1, 0, 0, 0);
+                
+                break;
+            }
+            case  UIDeviceOrientationPortraitUpsideDown:{
+                localView.transform=CGAffineTransformMake(0, 1, -1, 0, 0, 0);
+                //            localRenderView.transform = CGAffineTransformInvert(CGAffineTransformRotate(localRenderView.transform,- M_PI_2));
+                break;
+            }
+            case  UIDeviceOrientationLandscapeLeft:{
+                localView.transform=CGAffineTransformMake(0, -1, 1, 0, 0, 0);
+                
+                break;
+            }
+        }
+    }
+    if(currentForwardOrBack == 1){
+        switch ([UIDevice currentDevice].orientation) {
+            case  UIDeviceOrientationPortrait:{
+                localView.transform=CGAffineTransformMake(0, 1, 1, 0, 0, 0);
+                break;
+            }
+            case  UIDeviceOrientationLandscapeRight:{
+                localView.transform=CGAffineTransformMake(0, -1, 1, 0, 0, 0);
+                break;
+            }
+            case  UIDeviceOrientationPortraitUpsideDown:{
+                localView.transform=CGAffineTransformMake(0, 1, -1, 0, 0, 0);
+                //            localRenderView.transform = CGAffineTransformInvert(CGAffineTransformRotate(localRenderView.transform,- M_PI_2));
+                break;
+            }
+            case  UIDeviceOrientationLandscapeLeft:{
+                localView.transform=CGAffineTransformMake(0, -1, 1, 0, 0, 0);
+                break;
+            }
+        }
+    }
+}

@@ -1,0 +1,97 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+<meta http-equiv="Cache-Control" content="no-cache" />
+<title>测试的</title>
+<style type="text/css">
+.header {
+	position: fixed;
+	display: flex; /*通用*/
+	display: -webkit-box;
+	top: 0;
+	left: 0;
+	width: 100%;
+	color: #fff;
+	height: 50px;
+	line-height: 50px;
+	background-color: #3f3f3f;
+	background: -webkit-gradient(linear, left top, left bottom, from(#404040),
+		to(#3c3c3c) );
+	border-top: 1px solid #4d4d4d;
+	z-index: 9999;
+}
+
+.header a {
+	color: #fff;
+}
+
+.header div {
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+
+.header_left,.header_right {
+	width: 15%;
+	min-width: 50px;
+}
+
+.header_left {
+	
+}
+
+.header_right {
+	text-align: right;
+}
+
+.page_title {
+	flex: 1; /*通用*/
+	-webkit-box-flex: 1;
+	text-align: center;
+	line-height: 50px;
+	font-size: large;
+	font-weight: bold;
+}
+
+.header_left .btn_back {
+	width: 45px;
+	height: 50px;
+	display: inline-block;
+	cursor: pointer;
+	background-size: 40px;
+}
+
+.btn_back:hover {
+	background-position: center -44px;
+}
+
+.header_left .btn_back:hover,.header_left .btn_back:active {
+	
+}
+html, body {
+	padding: 0;
+	margin: 0;
+	width: 100%;
+	font-size: medium;
+	background: #efefef url('body_bg.png');
+}
+</style>
+</head>
+<body>
+	<div class="header">
+		<div class="header_left">
+			<a href="javascript:history.go(-1);" class="btn_back hide"> </a>
+		</div>
+		<div class="page_title">友情提醒</div>
+		<div class="header_right">
+			<a class="btn_refresh"></a>
+		</div>
+	</div>
+	
+	<div style="vertical-align: middle;margin-top: 80px" align="center">
+		<img src="404.png" />
+	</div>
+</body>
+</html>

@@ -1,0 +1,700 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+/*
+ * This file implements PKCS 11 on top of our existing security modules
+ *
+ * For more information about PKCS 11 See PKCS 11 Token Inteface Standard.
+ *   This implementation has two slots:
+ *	slot 1 is our generic crypto support. It does not require login
+ *   (unless you've enabled FIPS). It supports Public Key ops, and all they
+ *   bulk ciphers and hashes. It can also support Private Key ops for imported
+ *   Private keys. It does not have any token storage.
+ *	slot 2 is our private key support. It requires a login before use. It
+ *   can store Private Keys and Certs as token objects. Currently only private
+ *   keys and their associated Certificates are saved on the token.
+ *
+ *   In this implementation, session objects are only visible to the session
+ *   that created or generated them.
+ */
+
+#include "pkcs11.h"
+#include "pkcs11t.h"
+#include "string.h"
+
+// DB相对数据库 User相对用户
+// 通过新的版本等信息生成新的密码
+extern int itrus_Password_Generator_DB_New( unsigned char * ptr_out_pwd_data,     unsigned int * ptr_out_pwd_len,   unsigned char * ptr_in_usr_pwd_data,    unsigned int in_usr_pwd_len);
+// 通过旧的版本等信息生成新的密码
+extern int itrus_Password_Generator_DB_Old(  unsigned char * ptr_out_pwd_data,     unsigned int * ptr_out_pwd_len,   unsigned char * ptr_in_usr_pwd_data,    unsigned int in_usr_pwd_len);
+
+// 通过新的版本等信息生成新的密码
+extern int itrus_Password_Generator_User_New(  unsigned char * ptr_out_pwd_data,     unsigned int * ptr_out_pwd_len,   unsigned char * ptr_in_usr_pwd_data,    unsigned int in_usr_pwd_len);
+// 通过旧的版本等信息生成新的密码
+extern int itrus_Password_Generator_User_Old(  unsigned char * ptr_out_pwd_data,     unsigned int * ptr_out_pwd_len,   unsigned char * ptr_in_usr_pwd_data,    unsigned int in_usr_pwd_len);
+
+// 保存数据库新信息
+extern int itrus_Save_Info_DB(  unsigned char * ptr_in_usr_pwd_data,    unsigned int in_usr_pwd_len);
+
+// 保存用户信息系
+extern int itrus_Save_Info_User(  unsigned char * ptr_in_usr_pwd_data,    unsigned int in_usr_pwd_len);
+
+// 查看是否有旧信息数据库
+extern int itrus_Has_Info_DB(int * bFlagExist);
+// 查看是否有旧信息用户
+extern int itrus_Has_Info_User(int * bFlagExist);
+
+// 信息是否更新
+extern int itrus_Info_User_IS_update(int * bFlagUpdate);
+// 信息是否更新
+extern int itrus_Info_DB_IS_update(int * bFlagUpdate);
+
+//#include "pkcs11f.h"
+
+/**********************************************************************
+ *
+ *     Start of PKCS 11 functions
+ *
+ **********************************************************************/
+/* return the function list */
+/*
+CK_RV C_GetFunctionList(CK_FUNCTION_LIST_PTR *pFunctionList) {
+    return FC_GetFunctionList(pFunctionList);
+}
+*/
+
+/* C_Initialize initializes the PKCS #11 library. */
+CK_RV C_Initialize(CK_VOID_PTR pReserved) {
+    return FC_Initialize (pReserved);;
+}
+
+/*C_Finalize indicates that an application is done with the PKCS #11 library.*/
+CK_RV C_Finalize(CK_VOID_PTR pReserved) {
+    return FC_Finalize(pReserved);
+}
+
+
+/* C_GetInfo returns general information about PKCS #11. */
+CK_RV C_GetInfo(CK_INFO_PTR pInfo) {
+    return FC_GetInfo(pInfo);
+}
+
+/* C_GetSlotList obtains a list of slots in the system. */
+CK_RV C_GetSlotList(CK_BBOOL tokenPresent,
+                     CK_SLOT_ID_PTR pSlotList, CK_ULONG_PTR pulCount) {
+    return FC_GetSlotList(tokenPresent,pSlotList,pulCount);
+}
+
+/* C_GetSlotInfo obtains information about a particular slot in the system. */
+CK_RV C_GetSlotInfo(CK_SLOT_ID slotID, CK_SLOT_INFO_PTR pInfo) {
+    return FC_GetSlotInfo(slotID,pInfo);
+}
+
+
+/*C_GetTokenInfo obtains information about a particular token in the system.*/
+CK_RV C_GetTokenInfo(CK_SLOT_ID slotID,CK_TOKEN_INFO_PTR pInfo) {
+    return FC_GetTokenInfo(slotID,pInfo);
+}
+
+
+
+/*C_GetMechanismList obtains a list of mechanism types supported by a token.*/
+CK_RV C_GetMechanismList(CK_SLOT_ID slotID,
+                          CK_MECHANISM_TYPE_PTR pMechanismList, CK_ULONG_PTR pusCount) {
+    return FC_GetMechanismList(slotID,pMechanismList,pusCount);
+}
+
+
+/* C_GetMechanismInfo obtains information about a particular mechanism
+ * possibly supported by a token. */
+CK_RV C_GetMechanismInfo(CK_SLOT_ID slotID, CK_MECHANISM_TYPE type,
+                          CK_MECHANISM_INFO_PTR pInfo) {
+    return FC_GetMechanismInfo(slotID,type,pInfo);
+}
+
+
+/* C_InitToken initializes a token. */
+CK_RV C_InitToken(CK_SLOT_ID slotID,CK_CHAR_PTR pPin,
+                   CK_ULONG usPinLen,CK_CHAR_PTR pLabel) {
+    
+    return FC_InitToken(slotID,pPin,
+                     usPinLen, pLabel);
+}
+
+
+/* C_InitPIN initializes the normal user's PIN. */
+CK_RV C_InitPIN(CK_SESSION_HANDLE hSession,
+                 CK_CHAR_PTR pPin, CK_ULONG ulPinLen) {
+    unsigned char data_value[256];
+    
+    unsigned int data_len = 255;
+    
+    memset(data_value, 0, data_len + 1);
+    
+    itrus_Password_Generator_User_New(data_value, &data_len, pPin, ulPinLen);
+    
+    int iRet = FC_InitPIN(hSession, data_value, data_len);
+    
+    if (0 == iRet) {
+        itrus_Save_Info_User(NULL, 0);
+    }
+    else
+    {
+        
+    }
+    
+    return iRet;
+}
+
+
+/* C_SetPIN modifies the PIN of user that is currently logged in. */
+/* NOTE: This is only valid for the PRIVATE_KEY_SLOT */
+CK_RV C_SetPIN(CK_SESSION_HANDLE hSession, CK_CHAR_PTR pOldPin,
+                CK_ULONG usOldLen, CK_CHAR_PTR pNewPin, CK_ULONG usNewLen) {
+    unsigned char data_value_old[256];
+    
+    unsigned int data_len_old = 255;
+    
+    memset(data_value_old, 0, data_len_old + 1);
+    
+    itrus_Password_Generator_User_Old(data_value_old, &data_len_old, pOldPin, usOldLen);
+    
+    unsigned char data_value_new[256];
+    
+    unsigned int data_len_new = 255;
+    
+    memset(data_value_new, 0, data_len_new + 1);
+    
+    itrus_Password_Generator_User_New(data_value_new, &data_len_new, pNewPin, usNewLen);
+    
+    int iRet = FC_SetPIN( hSession,  data_value_old,
+                      data_len_old,  data_value_new,  data_len_new);
+    
+    if (0 == iRet) {
+        itrus_Save_Info_User(NULL, 0);
+    }
+    else
+    {
+        
+    }
+    
+    return iRet;
+}
+
+/* C_OpenSession opens a session between an application and a token. */
+CK_RV C_OpenSession(CK_SLOT_ID slotID, CK_FLAGS flags,
+                     CK_VOID_PTR pApplication,CK_NOTIFY Notify,CK_SESSION_HANDLE_PTR phSession) {
+    return FC_OpenSession(slotID,flags,pApplication,Notify,phSession);
+}
+
+
+/* C_CloseSession closes a session between an application and a token. */
+CK_RV C_CloseSession(CK_SESSION_HANDLE hSession) {
+    return FC_CloseSession(hSession);
+}
+
+
+/* C_CloseAllSessions closes all sessions with a token. */
+CK_RV C_CloseAllSessions (CK_SLOT_ID slotID) {
+    
+    return FC_CloseAllSessions (slotID);
+}
+
+
+/* C_GetSessionInfo obtains information about the session. */
+CK_RV C_GetSessionInfo(CK_SESSION_HANDLE hSession,
+						CK_SESSION_INFO_PTR pInfo) {
+    
+    return FC_GetSessionInfo(hSession,pInfo);
+}
+
+/* C_Login logs a user into a token. */
+CK_RV C_Login(CK_SESSION_HANDLE hSession, CK_USER_TYPE userType,
+               CK_CHAR_PTR pPin, CK_ULONG usPinLen) {
+    unsigned char data_value[256];
+    
+    unsigned int data_len = 255;
+    
+    memset(data_value, 0, data_len + 1);
+    
+    itrus_Password_Generator_User_Old(data_value, &data_len, pPin, usPinLen);
+    
+    return FC_Login( hSession,  userType,
+                     data_value,  data_len);
+}
+
+/* C_Logout logs a user out from a token. */
+CK_RV C_Logout(CK_SESSION_HANDLE hSession) {
+    return FC_Logout(hSession);
+}
+
+
+/* C_CreateObject creates a new object. */
+CK_RV C_CreateObject(CK_SESSION_HANDLE hSession,
+                      CK_ATTRIBUTE_PTR pTemplate, CK_ULONG ulCount,
+                      CK_OBJECT_HANDLE_PTR phObject) {
+    return FC_CreateObject(hSession,
+                           pTemplate,  ulCount,
+                           phObject);
+}
+
+
+
+
+
+/* C_CopyObject copies an object, creating a new object for the copy. */
+CK_RV C_CopyObject(CK_SESSION_HANDLE hSession,
+                    CK_OBJECT_HANDLE hObject, CK_ATTRIBUTE_PTR pTemplate, CK_ULONG ulCount,
+					CK_OBJECT_HANDLE_PTR phNewObject) {
+
+    return FC_CopyObject(hSession,
+                         hObject,  pTemplate,  ulCount,
+                         phNewObject);
+}
+
+
+/* C_DestroyObject destroys an object. */
+CK_RV C_DestroyObject(CK_SESSION_HANDLE hSession,
+                       CK_OBJECT_HANDLE hObject) {
+    return FC_DestroyObject( hSession,
+                            hObject);
+}
+
+
+/* C_GetObjectSize gets the size of an object in bytes. */
+CK_RV C_GetObjectSize(CK_SESSION_HANDLE hSession,
+                       CK_OBJECT_HANDLE hObject, CK_ULONG_PTR pulSize) {
+    return FC_GetObjectSize( hSession,
+                            hObject,  pulSize);
+}
+
+
+/* C_GetAttributeValue obtains the value of one or more object attributes. */
+CK_RV C_GetAttributeValue(CK_SESSION_HANDLE hSession,
+                           CK_OBJECT_HANDLE hObject,CK_ATTRIBUTE_PTR pTemplate,CK_ULONG ulCount) {
+    return FC_GetAttributeValue( hSession,
+                                hObject, pTemplate, ulCount);
+}
+
+
+/* C_SetAttributeValue modifies the value of one or more object attributes */
+CK_RV C_SetAttributeValue (CK_SESSION_HANDLE hSession,
+                            CK_OBJECT_HANDLE hObject,CK_ATTRIBUTE_PTR pTemplate,CK_ULONG ulCount) {
+    return FC_SetAttributeValue ( hSession,
+                                 hObject, pTemplate, ulCount);
+}
+
+
+
+/* C_FindObjectsInit initializes a search for token and session objects
+ * that match a template. */
+CK_RV C_FindObjectsInit(CK_SESSION_HANDLE hSession,
+                         CK_ATTRIBUTE_PTR pTemplate,CK_ULONG usCount) {
+    return FC_FindObjectsInit(hSession,pTemplate,usCount);
+}
+
+
+/* C_FindObjects continues a search for token and session objects
+ * that match a template, obtaining additional object handles. */
+CK_RV C_FindObjects(CK_SESSION_HANDLE hSession,
+                     CK_OBJECT_HANDLE_PTR phObject,CK_ULONG usMaxObjectCount,
+                     CK_ULONG_PTR pusObjectCount) {
+    return FC_FindObjects(hSession,phObject,usMaxObjectCount,
+                           pusObjectCount);
+}
+
+
+/*
+ ************** Crypto Functions:     Encrypt ************************
+ */
+
+/* C_EncryptInit initializes an encryption operation. */
+CK_RV C_EncryptInit(CK_SESSION_HANDLE hSession,
+                     CK_MECHANISM_PTR pMechanism, CK_OBJECT_HANDLE hKey) {
+    return FC_EncryptInit(hSession,pMechanism,hKey);
+}
+
+/* C_Encrypt encrypts single-part data. */
+CK_RV C_Encrypt (CK_SESSION_HANDLE hSession, CK_BYTE_PTR pData,
+                  CK_ULONG usDataLen, CK_BYTE_PTR pEncryptedData,
+                  CK_ULONG_PTR pusEncryptedDataLen) {
+    
+    return FC_Encrypt(hSession,pData,usDataLen,pEncryptedData,
+                       pusEncryptedDataLen);
+}
+
+
+/* C_EncryptUpdate continues a multiple-part encryption operation. */
+CK_RV C_EncryptUpdate(CK_SESSION_HANDLE hSession,
+                       CK_BYTE_PTR pPart, CK_ULONG usPartLen, CK_BYTE_PTR pEncryptedPart,
+                       CK_ULONG_PTR pusEncryptedPartLen) {
+    return FC_EncryptUpdate(hSession,pPart,usPartLen,pEncryptedPart,
+                             pusEncryptedPartLen);
+}
+
+
+/* C_EncryptFinal finishes a multiple-part encryption operation. */
+CK_RV C_EncryptFinal(CK_SESSION_HANDLE hSession,
+                      CK_BYTE_PTR pLastEncryptedPart, CK_ULONG_PTR pusLastEncryptedPartLen) {
+    return FC_EncryptFinal(hSession,pLastEncryptedPart,
+                            pusLastEncryptedPartLen);
+}
+
+/*
+ ************** Crypto Functions:     Decrypt ************************
+ */
+
+
+/* C_DecryptInit initializes a decryption operation. */
+CK_RV C_DecryptInit( CK_SESSION_HANDLE hSession,
+                     CK_MECHANISM_PTR pMechanism, CK_OBJECT_HANDLE hKey) {
+    return FC_DecryptInit(hSession,pMechanism,hKey);
+}
+
+/* C_Decrypt decrypts encrypted data in a single part. */
+CK_RV C_Decrypt(CK_SESSION_HANDLE hSession,
+                 CK_BYTE_PTR pEncryptedData,CK_ULONG usEncryptedDataLen,CK_BYTE_PTR pData,
+                 CK_ULONG_PTR pusDataLen) {
+    
+    return FC_Decrypt(hSession,pEncryptedData,usEncryptedDataLen,pData,
+                       pusDataLen);
+}
+
+
+/* C_DecryptUpdate continues a multiple-part decryption operation. */
+CK_RV C_DecryptUpdate(CK_SESSION_HANDLE hSession,
+                       CK_BYTE_PTR pEncryptedPart, CK_ULONG usEncryptedPartLen,
+                       CK_BYTE_PTR pPart, CK_ULONG_PTR pusPartLen) {
+    return FC_DecryptUpdate(hSession,pEncryptedPart,usEncryptedPartLen,
+                             pPart,pusPartLen);
+}
+
+
+/* C_DecryptFinal finishes a multiple-part decryption operation. */
+CK_RV C_DecryptFinal(CK_SESSION_HANDLE hSession,
+                      CK_BYTE_PTR pLastPart, CK_ULONG_PTR pusLastPartLen) {
+    return FC_DecryptFinal(hSession,pLastPart,pusLastPartLen);
+}
+
+
+/*
+ ************** Crypto Functions:     Digest (HASH)  ************************
+ */
+
+/* C_DigestInit initializes a message-digesting operation. */
+CK_RV C_DigestInit(CK_SESSION_HANDLE hSession,
+                    CK_MECHANISM_PTR pMechanism) {
+    return FC_DigestInit(hSession, pMechanism);
+}
+
+
+/* C_Digest digests data in a single part. */
+CK_RV C_Digest(CK_SESSION_HANDLE hSession,
+                CK_BYTE_PTR pData, CK_ULONG usDataLen, CK_BYTE_PTR pDigest,
+                CK_ULONG_PTR pusDigestLen) {
+    return FC_Digest(hSession,pData,usDataLen,pDigest,pusDigestLen);
+}
+
+
+/* C_DigestUpdate continues a multiple-part message-digesting operation. */
+CK_RV C_DigestUpdate(CK_SESSION_HANDLE hSession,CK_BYTE_PTR pPart,
+                      CK_ULONG usPartLen) { 
+    return FC_DigestUpdate(hSession,pPart,usPartLen);
+}
+
+
+/* C_DigestFinal finishes a multiple-part message-digesting operation. */
+CK_RV C_DigestFinal(CK_SESSION_HANDLE hSession,CK_BYTE_PTR pDigest,
+                     CK_ULONG_PTR pusDigestLen) {
+    return FC_DigestFinal(hSession,pDigest,pusDigestLen);
+}
+
+
+/*
+ ************** Crypto Functions:     Sign  ************************
+ */
+
+/* C_SignInit initializes a signature (private key encryption) operation,
+ * where the signature is (will be) an appendix to the data,
+ * and plaintext cannot be recovered from the signature */
+CK_RV C_SignInit(CK_SESSION_HANDLE hSession,
+                  CK_MECHANISM_PTR pMechanism, CK_OBJECT_HANDLE hKey) {
+    return FC_SignInit(hSession,pMechanism,hKey);
+}
+
+
+/* C_Sign signs (encrypts with private key) data in a single part,
+ * where the signature is (will be) an appendix to the data,
+ * and plaintext cannot be recovered from the signature */
+CK_RV C_Sign(CK_SESSION_HANDLE hSession,
+              CK_BYTE_PTR pData,CK_ULONG usDataLen,CK_BYTE_PTR pSignature,
+              CK_ULONG_PTR pusSignatureLen) {
+    return FC_Sign(hSession,pData,usDataLen,pSignature,pusSignatureLen);
+}
+
+
+/* C_SignUpdate continues a multiple-part signature operation,
+ * where the signature is (will be) an appendix to the data,
+ * and plaintext cannot be recovered from the signature */
+CK_RV C_SignUpdate(CK_SESSION_HANDLE hSession,CK_BYTE_PTR pPart,
+                    CK_ULONG usPartLen) {
+    return FC_SignUpdate(hSession,pPart,usPartLen);
+}
+
+
+/* C_SignFinal finishes a multiple-part signature operation,
+ * returning the signature. */
+CK_RV C_SignFinal(CK_SESSION_HANDLE hSession,CK_BYTE_PTR pSignature,
+                   CK_ULONG_PTR pusSignatureLen) {
+    return FC_SignFinal(hSession,pSignature,pusSignatureLen);
+}
+
+/*
+ ************** Crypto Functions:     Sign Recover  ************************
+ */
+/* C_SignRecoverInit initializes a signature operation,
+ * where the (digest) data can be recovered from the signature.
+ * E.g. encryption with the user's private key */
+CK_RV C_SignRecoverInit(CK_SESSION_HANDLE hSession,
+                         CK_MECHANISM_PTR pMechanism,CK_OBJECT_HANDLE hKey) {
+    return FC_SignRecoverInit(hSession,pMechanism,hKey);
+}
+
+
+/* C_SignRecover signs data in a single operation
+ * where the (digest) data can be recovered from the signature.
+ * E.g. encryption with the user's private key */
+CK_RV C_SignRecover(CK_SESSION_HANDLE hSession, CK_BYTE_PTR pData,
+                     CK_ULONG usDataLen, CK_BYTE_PTR pSignature, CK_ULONG_PTR pusSignatureLen) {
+    return FC_SignRecover(hSession,pData,usDataLen,pSignature,pusSignatureLen);
+}
+
+/*
+ ************** Crypto Functions:     verify  ************************
+ */
+
+/* C_VerifyInit initializes a verification operation,
+ * where the signature is an appendix to the data,
+ * and plaintext cannot be recovered from the signature (e.g. DSA) */
+CK_RV C_VerifyInit(CK_SESSION_HANDLE hSession,
+                    CK_MECHANISM_PTR pMechanism,CK_OBJECT_HANDLE hKey) {
+    return FC_VerifyInit(hSession,pMechanism,hKey);
+}
+
+
+/* C_Verify verifies a signature in a single-part operation,
+ * where the signature is an appendix to the data,
+ * and plaintext cannot be recovered from the signature */
+CK_RV C_Verify(CK_SESSION_HANDLE hSession, CK_BYTE_PTR pData,
+                CK_ULONG usDataLen, CK_BYTE_PTR pSignature, CK_ULONG usSignatureLen) {
+    return FC_Verify(hSession,pData,usDataLen,pSignature,usSignatureLen);
+}
+
+
+/* C_VerifyUpdate continues a multiple-part verification operation,
+ * where the signature is an appendix to the data,
+ * and plaintext cannot be recovered from the signature */
+CK_RV C_VerifyUpdate( CK_SESSION_HANDLE hSession, CK_BYTE_PTR pPart,
+                      CK_ULONG usPartLen) {
+    return FC_VerifyUpdate(hSession,pPart,usPartLen);
+}
+
+
+/* C_VerifyFinal finishes a multiple-part verification operation,
+ * checking the signature. */
+CK_RV C_VerifyFinal(CK_SESSION_HANDLE hSession,
+                     CK_BYTE_PTR pSignature,CK_ULONG usSignatureLen) {
+    return FC_VerifyFinal(hSession,pSignature,usSignatureLen);
+}
+
+/*
+ ************** Crypto Functions:     Verify  Recover ************************
+ */
+
+/* C_VerifyRecoverInit initializes a signature verification operation,
+ * where the data is recovered from the signature.
+ * E.g. Decryption with the user's public key */
+CK_RV C_VerifyRecoverInit(CK_SESSION_HANDLE hSession,
+                           CK_MECHANISM_PTR pMechanism,CK_OBJECT_HANDLE hKey) {
+    return FC_VerifyRecoverInit(hSession,pMechanism,hKey);
+}
+
+
+/* C_VerifyRecover verifies a signature in a single-part operation,
+ * where the data is recovered from the signature.
+ * E.g. Decryption with the user's public key */
+CK_RV C_VerifyRecover(CK_SESSION_HANDLE hSession,
+                       CK_BYTE_PTR pSignature,CK_ULONG usSignatureLen,
+                       CK_BYTE_PTR pData,CK_ULONG_PTR pusDataLen) {
+    return FC_VerifyRecover(hSession,pSignature,usSignatureLen,pData,
+                             pusDataLen);
+}
+
+/*
+ **************************** Key Functions:  ************************
+ */
+
+/* C_GenerateKey generates a secret key, creating a new key object. */
+CK_RV C_GenerateKey(CK_SESSION_HANDLE hSession,
+                     CK_MECHANISM_PTR pMechanism,CK_ATTRIBUTE_PTR pTemplate,CK_ULONG ulCount,
+                     CK_OBJECT_HANDLE_PTR phKey) {
+    return FC_GenerateKey(hSession,pMechanism,pTemplate,ulCount,phKey);
+}
+
+
+/* C_GenerateKeyPair generates a public-key/private-key pair,
+ * creating new key objects. */
+CK_RV C_GenerateKeyPair (CK_SESSION_HANDLE hSession,
+                          CK_MECHANISM_PTR pMechanism, CK_ATTRIBUTE_PTR pPublicKeyTemplate,
+                          CK_ULONG usPublicKeyAttributeCount, CK_ATTRIBUTE_PTR pPrivateKeyTemplate,
+                          CK_ULONG usPrivateKeyAttributeCount, CK_OBJECT_HANDLE_PTR phPublicKey,
+                          CK_OBJECT_HANDLE_PTR phPrivateKey) {
+    return FC_GenerateKeyPair (hSession,pMechanism,pPublicKeyTemplate,
+                               usPublicKeyAttributeCount,pPrivateKeyTemplate,
+                               usPrivateKeyAttributeCount,phPublicKey,phPrivateKey);
+}
+
+
+/* C_WrapKey wraps (i.e., encrypts) a key. */
+CK_RV C_WrapKey(CK_SESSION_HANDLE hSession,
+                 CK_MECHANISM_PTR pMechanism, CK_OBJECT_HANDLE hWrappingKey,
+                 CK_OBJECT_HANDLE hKey, CK_BYTE_PTR pWrappedKey,
+                 CK_ULONG_PTR pulWrappedKeyLen) {
+    return FC_WrapKey(hSession,pMechanism,hWrappingKey,hKey,pWrappedKey,
+                     pulWrappedKeyLen);
+}
+
+
+/* C_UnwrapKey unwraps (decrypts) a wrapped key, creating a new key object. */
+CK_RV C_UnwrapKey(CK_SESSION_HANDLE hSession,
+                   CK_MECHANISM_PTR pMechanism, CK_OBJECT_HANDLE hUnwrappingKey,
+                   CK_BYTE_PTR pWrappedKey, CK_ULONG ulWrappedKeyLen,
+                   CK_ATTRIBUTE_PTR pTemplate, CK_ULONG ulAttributeCount,
+                   CK_OBJECT_HANDLE_PTR phKey) {
+    return FC_UnwrapKey(hSession,pMechanism,hUnwrappingKey,pWrappedKey,
+                       ulWrappedKeyLen,pTemplate,ulAttributeCount,phKey);
+}
+
+
+/* C_DeriveKey derives a key from a base key, creating a new key object. */
+CK_RV C_DeriveKey( CK_SESSION_HANDLE hSession,
+                   CK_MECHANISM_PTR pMechanism, CK_OBJECT_HANDLE hBaseKey,
+                   CK_ATTRIBUTE_PTR pTemplate, CK_ULONG ulAttributeCount,
+                   CK_OBJECT_HANDLE_PTR phKey) {
+    return FC_DeriveKey(hSession,pMechanism,hBaseKey,pTemplate,
+                       ulAttributeCount, phKey);
+}
+
+/*
+ **************************** Radom Functions:  ************************
+ */
+
+/* C_SeedRandom mixes additional seed material into the token's random number
+ * generator. */
+CK_RV C_SeedRandom(CK_SESSION_HANDLE hSession, CK_BYTE_PTR pSeed,
+                    CK_ULONG usSeedLen) {
+    return FC_SeedRandom(hSession,pSeed,usSeedLen);
+}
+
+
+/* C_GenerateRandom generates random data. */
+CK_RV C_GenerateRandom(CK_SESSION_HANDLE hSession,
+                        CK_BYTE_PTR	pRandomData, CK_ULONG ulRandomLen) {
+    return FC_GenerateRandom(hSession,pRandomData,ulRandomLen);
+}
+
+
+/* C_GetFunctionStatus obtains an updated status of a function running 
+ * in parallel with an application. */
+CK_RV C_GetFunctionStatus(CK_SESSION_HANDLE hSession) {
+    return FC_GetFunctionStatus(hSession);
+}
+
+
+/* C_CancelFunction cancels a function running in parallel */
+CK_RV C_CancelFunction(CK_SESSION_HANDLE hSession) {
+    return FC_CancelFunction(hSession);
+}
+
+/*
+ ****************************  Version 1.1 Functions:  ************************
+ */
+
+/* C_GetOperationState saves the state of the cryptographic 
+ *operation in a session. */
+CK_RV C_GetOperationState(CK_SESSION_HANDLE hSession, 
+                           CK_BYTE_PTR  pOperationState, CK_ULONG_PTR pulOperationStateLen) {
+    return FC_GetOperationState(hSession,pOperationState,pulOperationStateLen);
+}
+
+
+/* C_SetOperationState restores the state of the cryptographic operation 
+ * in a session. */
+CK_RV C_SetOperationState(CK_SESSION_HANDLE hSession, 
+                           CK_BYTE_PTR  pOperationState, CK_ULONG  ulOperationStateLen,
+                           CK_OBJECT_HANDLE hEncryptionKey, CK_OBJECT_HANDLE hAuthenticationKey) {
+    return FC_SetOperationState(hSession,pOperationState,ulOperationStateLen,
+                                 hEncryptionKey,hAuthenticationKey);
+}
+
+/* C_FindObjectsFinal finishes a search for token and session objects. */
+CK_RV C_FindObjectsFinal(CK_SESSION_HANDLE hSession) {
+    return FC_FindObjectsFinal(hSession);
+}
+
+
+/* Dual-function cryptographic operations */
+
+/* C_DigestEncryptUpdate continues a multiple-part digesting and encryption 
+ * operation. */
+CK_RV C_DigestEncryptUpdate(CK_SESSION_HANDLE hSession, CK_BYTE_PTR  pPart,
+                             CK_ULONG  ulPartLen, CK_BYTE_PTR  pEncryptedPart,
+                             CK_ULONG_PTR pulEncryptedPartLen) {
+    return FC_DigestEncryptUpdate(hSession,pPart,ulPartLen,pEncryptedPart,
+                                   pulEncryptedPartLen);
+}
+
+
+/* C_DecryptDigestUpdate continues a multiple-part decryption and digesting 
+ * operation. */
+CK_RV C_DecryptDigestUpdate(CK_SESSION_HANDLE hSession,
+                             CK_BYTE_PTR  pEncryptedPart, CK_ULONG  ulEncryptedPartLen,
+                             CK_BYTE_PTR  pPart, CK_ULONG_PTR pulPartLen) {
+    return FC_DecryptDigestUpdate(hSession, pEncryptedPart,ulEncryptedPartLen,
+                                   pPart,pulPartLen);
+}
+
+/* C_SignEncryptUpdate continues a multiple-part signing and encryption 
+ * operation. */
+CK_RV C_SignEncryptUpdate(CK_SESSION_HANDLE hSession, CK_BYTE_PTR  pPart,
+                           CK_ULONG  ulPartLen, CK_BYTE_PTR  pEncryptedPart,
+                           CK_ULONG_PTR pulEncryptedPartLen) {
+    return FC_SignEncryptUpdate(hSession,pPart,ulPartLen,pEncryptedPart,
+                                 pulEncryptedPartLen);
+}
+
+/* C_DecryptVerifyUpdate continues a multiple-part decryption and verify 
+ * operation. */
+CK_RV C_DecryptVerifyUpdate(CK_SESSION_HANDLE hSession, 
+                             CK_BYTE_PTR  pEncryptedData, CK_ULONG  ulEncryptedDataLen, 
+                             CK_BYTE_PTR  pData, CK_ULONG_PTR pulDataLen) {
+    return FC_DecryptVerifyUpdate(hSession,pEncryptedData,ulEncryptedDataLen, 
+                                   pData,pulDataLen);
+}
+
+
+/* C_DigestKey continues a multi-part message-digesting operation,
+ * by digesting the value of a secret key as part of the data already digested.
+ */
+CK_RV C_DigestKey(CK_SESSION_HANDLE hSession, CK_OBJECT_HANDLE hKey) {
+    return FC_DigestKey(hSession,hKey);
+}
+
+
+CK_RV C_WaitForSlotEvent(CK_FLAGS flags, CK_SLOT_ID_PTR pSlot,
+                          CK_VOID_PTR pReserved)
+{
+    return FC_WaitForSlotEvent(flags, pSlot, pReserved);
+}
+
+

@@ -1,0 +1,104 @@
+//
+//  LoanMainViewCtrl.m
+//  ApexiPhoneOpenAccount
+//
+//  Created by mac  on 14-5-6.
+//  Copyright (c) 2014年 mac . All rights reserved.
+//
+
+#import "LoanMainViewCtrl.h"
+#import "SJKHEngine.h"
+#import "UIImage+custom_.h"
+
+@interface LoanMainViewCtrl ()
+
+@end
+
+@implementation LoanMainViewCtrl
+
+- (id)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil
+{
+    self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil];
+    if (self) {
+        
+    }
+    return self;
+}
+
+- (void)viewDidLoad
+{
+    [super viewDidLoad];
+    
+    [self initTabbar];
+    
+    [self.navigationController setNavigationBarHidden:YES animated:NO];
+}
+
+- (void)initTabbar{
+    UIImage * tabbarImage = [[UIImage imageNamed:@"SmallLoanBundle.bundle/images/bg_menu"] imageByResizingToSize:CGSizeMake(screenWidth, self.tabBar.frame.size.height)];
+    [self.tabBar setBackgroundImage:tabbarImage];
+    
+    UIImage * image = nil;
+    UIImage * hightLightImage = nil;
+    NSMutableArray * ar = [NSMutableArray arrayWithObjects:@"jk",@"hk",@"me", nil];
+    
+    for (int i=0 ; i<self.viewControllers.count ; i++){
+        NSString * imageName = [NSString stringWithFormat:@"SmallLoanBundle.bundle/images/menu_%@_",[ar objectAtIndex:i]];
+        image = [UIImage imageNamed:[imageName stringByAppendingString:@"default"]];
+        image = [image imageByResizingToSize:CGSizeMake(image.size.width/3*2.0, image.size.height/3*2.0)];
+        
+        hightLightImage = [UIImage imageNamed:[imageName stringByAppendingString:@"active"]];
+        hightLightImage = [hightLightImage imageByResizingToSize:CGSizeMake(hightLightImage.size.width/3*2.0, hightLightImage.size.height/3*2.0)];
+        
+        UITabBarItem *item = ((UINavigationController *)[self.viewControllers objectAtIndex:i]).tabBarItem ;
+        
+        if([SJKHEngine Instance]->systemVersion >= 7){
+            hightLightImage = [hightLightImage imageWithRenderingMode:UIImageRenderingModeAlwaysOriginal];
+            [item setSelectedImage:hightLightImage];
+            [item setImage:image];
+        }
+        else {
+            [item setFinishedSelectedImage:hightLightImage withFinishedUnselectedImage:image];
+        }
+        
+        UIImage * im =[[UIImage imageNamed:@"SmallLoanBundle.bundle/images/bg_menu_active"] imageByResizingToSize: CGSizeMake(screenWidth/3,49)];
+        [self.tabBar setSelectionIndicatorImage:im];
+    }
+    
+    for(UITabBarItem *item in self.tabBar.items){
+        [item setTitleTextAttributes:@{
+                                       UITextAttributeTextColor:[UIColor whiteColor],
+                                       } forState:UIControlStateHighlighted];
+        [item setTitleTextAttributes:@{
+                                       UITextAttributeFont:[UIFont boldSystemFontOfSize:12]
+                                       } forState:UIControlStateNormal];
+        //        [item setImageInsets:UIEdgeInsetsMake(-3, 0, 3, 0)];
+        //        [item setTitlePositionAdjustment:UIOffsetMake(0, -2)];
+    }
+}
+
+- (void)viewDidAppear:(BOOL)animated{
+    //    self.tabBarItem
+    [super viewDidAppear:animated];
+}
+
+- (void)didReceiveMemoryWarning
+{
+    [super didReceiveMemoryWarning];
+}
+
+#pragma mark - Navigation
+// In a storyboard-based application, you will often want to do a little preparation before navigation
+- (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender
+{
+    // Get the new view controller using [segue destinationViewController].
+    // Pass the selected object to the new view controller.
+}
+
+- (void)dealloc{
+    self.viewControllers = nil;
+    NSLog(@"loadMain回收");
+}
+
+
+@end

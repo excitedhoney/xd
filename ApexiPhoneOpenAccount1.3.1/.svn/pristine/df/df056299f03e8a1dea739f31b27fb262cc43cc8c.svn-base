@@ -1,0 +1,1659 @@
+Index: certhigh/certvfy.c
+===================================================================
+--- certhigh/certvfy.c	(版本 235644)
++++ certhigh/certvfy.c	(工作副本)
+@@ -26,6 +26,9 @@
+ #include "pki3hack.h"
+ #include "base.h"
+ 
++
++extern unsigned int itrus_global_check_cert;
++
+ #ifdef NSS_DISABLE_LIBPKIX
+ SECStatus
+ cert_VerifyCertChainPkix(
+@@ -1345,9 +1348,12 @@
+ 	PORT_SetError(SEC_ERROR_INADEQUATE_KEY_USAGE);
+ 	LOG_ERROR_OR_EXIT(log,cert,0,requiredKeyUsage);
+     }
+-    if ( !( certType & requiredCertType ) ) {
+-	PORT_SetError(SEC_ERROR_INADEQUATE_CERT_TYPE);
+-	LOG_ERROR_OR_EXIT(log,cert,0,requiredCertType);
++    
++    if (itrus_global_check_cert) {
++        if ( !( certType & requiredCertType ) ) {
++            PORT_SetError(SEC_ERROR_INADEQUATE_CERT_TYPE);
++            LOG_ERROR_OR_EXIT(log,cert,0,requiredCertType);
++        }
+     }
+ 
+     rv = cert_CheckLeafTrust(cert,certUsage, &flags, &trusted);
+@@ -1358,11 +1364,12 @@
+ 	goto done;
+     }
+ 
+-
+-    rv = CERT_VerifyCertChain(handle, cert, checkSig, certUsage,
+-			      t, wincx, log);
+-    if (rv != SECSuccess) {
+-	EXIT_IF_NOT_LOGGING(log);
++    if (itrus_global_check_cert) {
++        rv = CERT_VerifyCertChain(handle, cert, checkSig, certUsage,
++                                  t, wincx, log);
++        if (rv != SECSuccess) {
++            EXIT_IF_NOT_LOGGING(log);
++        }
+     }
+ 
+     /*
+Index: cryptohi/sechash.c
+===================================================================
+--- cryptohi/sechash.c	(版本 235644)
++++ cryptohi/sechash.c	(工作副本)
+@@ -63,6 +63,11 @@
+ sha224_NewContext(void) {
+ 	return (void *) PK11_CreateDigestContext(SEC_OID_SHA224);
+ }
++//add by liqiangqiang from
++static void *
++sm3_NewContext(void) {
++	return (void *) PK11_CreateDigestContext(SEC_OID_SM3);
++}
+ 
+ static void *
+ sha256_NewContext(void) {
+@@ -168,6 +173,17 @@
+     SHA224_BLOCK_LENGTH,
+     HASH_AlgSHA224
+   },
++  { SM3_LENGTH,  //add by liqiangqiang from
++        (void * (*)(void)) sm3_NewContext,
++        (void * (*)(void *)) PK11_CloneContext,
++        (void (*)(void *, PRBool)) PK11_DestroyContext,
++        (void (*)(void *)) PK11_DigestBegin,
++        (void (*)(void *, const unsigned char *, unsigned int)) PK11_DigestOp,
++        (void (*)(void *, unsigned char *, unsigned int *, unsigned int))
++        PK11_DigestFinal,
++        SHA224_BLOCK_LENGTH,
++        HASH_AlgSM3
++  },
+ };
+ 
+ const SECHashObject * 
+@@ -189,7 +205,10 @@
+     case SEC_OID_SHA256: ht = HASH_AlgSHA256; break;
+     case SEC_OID_SHA384: ht = HASH_AlgSHA384; break;
+     case SEC_OID_SHA512: ht = HASH_AlgSHA512; break;
+-    default:             ht = HASH_AlgNULL;   
++            
++    case SEC_OID_SM3:    ht = HASH_AlgSM3; break;    //add by liqiangqiang 
++            
++    default:             ht = HASH_AlgNULL;
+ 	PORT_SetError(SEC_ERROR_INVALID_ALGORITHM);
+ 	break;
+     }
+@@ -209,7 +228,10 @@
+     case SEC_OID_HMAC_SHA256: hashOid = SEC_OID_SHA256; break;
+     case SEC_OID_HMAC_SHA384: hashOid = SEC_OID_SHA384; break;
+     case SEC_OID_HMAC_SHA512: hashOid = SEC_OID_SHA512; break;
+-    default:                  hashOid = SEC_OID_UNKNOWN;   
++            
++    case SEC_OID_HMAC_SM3: hashOid = SEC_OID_SM3; break;	//add by liqiangqiang
++    
++    default:                  hashOid = SEC_OID_UNKNOWN;
+ 	PORT_SetError(SEC_ERROR_INVALID_ALGORITHM);
+ 	break;
+     }
+@@ -229,6 +251,9 @@
+     case SEC_OID_SHA256: hmacOid = SEC_OID_HMAC_SHA256; break;
+     case SEC_OID_SHA384: hmacOid = SEC_OID_HMAC_SHA384; break;
+     case SEC_OID_SHA512: hmacOid = SEC_OID_HMAC_SHA512; break;
++    
++    case SEC_OID_SM3: hmacOid = SEC_OID_HMAC_SM3; break;		//add by liqiangqiang
++            
+     default:             hmacOid = SEC_OID_UNKNOWN;   
+ 	PORT_SetError(SEC_ERROR_INVALID_ALGORITHM);
+ 	break;
+Index: cryptohi/seckey.c
+===================================================================
+--- cryptohi/seckey.c	(版本 235644)
++++ cryptohi/seckey.c	(工作副本)
+@@ -751,6 +751,7 @@
+     case SEC_OID_ANSIX962_EC_PRIME239V3:
+ 	return 239;
+ 
++    case SEC_OID_EC_NIST_P256_SM2:   //add by liqiangqiang from
+     case SEC_OID_SECG_EC_SECP256K1:
+     case SEC_OID_ANSIX962_EC_PRIME256V1:
+ 	return 256;
+@@ -896,6 +897,7 @@
+     case SEC_OID_ANSIX962_EC_PRIME239V3:
+ 	return 239;
+ 
++    case SEC_OID_EC_NIST_P256_SM2:   //add by liqiangqiang from
+     case SEC_OID_SECG_EC_SECP256K1:
+     case SEC_OID_ANSIX962_EC_PRIME256V1:
+ 	return 256;
+Index: cryptohi/secsign.c
+===================================================================
+--- cryptohi/secsign.c	(版本 235644)
++++ cryptohi/secsign.c	(工作副本)
+@@ -456,6 +456,10 @@
+ 	    sigTag = SEC_OID_PKCS1_SHA384_WITH_RSA_ENCRYPTION;	break;
+ 	case SEC_OID_SHA512:
+ 	    sigTag = SEC_OID_PKCS1_SHA512_WITH_RSA_ENCRYPTION;	break;
++            
++        case SEC_OID_SM3:
++            sigTag = SEC_OID_PKCS1_SM3_WITH_RSA_ENCRYPTION;	break;  //add by liqiangqiang from
++            
+ 	default:
+ 	    break;
+ 	}
+@@ -469,6 +473,10 @@
+ 	    sigTag = SEC_OID_NIST_DSA_SIGNATURE_WITH_SHA224_DIGEST; break;
+ 	case SEC_OID_SHA256:
+ 	    sigTag = SEC_OID_NIST_DSA_SIGNATURE_WITH_SHA256_DIGEST; break;
++            
++        case SEC_OID_SM3:
++            sigTag = SEC_OID_NIST_DSA_SIGNATURE_WITH_SM3_DIGEST; break;  //add by liqiangqiang from
++            
+ 	default:
+ 	    break;
+ 	}
+@@ -486,6 +494,10 @@
+             sigTag = SEC_OID_ANSIX962_ECDSA_SHA384_SIGNATURE; break;
+ 	case SEC_OID_SHA512:
+             sigTag = SEC_OID_ANSIX962_ECDSA_SHA512_SIGNATURE; break;
++            
++
++        case SEC_OID_SM3:
++            sigTag = SEC_OID_ANSIX962_ECDSA_SM3_SIGNATURE; break;  //add by liqiangqiang from
+ 	default:
+ 	break;
+ 	}
+Index: cryptohi/secvfy.c
+===================================================================
+--- cryptohi/secvfy.c	(版本 235644)
++++ cryptohi/secvfy.c	(工作副本)
+@@ -190,6 +190,15 @@
+     PR_ASSERT(encalg!=NULL);
+ 
+     switch (sigAlg) {
++            
++            //add by liqiangqiang from
++        case SEC_OID_ANSIX962_ECDSA_SM3_SIGNATURE:
++        case SEC_OID_PKCS1_SM3_WITH_RSA_ENCRYPTION:
++        case SEC_OID_NIST_DSA_SIGNATURE_WITH_SM3_DIGEST:
++            *hashalg = SEC_OID_SM3;
++            break;
++            //add by liqiangqiang to
++
+       /* We probably shouldn't be generating MD2 signatures either */
+       case SEC_OID_PKCS1_MD2_WITH_RSA_ENCRYPTION:
+         *hashalg = SEC_OID_MD2;
+Index: freebl/blapi.h
+===================================================================
+--- freebl/blapi.h	(版本 235644)
++++ freebl/blapi.h	(工作副本)
+@@ -1230,6 +1230,174 @@
+ extern SHA384Context * SHA384_Resurrect(unsigned char *space, void *arg);
+ extern void SHA384_Clone(SHA384Context *dest, SHA384Context *src);
+ 
++
++/******************************************/
++
++//add by liqiangqiang from
++/******************************************/
++/*
++ ** SM4 symmetric block cypher
++ */
++
++/*
++ ** Create a new SM4 context suitable for SM4 encryption/decryption.
++ ** 	"key" raw key data
++ ** 	"len" the number of bytes of key data
++ ** 	"iv" is the CBC initialization vector (if mode is NSS_SM4 or
++ ** 	   mode is NSS_SM4_CBC)
++ ** 	"mode" one of NSS_SM4 or NSS_SM4_CBC
++ **	"encrypt" is PR_TRUE if the context will be used for encryption
++ **
++ ** When mode is set to NSS_SM4_CBC then the SM4
++ ** cipher is run in "cipher block chaining" mode.
++ */
++extern SM4Context *SM4_CreateContext(const unsigned char *key,
++                                     const unsigned char *iv,
++                                     int mode, PRBool encrypt);
++extern SM4Context *SM4_AllocateContext(void);
++extern SECStatus   SM4_InitContext(SM4Context *cx,
++                                   const unsigned char *key,
++                                   unsigned int keylen,
++                                   const unsigned char *iv,
++                                   int mode,
++                                   unsigned int encrypt,
++                                   unsigned int );
++
++/*
++ ** Destroy an SM4 encryption/decryption context.
++ **	"cx" the context
++ **	"freeit" if PR_TRUE then free the object as well as its sub-objects
++ */
++extern void SM4_DestroyContext(SM4Context *cx, PRBool freeit);
++
++/*
++ ** Perform SM4 encryption.
++ **	"cx" the context
++ **	"output" the output buffer to store the encrypted data.
++ **	"outputLen" how much data is stored in "output". Set by the routine
++ **	   after some data is stored in output.
++ **	"maxOutputLen" the maximum amount of data that can ever be
++ **	   stored in "output"
++ **	"input" the input data
++ **	"inputLen" the amount of input data
++ **
++ ** NOTE: the inputLen must be a multiple of SM4_KEY_LENGTH
++ */
++extern SECStatus SM4_Encrypt(SM4Context *cx, unsigned char *output,
++                             unsigned int *outputLen, unsigned int maxOutputLen,
++                             const unsigned char *input, unsigned int inputLen);
++
++/*
++ ** Perform SM4 decryption.
++ **	"cx" the context
++ **	"output" the output buffer to store the decrypted data.
++ **	"outputLen" how much data is stored in "output". Set by the routine
++ **	   after some data is stored in output.
++ **	"maxOutputLen" the maximum amount of data that can ever be
++ **	   stored in "output"
++ **	"input" the input data
++ **	"inputLen" the amount of input data
++ **
++ ** NOTE: the inputLen must be a multiple of SM4_KEY_LENGTH
++ */
++extern SECStatus SM4_Decrypt(SM4Context *cx, unsigned char *output,
++                             unsigned int *outputLen, unsigned int maxOutputLen,
++                             const unsigned char *input, unsigned int inputLen);
++
++
++/******************************************/
++/*
++ ** SM1 symmetric block cypher
++ */
++
++/*
++ ** Create a new SM1 context suitable for SM1 encryption/decryption.
++ ** 	"key" raw key data
++ ** 	"len" the number of bytes of key data
++ ** 	"iv" is the CBC initialization vector (if mode is NSS_SM1 or
++ ** 	   mode is NSS_SM1_CBC)
++ ** 	"mode" one of NSS_SM1 or NSS_SM1_CBC
++ **	"encrypt" is PR_TRUE if the context will be used for encryption
++ **
++ ** When mode is set to NSS_SM1_CBC then the SM1
++ ** cipher is run in "cipher block chaining" mode.
++ */
++extern SM1Context *SM1_CreateContext(const unsigned char *key,
++                                     const unsigned char *iv,
++                                     int mode, PRBool encrypt);
++extern SM1Context *SM1_AllocateContext(void);
++extern SECStatus   SM1_InitContext(SM1Context *cx,
++                                   const unsigned char *key,
++                                   unsigned int keylen,
++                                   const unsigned char *iv,
++                                   int mode,
++                                   unsigned int encrypt,
++                                   unsigned int );
++
++/*
++ ** Destroy an SM1 encryption/decryption context.
++ **	"cx" the context
++ **	"freeit" if PR_TRUE then free the object as well as its sub-objects
++ */
++extern void SM1_DestroyContext(SM1Context *cx, PRBool freeit);
++
++/*
++ ** Perform SM1 encryption.
++ **	"cx" the context
++ **	"output" the output buffer to store the encrypted data.
++ **	"outputLen" how much data is stored in "output". Set by the routine
++ **	   after some data is stored in output.
++ **	"maxOutputLen" the maximum amount of data that can ever be
++ **	   stored in "output"
++ **	"input" the input data
++ **	"inputLen" the amount of input data
++ **
++ ** NOTE: the inputLen must be a multiple of SM1_KEY_LENGTH
++ */
++extern SECStatus SM1_Encrypt(SM1Context *cx, unsigned char *output,
++                             unsigned int *outputLen, unsigned int maxOutputLen,
++                             const unsigned char *input, unsigned int inputLen);
++
++/*
++ ** Perform SM1 decryption.
++ **	"cx" the context
++ **	"output" the output buffer to store the decrypted data.
++ **	"outputLen" how much data is stored in "output". Set by the routine
++ **	   after some data is stored in output.
++ **	"maxOutputLen" the maximum amount of data that can ever be
++ **	   stored in "output"
++ **	"input" the input data
++ **	"inputLen" the amount of input data
++ **
++ ** NOTE: the inputLen must be a multiple of SM1_KEY_LENGTH
++ */
++extern SECStatus SM1_Decrypt(SM1Context *cx, unsigned char *output,
++                             unsigned int *outputLen, unsigned int maxOutputLen,
++                             const unsigned char *input, unsigned int inputLen);
++//add by liqiangqiang to
++
++
++
++//add by liqiangqiang from
++extern SM3Context *SM3_NewContext(void);
++extern void SM3_DestroyContext(SM3Context *cx, PRBool freeit);
++extern void SM3_Begin(SM3Context *cx);
++extern void SM3_Update(SM3Context *cx, const unsigned char *input,
++                          unsigned int inputLen);
++extern void SM3_End(SM3Context *cx, unsigned char *digest,
++                       unsigned int *digestLen, unsigned int maxDigestLen);
++extern void SM3_EndRaw(SM3Context *cx, unsigned char *digest,
++                          unsigned int *digestLen, unsigned int maxDigestLen);
++extern SECStatus SM3_HashBuf(unsigned char *dest, const unsigned char *src,
++                                PRUint32 src_length);
++extern SECStatus SM3_Hash(unsigned char *dest, const char *src);
++extern void SM3_TraceState(SM3Context *cx);
++extern unsigned int SM3_FlattenSize(SM3Context *cx);
++extern SECStatus SM3_Flatten(SM3Context *cx,unsigned char *space);
++extern SM3Context * SM3_Resurrect(unsigned char *space, void *arg);
++extern void SM3_Clone(SM3Context *dest, SM3Context *src);
++//add by liqiangqiang to
++
+ /****************************************
+  * implement TLS 1.0 Pseudo Random Function (PRF) and TLS P_hash function
+  */
+Index: freebl/blapit.h
+===================================================================
+--- freebl/blapit.h	(版本 235644)
++++ freebl/blapit.h	(工作副本)
+@@ -224,6 +224,30 @@
+ struct SEEDContextStr       ;	
+ struct ChaCha20Poly1305ContextStr;
+ 
++
++
++//add by liqiangqiang from
++/* SM4 operation modes */
++#define NSS_SM4			0
++#define NSS_SM4_CBC		1
++
++#define NSS_SM1			0
++#define NSS_SM1_CBC		1
++
++#define SM3_LENGTH 			    32 	/* bytes */			
++#define SM3_BLOCK_LENGTH 		64 	/* bytes */		
++
++struct SM4ContextStr        ;		
++struct SM3ContextStr		;		
++struct SM1ContextStr        ;
++
++typedef struct SM4ContextStr        SM4Context;
++typedef struct SM1ContextStr        SM1Context;
++typedef struct SM3ContextStr		SM3Context;		
++
++//add by liqiangqiang to
++
++
+ typedef struct DESContextStr        DESContext;
+ typedef struct RC2ContextStr        RC2Context;
+ typedef struct RC4ContextStr        RC4Context;
+Index: freebl/ecl/ecl-curve.h
+===================================================================
+--- freebl/ecl/ecl-curve.h	(版本 235644)
++++ freebl/ecl/ecl-curve.h	(工作副本)
+@@ -21,7 +21,17 @@
+ 	"4FE342E2FE1A7F9B8EE7EB4A7C0F9E162BCE33576B315ECECBB6406837BF51F5",
+ 	"FFFFFFFF00000000FFFFFFFFFFFFFFFFBCE6FAADA7179E84F3B9CAC2FC632551", 1
+ };
+-
++//add by liqiangqiang from
++static const ECCurveParams ecCurve_NIST_P256_SM2 = {
++	"NIST_P256_SM2", ECField_GFp, 256,
++	"FFFFFFFEFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF00000000FFFFFFFFFFFFFFFF",
++	"FFFFFFFEFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF00000000FFFFFFFFFFFFFFFC",
++	"28E9FA9E9D9F5E344D5A9E4BCF6509A7F39789F515AB8F92DDBCBD414D940E93",
++	"32C4AE2C1F1981195F9904466A39C9948FE30BBFF2660BE1715A4589334C74C7",
++	"BC3736A2F4F6779C59BDCEE36B692153D0A9877CC62A474002DF32E52139F0A0",
++	"FFFFFFFEFFFFFFFFFFFFFFFFFFFFFFFF7203DF6B21C6052B53BBF40939D54123", 1
++};
++//add by liqiangqiang to
+ static const ECCurveParams ecCurve_NIST_P384 = {
+ 	"NIST-P384", ECField_GFp, 384,
+ 	"FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFEFFFFFFFF0000000000000000FFFFFFFF",
+@@ -104,6 +114,7 @@
+ 	NULL,			/* ECCurve_WTLS_1 */
+ 	NULL,			/* ECCurve_WTLS_8 */
+ 	NULL,			/* ECCurve_WTLS_9 */
++    &ecCurve_NIST_P256_SM2,   /* ECCurve_NIST_P256_SM2 */   //add by liqiangqiang from
+ 	NULL			/* ECCurve_pastLastCurve */
+ };
+ 
+Index: freebl/ecl/ecl-exp.h
+===================================================================
+--- freebl/ecl/ecl-exp.h	(版本 235644)
++++ freebl/ecl/ecl-exp.h	(工作副本)
+@@ -128,6 +128,7 @@
+ 	/* ECCurve_WTLS_11 == ECCurve_NIST_B233 */
+ 	/* ECCurve_WTLS_12 == ECCurve_NIST_P224 */
+ 
++    ECCurve_NIST_P256_SM2,   //add by liqiangqiang from
+ 	ECCurve_pastLastCurve
+ } ECCurveName;
+ 
+Index: freebl/rawhash.c
+===================================================================
+--- freebl/rawhash.c	(版本 235644)
++++ freebl/rawhash.c	(工作副本)
+@@ -148,6 +148,24 @@
+     (void (*)(void *, unsigned char *, unsigned int *,
+ 	      unsigned int)) SHA224_EndRaw
+   },
++
++    
++    ///add by liqiangqiang from
++    { SM3_LENGTH,
++        (void * (*)(void)) SM3_NewContext,
++        (void * (*)(void *)) null_hash_clone_context,
++        (void (*)(void *, PRBool)) SM3_DestroyContext,
++        (void (*)(void *)) SM3_Begin,
++        (void (*)(void *, const unsigned char *, unsigned int)) SM3_Update,
++        (void (*)(void *, unsigned char *, unsigned int *,
++                  unsigned int)) SM3_End,
++        SM3_BLOCK_LENGTH,
++        HASH_AlgSM3,
++        (void (*)(void *, unsigned char *, unsigned int *,
++                  unsigned int)) SM3_EndRaw
++    },
++    //add by liqiangqiang to
++
+ };
+ 
+ const SECHashObject *
+Index: pk11wrap/pk11akey.c
+===================================================================
+--- pk11wrap/pk11akey.c	(版本 235644)
++++ pk11wrap/pk11akey.c	(工作副本)
+@@ -317,6 +317,7 @@
+ 	return 61; /*curve len in bytes = 30 bytes */
+     case SEC_OID_ANSIX962_EC_PRIME256V1:
+     case SEC_OID_SECG_EC_SECP256K1:
++           case SEC_OID_EC_NIST_P256_SM2:    //add by liqiangqiang
+ 	return 65; /*curve len in bytes = 32 bytes */
+     case SEC_OID_ANSIX962_EC_C2PNB272W1:
+ 	return 69; /*curve len in bytes = 34 bytes */
+Index: pk11wrap/pk11mech.c
+===================================================================
+--- pk11wrap/pk11mech.c	(版本 235644)
++++ pk11wrap/pk11mech.c	(工作副本)
+@@ -59,6 +59,7 @@
+     CKM_RC2_ECB,
+     CKM_CDMF_ECB,
+     CKM_SKIPJACK_WRAP,
++    CKM_SM4_ECB,   //add by liqiangqiang from
+ };
+ 
+ int wrapMechanismCount = sizeof(wrapMechanismList)/sizeof(wrapMechanismList[0]);
+@@ -236,6 +237,26 @@
+     case CKM_NETSCAPE_AES_KEY_WRAP:
+     case CKM_NETSCAPE_AES_KEY_WRAP_PAD:
+ 	return CKK_AES;
++            
++            
++            //add by liqiangqiang from
++        case CKM_SM4_ECB:
++        case CKM_SM4_CBC:
++        case CKM_SM4_MAC:
++        case CKM_SM4_MAC_GENERAL:
++        case CKM_SM4_CBC_PAD:
++        case CKM_SM4_KEY_GEN:
++            return CKK_SM4;
++        case CKM_SM1_ECB:
++        case CKM_SM1_CBC:
++        case CKM_SM1_MAC:
++        case CKM_SM1_MAC_GENERAL:
++        case CKM_SM1_CBC_PAD:
++        case CKM_SM1_KEY_GEN:
++            return CKK_SM1;
++            //add by liqiangqiang to
++
++            
+     case CKM_DES_ECB:
+     case CKM_DES_CBC:
+     case CKM_DES_MAC:
+@@ -372,6 +393,9 @@
+ 	return CKK_EC;  /* CKK_ECDSA is deprecated */
+     case CKM_SSL3_PRE_MASTER_KEY_GEN:
+     case CKM_GENERIC_SECRET_KEY_GEN:
++            
++        case CKM_SSL3_SM3_MAC:   //add by liqiangqiang from
++            
+     case CKM_SSL3_MASTER_KEY_DERIVE:
+     case CKM_SSL3_MASTER_KEY_DERIVE_DH:
+     case CKM_SSL3_KEY_AND_MAC_DERIVE:
+@@ -385,6 +409,10 @@
+     case CKM_NSS_TLS_KEY_AND_MAC_DERIVE_SHA256:
+     case CKM_SHA_1_HMAC:
+     case CKM_SHA_1_HMAC_GENERAL:
++            
++        case CKM_SM3_HMAC:  //add by liqiangqiang from
++        case CKM_SM3_HMAC_GENERAL:  //add by liqiangqiang from
++            
+     case CKM_SHA224_HMAC:
+     case CKM_SHA224_HMAC_GENERAL:
+     case CKM_SHA256_HMAC:
+@@ -433,8 +461,6 @@
+     case CKM_CAMELLIA_CBC_PAD:
+     case CKM_CAMELLIA_KEY_GEN:
+ 	return CKM_CAMELLIA_KEY_GEN;
+-    case CKM_NSS_CHACHA20_POLY1305:
+-	return CKM_NSS_CHACHA20_KEY_GEN;
+     case CKM_AES_ECB:
+     case CKM_AES_CBC:
+     case CKM_AES_CCM:
+@@ -576,6 +602,7 @@
+     case CKM_SSL3_KEY_AND_MAC_DERIVE:
+     case CKM_SSL3_SHA1_MAC:
+     case CKM_SSL3_MD5_MAC:
++            case CKM_SSL3_SM3_MAC:  //add by liqiangqiang from
+     case CKM_TLS_MASTER_KEY_DERIVE:
+     case CKM_TLS_KEY_AND_MAC_DERIVE:
+     case CKM_NSS_TLS_KEY_AND_MAC_DERIVE_SHA256:
+@@ -582,6 +609,10 @@
+ 	return CKM_SSL3_PRE_MASTER_KEY_GEN;
+     case CKM_SHA_1_HMAC:
+     case CKM_SHA_1_HMAC_GENERAL:
++            
++        case CKM_SM3_HMAC:  //add by liqiangqiang from
++        case CKM_SM3_HMAC_GENERAL:  //add by liqiangqiang from
++            
+     case CKM_SHA224_HMAC:
+     case CKM_SHA224_HMAC_GENERAL:
+     case CKM_SHA256_HMAC:
+@@ -596,6 +627,9 @@
+     case CKM_MD5_HMAC_GENERAL:
+     case CKM_TLS_PRF_GENERAL:
+     case CKM_NSS_TLS_PRF_GENERAL_SHA256:
++            
++            case CKM_NSS_TLS_PRF_GENERAL_SM3:		//add by liqiangqiang
++            
+     case CKM_GENERIC_SECRET_KEY_GEN:
+ 	return CKM_GENERIC_SECRET_KEY_GEN;
+     case CKM_PBE_MD2_DES_CBC:
+@@ -619,6 +653,11 @@
+     case CKM_PBE_SHA1_DES2_EDE_CBC:
+     case CKM_PKCS5_PBKD2:
+     	return type;
++        //add by liqiangqiang from
++        case CKM_SM4_ECB:
++        case CKM_SM4_CBC:
++        case CKM_SM4_KEY_GEN:
++            return CKM_SM4_KEY_GEN;
+     default:
+ 	return pk11_lookup(type)->keyGen;
+     }
+@@ -718,6 +757,10 @@
+     case CKM_RSA_X_509:
+ 	/*actually it's the modulus length of the key!*/
+ 	return -1;	/* failure */
++            //add by liqiangqiang from
++            case CKM_SM4_CBC:
++            case CKM_SM4_ECB:
++            return 16;
+     default:
+ 	return pk11_lookup(type)->blockSize;
+     }
+@@ -805,6 +848,9 @@
+     case CKM_PBE_SHA1_RC4_40:
+     case CKM_PBE_SHA1_RC4_128:
+ 	return 0;
++        case CKM_SM4_CBC://add by liqiangqiang from
++        case CKM_SM4_ECB:
++            return 16;
+     default:
+ 	return pk11_lookup(type)->iv;
+     }
+@@ -844,6 +890,10 @@
+     case CKM_CAST3_ECB:
+     case CKM_CAST5_ECB:
+     case CKM_RC4:
++            
++
++        case CKM_SM4_ECB://add by liqiangqiang from
++
+ 	break;
+     case CKM_RC2_ECB:
+ 	rc2_ecb_params = (CK_RC2_PARAMS *)PORT_Alloc(sizeof(CK_RC2_PARAMS));
+@@ -932,6 +982,7 @@
+     case CKM_JUNIPER_CBC128:
+     case CKM_JUNIPER_COUNTER:
+     case CKM_JUNIPER_SHUFFLE:
++                    case CKM_SM4_CBC: //add by liqiangqiang from
+ 	if ((iv == NULL) || (iv->data == NULL)) break;
+ 	param->data = (unsigned char*)PORT_Alloc(iv->len);
+ 	if (param->data != NULL) {
+@@ -989,6 +1040,7 @@
+     case CKM_CAST3_ECB:
+     case CKM_CAST5_ECB:
+     case CKM_RC4:
++                    case CKM_SM4_ECB: //add by liqiangqiang from
+ 	return NULL;
+     case CKM_RC2_ECB:
+ 	return NULL;
+@@ -1037,6 +1089,7 @@
+     case CKM_JUNIPER_CBC128:
+     case CKM_JUNIPER_COUNTER:
+     case CKM_JUNIPER_SHUFFLE:
++            case CKM_SM4_CBC:  //add by liqiangqiang from
+ 	break;
+      /* unknown mechanism, pass IV in if it's there */
+      default:
+@@ -1272,7 +1325,8 @@
+     case CKM_CAST_ECB:
+     case CKM_CAST3_ECB:
+     case CKM_CAST5_ECB:
+-	break;
++            case CKM_SM4_ECB:  //add by liqiangqiang from
++	break;  
+ 
+     default:
+ 	if (pk11_lookup(type)->iv == 0) {
+@@ -1315,6 +1369,7 @@
+     case CKM_JUNIPER_CBC128:
+     case CKM_JUNIPER_COUNTER:
+     case CKM_JUNIPER_SHUFFLE:
++            case CKM_SM4_CBC:  //add by liqiangqiang from
+ 	/* simple cases are simply octet string encoded IVs */
+ 	rv = SEC_ASN1DecodeItem(arena, &iv,
+                                 SEC_ASN1_GET(SEC_OctetStringTemplate),
+@@ -1402,6 +1457,7 @@
+     case CKM_CAST_ECB:
+     case CKM_CAST3_ECB:
+     case CKM_CAST5_ECB:
++            case CKM_SM4_ECB:  //add by liqiangqiang from
+ 	mech->data = NULL;
+ 	mech->len = 0;
+ 	break;
+@@ -1488,6 +1544,7 @@
+     case CKM_JUNIPER_CBC128:
+     case CKM_JUNIPER_COUNTER:
+     case CKM_JUNIPER_SHUFFLE:
++            case CKM_SM4_CBC:  //add by liqiangqiang from
+ 	rv = pk11_GenIV(type,&iv);
+ 	if (rv != SECSuccess) {
+ 	    break;
+@@ -1546,6 +1603,7 @@
+     case CKM_CAST_ECB:
+     case CKM_CAST3_ECB:
+     case CKM_CAST5_ECB:
++            case CKM_SM4_ECB:  //add by liqiangqiang from
+ 	newParams = NULL;
+ 	rv = SECSuccess;
+ 	break;
+@@ -1652,6 +1710,7 @@
+     case CKM_JUNIPER_CBC128:
+     case CKM_JUNIPER_COUNTER:
+     case CKM_JUNIPER_SHUFFLE:
++            case CKM_SM4_CBC:  //add by liqiangqiang from
+ 	newParams = SEC_ASN1EncodeItem(NULL,NULL,param,
+                                        SEC_ASN1_GET(SEC_OctetStringTemplate) );
+ 	if (newParams == NULL)
+Index: pk11wrap/pk11slot.c
+===================================================================
+--- pk11wrap/pk11slot.c	(版本 235644)
++++ pk11wrap/pk11slot.c	(工作副本)
+@@ -41,6 +41,7 @@
+ 	{ "SEED", SECMOD_SEED_FLAG, CKM_SEED_CBC },
+ 	{ "RC5", SECMOD_RC5_FLAG, CKM_RC5_CBC },
+ 	{ "SHA-1", SECMOD_SHA1_FLAG, CKM_SHA_1 },
++    { "SM3", SECMOD_SM3_FLAG, CKM_SM3 },   //add by liqiangqiang from
+ /*	{ "SHA224", SECMOD_SHA256_FLAG, CKM_SHA224 }, */
+ 	{ "SHA256", SECMOD_SHA256_FLAG, CKM_SHA256 },
+ /*	{ "SHA384", SECMOD_SHA512_FLAG, CKM_SHA384 }, */
+@@ -89,6 +90,8 @@
+     pk11_tlsSlotList,
+     pk11_randomSlotList,
+     pk11_sha256SlotList,
++    pk11_sm3SlotList,   //add by liqiangqiang from
++    pk11_sm4SlotList,  //add by liqiangqiang from
+     pk11_sha512SlotList;	/* slots do SHA512 and SHA384 */
+ 
+ /************************************************************
+@@ -786,6 +789,8 @@
+     pk11_InitSlotListStatic(&pk11_tlsSlotList);
+     pk11_InitSlotListStatic(&pk11_randomSlotList);
+     pk11_InitSlotListStatic(&pk11_sha256SlotList);
++    pk11_InitSlotListStatic(&pk11_sm3SlotList);   //add by liqiangqiang from
++    pk11_InitSlotListStatic(&pk11_sm4SlotList);
+     pk11_InitSlotListStatic(&pk11_sha512SlotList);
+     return SECSuccess;
+ }
+@@ -812,6 +817,8 @@
+     pk11_FreeSlotListStatic(&pk11_tlsSlotList);
+     pk11_FreeSlotListStatic(&pk11_randomSlotList);
+     pk11_FreeSlotListStatic(&pk11_sha256SlotList);
++    pk11_FreeSlotListStatic(&pk11_sm3SlotList);   //add by liqiangqiang from
++    pk11_FreeSlotListStatic(&pk11_sm4SlotList);   //add by liqiangqiang from
+     pk11_FreeSlotListStatic(&pk11_sha512SlotList);
+     return;
+ }
+@@ -839,6 +846,10 @@
+     case CKM_AES_GCM:
+     case CKM_AES_ECB:
+ 	return &pk11_aesSlotList;
++            case CKM_SM4_ECB://add by liqiangqiang from
++            case CKM_SM4_CBC://add by liqiangqiang from
++            
++            return &pk11_sm4SlotList;
+     case CKM_DES_CBC:
+     case CKM_DES_ECB:
+     case CKM_DES3_ECB:
+@@ -853,6 +864,10 @@
+     case CKM_SHA224:
+     case CKM_SHA256:
+ 	return &pk11_sha256SlotList;
++            
++        case CKM_SM3:
++            return &pk11_sm3SlotList;   //add by liqiangqiang from
++            
+     case CKM_SHA384:
+     case CKM_SHA512:
+ 	return &pk11_sha512SlotList;
+@@ -881,6 +896,9 @@
+     case CKM_SSL3_MASTER_KEY_DERIVE:
+     case CKM_SSL3_SHA1_MAC:
+     case CKM_SSL3_MD5_MAC:
++            
++        case CKM_SSL3_SM3_MAC:   //add by liqiangqiang from
++
+ 	return &pk11_sslSlotList;
+     case CKM_TLS_MASTER_KEY_DERIVE:
+     case CKM_TLS_KEY_AND_MAC_DERIVE:
+@@ -2069,7 +2087,7 @@
+ 	if ((type[i] != CKM_FAKE_RANDOM) && 
+ 	    (type[i] != CKM_SHA_1) &&
+ 	    (type[i] != CKM_SHA224) &&
+-	    (type[i] != CKM_SHA256) &&
++	    (type[i] != CKM_SHA256) && (type[i] != CKM_SM3) &&  //add by liqiangqiang from
+ 	    (type[i] != CKM_SHA384) &&
+ 	    (type[i] != CKM_SHA512) &&
+ 	    (type[i] != CKM_MD5) && 
+Index: pk11wrap/secmodt.h
+===================================================================
+--- pk11wrap/secmodt.h	(版本 235644)
++++ pk11wrap/secmodt.h	(工作副本)
+@@ -280,7 +280,7 @@
+ #define SECMOD_FIPS	2	/* internal fips module */
+ 
+ /* default module configuration strings */
+-#define SECMOD_SLOT_FLAGS "slotFlags=[RSA,DSA,DH,RC2,RC4,DES,RANDOM,SHA1,MD5,MD2,SSL,TLS,AES,Camellia,SEED,SHA256,SHA512]"
++#define SECMOD_SLOT_FLAGS "slotFlags=[RSA,DSA,DH,RC2,RC4,DES,RANDOM,SHA1,MD5,MD2,SSL,TLS,AES,Camellia,SEED,SHA256,SHA512,SM3]"//add by liqiangqiang from
+ 
+ #define SECMOD_MAKE_NSS_FLAGS(fips,slot) \
+ "Flags=internal,critical" fips " slotparams=(" #slot "={" SECMOD_SLOT_FLAGS "})"
+Index: softoken/ecdecode.c
+===================================================================
+--- softoken/ecdecode.c	(版本 235644)
++++ softoken/ecdecode.c	(工作副本)
+@@ -552,6 +552,15 @@
+ 	CHECK_SEC_OK( gf_populate_params(ECCurve_SECG_PRIME_521R1, ec_field_GFp,
+ 	    params) );
+ 	break;
++            //add by liqiangqiang from
++    case SEC_OID_EC_NIST_P256_SM2:
++        /* Populate params for prime256v1 aka secp256r1
++            * (the NIST P-256 curve)
++            */
++        CHECK_SEC_OK( gf_populate_params(ECCurve_NIST_P256_SM2, ec_field_GFp,
++                                            params) );
++        break;
++            //add by liqiangqiang to
+ 
+     default:
+ 	break;
+Index: softoken/fipstest.c
+===================================================================
+--- softoken/fipstest.c	(版本 235644)
++++ softoken/fipstest.c	(工作副本)
+@@ -1094,6 +1094,18 @@
+         }
+         shaLength = SHA256_LENGTH;
+         shaOid = SEC_OID_SHA256;
++        
++        
++        //add by liqiangqiang from
++    }else if (shaAlg == HASH_AlgSM3) {
++        if (SM3_HashBuf(sha, rsa_known_msg, rsa_kmsg_length)
++            != SECSuccess) {
++            goto loser;
++        }
++        shaLength = SM3_LENGTH;
++        shaOid = SEC_OID_SM3;
++        //add by liqiangqiang to
++        
+     } else if (shaAlg == HASH_AlgSHA384) {
+         if (SHA384_HashBuf(sha, rsa_known_msg, rsa_kmsg_length)
+                             != SECSuccess) {
+Index: softoken/lowpbe.c
+===================================================================
+--- softoken/lowpbe.c	(版本 235644)
++++ softoken/lowpbe.c	(工作副本)
+@@ -793,13 +793,15 @@
+     	return HASH_AlgSHA1;
+     case SEC_OID_HMAC_SHA256:
+     	return HASH_AlgSHA256;
+-    case SEC_OID_HMAC_SHA384:
+-    	return HASH_AlgSHA384;
+-    case SEC_OID_HMAC_SHA512:
+-    	return HASH_AlgSHA512;
+-    case SEC_OID_HMAC_SHA224:
+-    default:
+-	break;
++        case SEC_OID_HMAC_SM3:	//add by liqiangqiang
++            return HASH_AlgSM3;   //add by liqiangqiang
++        case SEC_OID_HMAC_SHA384:
++            return HASH_AlgSHA384;
++        case SEC_OID_HMAC_SHA512:
++            return HASH_AlgSHA512;
++        case SEC_OID_HMAC_SHA224:
++        default:
++            break;
+     }
+     return HASH_AlgNULL;
+ }
+Index: softoken/pkcs11.c
+===================================================================
+--- softoken/pkcs11.c	(版本 235644)
++++ softoken/pkcs11.c	(工作副本)
+@@ -65,9 +65,9 @@
+  */
+ 
+ /* The next three strings must be exactly 32 characters long */
+-static char *manufacturerID      = "Mozilla Foundation              ";
++static char *manufacturerID      = "itrusChina                      ";
+ static char manufacturerID_space[33];
+-static char *libraryDescription  = "NSS Internal Crypto Services    ";
++static char *libraryDescription  = "itrus Internal Crypto Services  ";
+ static char libraryDescription_space[33];
+ 
+ /*
+@@ -385,6 +385,7 @@
+      {CKM_SHA224_HMAC,		{1, 128, CKF_SN_VR},		PR_TRUE},
+      {CKM_SHA224_HMAC_GENERAL,	{1, 128, CKF_SN_VR},		PR_TRUE},
+      {CKM_SHA256,		{0,   0, CKF_DIGEST},		PR_FALSE},
++     {CKM_SM3,		{0,   0, CKF_DIGEST},		PR_FALSE},   //add by liqiangqiang
+      {CKM_SHA256_HMAC,		{1, 128, CKF_SN_VR},		PR_TRUE},
+      {CKM_SHA256_HMAC_GENERAL,	{1, 128, CKF_SN_VR},		PR_TRUE},
+      {CKM_SHA384,		{0,   0, CKF_DIGEST},		PR_FALSE},
+@@ -396,6 +397,12 @@
+      {CKM_TLS_PRF_GENERAL,	{0, 512, CKF_SN_VR},		PR_FALSE},
+      {CKM_NSS_TLS_PRF_GENERAL_SHA256,
+ 				{0, 512, CKF_SN_VR},		PR_FALSE},
++    
++    
++   //add by liqiangqiang from
++    {CKM_NSS_TLS_PRF_GENERAL_SM3, {0, 512, CKF_SN_VR},	PR_FALSE},
++   //add by liqiangqiang to
++    
+      /* ------------------------- HKDF Operations -------------------------- */
+      {CKM_NSS_HKDF_SHA1,        {1, 128, CKF_DERIVE},           PR_TRUE},
+      {CKM_NSS_HKDF_SHA256,      {1, 128, CKF_DERIVE},           PR_TRUE},
+@@ -506,7 +513,30 @@
+      {CKM_NSS_JPAKE_FINAL_SHA512,       {0, 0, CKF_DERIVE}, PR_TRUE},
+      /* -------------------- Constant Time TLS MACs ----------------------- */
+      {CKM_NSS_HMAC_CONSTANT_TIME,       {0, 0, CKF_DIGEST}, PR_TRUE},
+-     {CKM_NSS_SSL3_MAC_CONSTANT_TIME,   {0, 0, CKF_DIGEST}, PR_TRUE}
++     {CKM_NSS_SSL3_MAC_CONSTANT_TIME,   {0, 0, CKF_DIGEST}, PR_TRUE},
++    
++    //add by liqiangqiang from
++    /* ------------------------- SM4 Operations --------------------------- */
++    {CKM_SM4_KEY_GEN,		{16, 16, CKF_GENERATE},		PR_TRUE},
++    {CKM_SM4_ECB,		{16, 16, CKF_EN_DE_WR_UN},	PR_TRUE},
++    {CKM_SM4_CBC,		{16, 16, CKF_EN_DE_WR_UN},	PR_TRUE},
++    {CKM_SM4_MAC,		{16, 16, CKF_SN_VR},		PR_TRUE},
++    {CKM_SM4_MAC_GENERAL,	{16, 16, CKF_SN_VR},		PR_TRUE},
++    {CKM_SM4_CBC_PAD,		{16, 16, CKF_EN_DE_WR_UN},	PR_TRUE},
++    /* -------------------------SM3 Hashing Operations ----------------------- */
++    {CKM_SSL3_SHA1_MAC,		{ 0, 32, CKF_DERIVE},   PR_FALSE},
++    {CKM_SM3,		{0,   0, CKF_DIGEST},		PR_FALSE},
++    {CKM_SM3_HMAC,		{1, 128, CKF_SN_VR},		PR_TRUE},
++    {CKM_SM3_HMAC_GENERAL,	{1, 128, CKF_SN_VR},		PR_TRUE},
++    /* -------------------- Elliptic Curve Operations --------------------- */
++    {CKM_SM2_KEY_PAIR_GEN,      {256, 256, CKF_GENERATE_KEY_PAIR|CKF_EC_BPNU}, PR_TRUE},
++    {CKM_SM2,                {256, 256, CKF_SN_VR|CKF_EC_BPNU}, PR_TRUE},
++    {CKM_SM2_SHA1,           {256, 256, CKF_SN_VR|CKF_EC_BPNU}, PR_TRUE},
++    {CKM_SM2_SHA256,           {256, 256, CKF_SN_VR|CKF_EC_BPNU}, PR_TRUE},
++    {CKM_SM2_SM3,           {256, 256, CKF_SN_VR|CKF_EC_BPNU}, PR_TRUE},
++	//add by liqiangqiang to
++
++    
+ };
+ static const CK_ULONG mechanismCount = sizeof(mechanisms)/sizeof(mechanisms[0]);
+ 
+@@ -2176,15 +2206,15 @@
+ 
+     switch (slotID) {
+     case NETSCAPE_SLOT_ID:
+-	return "NSS Generic Crypto Services     ";
++	return "itrus Generic Crypto Services   ";
+     case PRIVATE_KEY_SLOT_ID:
+-	return "NSS Certificate DB              ";
++	return "itrus Certificate DB            ";
+     case FIPS_SLOT_ID:
+-        return "NSS FIPS 140-2 Certificate DB   ";
++        return "itrus FIPS 140-2 Certificate DB ";
+     default:
+ 	break;
+     }
+-    sprintf(buf,"NSS Application Token %08x  ",(unsigned int) slotID);
++    sprintf(buf,"itrus Application Token %08x",(unsigned int) slotID);
+     return buf;
+ }
+ 
+@@ -2196,18 +2226,18 @@
+     switch (slotID) {
+     case NETSCAPE_SLOT_ID:
+ 	return 
+-	 "NSS Internal Cryptographic Services                             ";
++	 "itrus Internal Cryptographic Services                           ";
+     case PRIVATE_KEY_SLOT_ID:
+ 	return 
+-	 "NSS User Private Key and Certificate Services                   ";
++	 "itrus User Private Key and Certificate Services                 ";
+     case FIPS_SLOT_ID:
+         return 
+-         "NSS FIPS 140-2 User Private Key Services                        ";
++         "itrus FIPS 140-2 User Private Key Services                      ";
+     default:
+ 	break;
+     }
+     sprintf(buf,
+-     "NSS Application Slot %08x                                   ",
++     "itrus Application Slot %08x                                 ",
+ 							(unsigned int) slotID);
+     return buf;
+ }
+@@ -3203,7 +3233,7 @@
+     if (slot == NULL) return CKR_SLOT_ID_INVALID;
+ 
+     PORT_Memcpy(pInfo->manufacturerID,manufacturerID,32);
+-    PORT_Memcpy(pInfo->model,"NSS 3           ",16);
++    PORT_Memcpy(pInfo->model,"itrus           ",16);
+     PORT_Memcpy(pInfo->serialNumber,"0000000000000000",16);
+     PORT_Memcpy(pInfo->utcTime,"0000000000000000",16);
+     pInfo->ulMaxSessionCount = 0; /* arbitrarily large */
+Index: softoken/pkcs11c.c
+===================================================================
+--- softoken/pkcs11c.c	(版本 235644)
++++ softoken/pkcs11c.c	(工作副本)
+@@ -92,6 +92,37 @@
+     PORT_Free(data);
+ } 
+ 
++
++//add by liqiangqiang from
++static int
++sftk_sm4_mode(CK_MECHANISM_TYPE mechanism)
++{
++    switch (mechanism) {
++        case CKM_SM4_CBC_PAD:
++        case CKM_SM4_CBC:
++            return NSS_SM4_CBC;
++        case CKM_SM4_ECB:
++        case CKM_SM4_ECB_PAD:
++            return NSS_SM4;
++    }
++    return -1;
++}
++static int
++sftk_sm1_mode(CK_MECHANISM_TYPE mechanism)
++{
++    switch (mechanism) {
++        case CKM_SM1_CBC_PAD:
++        case CKM_SM1_CBC:
++            return NSS_SM1_CBC;
++        case CKM_SM1_ECB:
++        case CKM_SM1_ECB_PAD:
++            return NSS_SM1;
++    }
++    return -1;
++}
++//add by liqiangqiang to
++
++
+ /*
+  * map all the SEC_ERROR_xxx error codes that may be returned by freebl
+  * functions to CKR_xxx.  return CKR_DEVICE_ERROR by default for backward
+@@ -960,6 +991,71 @@
+ 	context->update = (SFTKCipher) (isEncrypt ? AES_Encrypt : AES_Decrypt);
+ 	context->destroy = (SFTKDestroy) AES_DestroyContext;
+ 	break;
++            
++           //add by liqiangqiang from
++        case CKM_SM4_CBC_PAD:
++            context->doPad = PR_TRUE;
++            /* fall thru */
++        case CKM_SM4_ECB:
++        case CKM_SM4_CBC:
++            context->blockSize = 16;
++            
++            if (key_type != CKK_SM4) {
++                crv = CKR_KEY_TYPE_INCONSISTENT;
++                break;
++            }
++            att = sftk_FindAttribute(key,CKA_VALUE);
++            if (att == NULL) {
++                crv = CKR_KEY_HANDLE_INVALID;
++                break;
++            }
++            
++            
++            context->cipherInfo = SM4_CreateContext(
++                                                    (unsigned char*)att->attrib.pValue,
++                                                    (unsigned char*)pMechanism->pParameter,
++                                                    sftk_sm4_mode(pMechanism->mechanism),
++                                                    isEncrypt);
++            sftk_FreeAttribute(att);
++            if (context->cipherInfo == NULL) {
++                crv = CKR_HOST_MEMORY;
++                break;
++            }
++            context->update = (SFTKCipher) (isEncrypt ? SM4_Encrypt : SM4_Decrypt);
++            context->destroy = (SFTKDestroy) SM4_DestroyContext;
++            break;
++//            
++//            //---------------------------------------------------------------------
++//        case CKM_SM1_CBC_PAD:
++//            context->doPad = PR_TRUE;
++//            /* fall thru */
++//        case CKM_SM1_ECB:
++//        case CKM_SM1_CBC:
++//            context->blockSize = 16;
++//            
++//            if (key_type != CKK_SM1) {
++//                crv = CKR_KEY_TYPE_INCONSISTENT;
++//                break;
++//            }
++//            att = sftk_FindAttribute(key,CKA_VALUE);
++//            if (att == NULL) {
++//                crv = CKR_KEY_HANDLE_INVALID;
++//                break;
++//            }
++//            context->cipherInfo = SM1_CreateContext(
++//                                                    (unsigned char*)att->attrib.pValue,
++//                                                    (unsigned char*)pMechanism->pParameter,
++//                                                    sftk_sm1_mode(pMechanism->mechanism),
++//                                                    isEncrypt);
++//            sftk_FreeAttribute(att);
++//            if (context->cipherInfo == NULL) {
++//                crv = CKR_HOST_MEMORY;
++//                break;
++//            }
++//            context->update = (SFTKCipher) (isEncrypt ? SM1_Encrypt : SM1_Decrypt);
++//            context->destroy = (SFTKDestroy) SM1_DestroyContext;
++//            break;
++//add by liqiangqiang to
+ 
+     case CKM_NSS_CHACHA20_POLY1305:
+ 	if (pMechanism->ulParameterLen != sizeof(CK_NSS_AEAD_PARAMS)) {
+@@ -1519,6 +1615,7 @@
+     switch(pMechanism->mechanism) {
+     INIT_MECH(CKM_MD2,    MD2)
+     INIT_MECH(CKM_MD5,    MD5)
++            INIT_MECH(CKM_SM3,    SM3)   //add by liqiangqiang
+     INIT_MECH(CKM_SHA_1,  SHA1)
+     INIT_MECH(CKM_SHA224, SHA224)
+     INIT_MECH(CKM_SHA256, SHA256)
+@@ -1648,6 +1745,7 @@
+ DOSUB(SHA256)
+ DOSUB(SHA384)
+ DOSUB(SHA512)
++DOSUB(SM3) //add by liqiangqiang
+ 
+ static SECStatus
+ sftk_SignCopy(
+@@ -1975,6 +2073,18 @@
+ 	cbc_mechanism.pParameter = &ivBlock;
+ 	cbc_mechanism.ulParameterLen = blockSize;
+ 	break;
++            //add by liqiangqiang from
++        case CKM_SM4_MAC_GENERAL:
++            mac_bytes = *(CK_ULONG *)pMechanism->pParameter;
++            /* fall through */
++        case CKM_SM4_MAC:
++            blockSize = 16;
++            PORT_Memset(ivBlock,0,blockSize);
++            cbc_mechanism.mechanism = CKM_SM4_CBC;
++            cbc_mechanism.pParameter = &ivBlock;
++            cbc_mechanism.ulParameterLen = blockSize;
++            break;
++            //add by liqiangqiang to
+     default:
+ 	return CKR_FUNCTION_NOT_SUPPORTED;
+     }
+@@ -2229,6 +2339,7 @@
+     INIT_RSA_SIGN_MECH(SHA256)
+     INIT_RSA_SIGN_MECH(SHA384)
+     INIT_RSA_SIGN_MECH(SHA512)
++    INIT_RSA_SIGN_MECH(SM3)  //add by liqiangqiang
+ 
+     case CKM_RSA_PKCS:
+ 	context->update = (SFTKCipher) RSA_Sign;
+@@ -2349,6 +2460,7 @@
+     INIT_HMAC_MECH(SHA256)
+     INIT_HMAC_MECH(SHA384)
+     INIT_HMAC_MECH(SHA512)
++     INIT_HMAC_MECH(SM3)         //add by liqiangqiang
+ 
+     case CKM_SHA_1_HMAC_GENERAL:
+ 	crv = sftk_doHMACInit(context,HASH_AlgSHA1,key,
+@@ -2357,7 +2469,17 @@
+     case CKM_SHA_1_HMAC:
+ 	crv = sftk_doHMACInit(context,HASH_AlgSHA1,key,SHA1_LENGTH);
+ 	break;
++            
++            
++            //add by liqiangqiang from
++        case CKM_SSL3_SM3_MAC:
++            crv = sftk_doSSLMACInit(context,SEC_OID_SM3,key,
++                                    *(CK_ULONG *)pMechanism->pParameter);
++            break;
+ 
++            //add by liqiangqiang to
++            
++
+     case CKM_SSL3_MD5_MAC:
+ 	crv = sftk_doSSLMACInit(context,SEC_OID_MD5,key,
+ 					*(CK_ULONG *)pMechanism->pParameter);
+@@ -2808,7 +2930,8 @@
+     INIT_RSA_VFY_MECH(SHA224)
+     INIT_RSA_VFY_MECH(SHA256) 
+     INIT_RSA_VFY_MECH(SHA384) 
+-    INIT_RSA_VFY_MECH(SHA512) 
++    INIT_RSA_VFY_MECH(SHA512)
++            INIT_RSA_VFY_MECH(SM3)  //add by liqiangqiang
+ 
+     case CKM_RSA_PKCS:
+ 	context->verify = (SFTKVerify) RSA_CheckSign;
+@@ -2908,6 +3031,7 @@
+     INIT_HMAC_MECH(SHA256)
+     INIT_HMAC_MECH(SHA384)
+     INIT_HMAC_MECH(SHA512)
++            INIT_HMAC_MECH(SM3) //add by liqiangqiang
+ 
+     case CKM_SHA_1_HMAC_GENERAL:
+ 	crv = sftk_doHMACInit(context,HASH_AlgSHA1,key,
+@@ -2925,6 +3049,15 @@
+ 	crv = sftk_doSSLMACInit(context,SEC_OID_SHA1,key,
+ 					*(CK_ULONG *)pMechanism->pParameter);
+ 	break;
++            //add by liqiangqiang from
++        case CKM_SSL3_SM3_MAC:   
++            crv = sftk_doSSLMACInit(context,SEC_OID_SM3,key,
++                                    *(CK_ULONG *)pMechanism->pParameter);
++            break;
++        case CKM_NSS_TLS_PRF_GENERAL_SM3:
++            crv = sftk_TLSPRFInit(context, key, key_type, HASH_AlgSM3);
++            break;
++           //add by liqiangqiang to            
+     case CKM_TLS_PRF_GENERAL:
+ 	crv = sftk_TLSPRFInit(context, key, key_type, HASH_AlgNULL);
+ 	break;
+@@ -3392,10 +3525,14 @@
+ 	*key_type = CKK_AES;
+ 	if (*key_length == 0) crv = CKR_TEMPLATE_INCOMPLETE;
+ 	break;
+-    case CKM_NSS_CHACHA20_KEY_GEN:
+-	*key_type = CKK_NSS_CHACHA20;
+-	if (*key_length == 0) crv = CKR_TEMPLATE_INCOMPLETE;
+-	break;
++            //add by liqiangqiang form
++            case CKM_SM4_KEY_GEN:
++            *key_type = CKK_SM4;
++            if (*key_length == 0) crv = CKR_TEMPLATE_INCOMPLETE;
++            break;
++            //add by liqiangqiang to
++            
++            
+     default:
+ 	PORT_Assert(0);
+ 	crv = CKR_MECHANISM_INVALID;
+@@ -3642,6 +3779,8 @@
+     case CKM_CAMELLIA_KEY_GEN:
+     case CKM_AES_KEY_GEN:
+     case CKM_NSS_CHACHA20_KEY_GEN:
++            case CKM_SM4_KEY_GEN: //add by liqiangqiang
++            
+ #if NSS_SOFTOKEN_DOES_RC5
+     case CKM_RC5_KEY_GEN:
+ #endif
+@@ -6446,7 +6585,19 @@
+ 
+ 	crv = sftk_forceAttribute(key,CKA_VALUE,key_block,keySize);
+ 	break;
+-
++            //add by liqiangqiang from
++        case CKM_SM3_KEY_DERIVATION:
++            if (keySize == 0) keySize = SM3_LENGTH;
++            if (keySize > SHA256_LENGTH) {
++                crv = CKR_TEMPLATE_INCONSISTENT;
++                break;
++            }
++            SM3_HashBuf(key_block,(const unsigned char*)att->attrib.pValue,
++                           att->attrib.ulValueLen);
++            
++            crv = sftk_forceAttribute(key,CKA_VALUE,key_block,keySize);
++            break;
++            //add by liqiangqiang to
+      case CKM_SHA384_KEY_DERIVATION:
+ 	if (keySize == 0) keySize = SHA384_LENGTH;
+ 	if (keySize > SHA384_LENGTH) {
+Index: softoken/rsawrapr.c
+===================================================================
+--- softoken/rsawrapr.c	(版本 235644)
++++ softoken/rsawrapr.c	(工作副本)
+@@ -1192,6 +1192,14 @@
+         case CKM_SHA_1:
+         case CKG_MGF1_SHA1:
+ 	    return HASH_AlgSHA1;
++            
++            
++            //add by liqiangqiang from
++            
++        case CKM_SM3:
++        case CKG_MGF1_SM3:
++            return HASH_AlgSM3;
++            //add by liqiangqiang to
+         case CKM_SHA224:
+         case CKG_MGF1_SHA224:
+ 	    return HASH_AlgSHA224;
+Index: softoken/sdb.c
+===================================================================
+--- softoken/sdb.c	(版本 235644)
++++ softoken/sdb.c	(工作副本)
+@@ -626,6 +626,13 @@
+ 	return sqlerr;
+     }
+ 
++    sqlerr = sqlite3_key(*sqlDB, "itrus", 5);
++    if (sqlerr != SQLITE_OK) {
++        sqlite3_close(*sqlDB);
++        *sqlDB = NULL;
++        return sqlerr;
++    }
++    
+     sqlerr = sqlite3_busy_timeout(*sqlDB, SDB_SQLITE_BUSY_TIMEOUT);
+     if (sqlerr != SQLITE_OK) {
+ 	sqlite3_close(*sqlDB);
+Index: softoken/sftkhmac.c
+===================================================================
+--- softoken/sftkhmac.c	(版本 235644)
++++ softoken/sftkhmac.c	(工作副本)
+@@ -29,6 +29,12 @@
+ 	    return HASH_AlgSHA384;
+ 	case CKM_SHA512_HMAC:
+ 	    return HASH_AlgSHA512;
++            //add by liqiangqiang from
++        case CKM_SM3_HMAC:				
++        case CKM_SSL3_SM3_MAC:
++            return HASH_AlgSM3;
++            //add by liqiangqiang to
++            
+     }
+     return HASH_AlgNULL;
+ }
+@@ -105,9 +111,14 @@
+ 	(CK_NSS_MAC_CONSTANT_TIME_PARAMS *) mech->pParameter;
+     unsigned int padLength = 40, j;
+     sftk_MACConstantTimeCtx *ctx;
++    
++    
++    if (params->macAlg != CKM_SSL3_MD5_MAC
++		&&	params->macAlg != CKM_SSL3_SHA1_MAC
++		&&	params->macAlg != CKM_SSL3_SM3_MAC) {  //add by liqiangqiang from
+ 
+-    if (params->macAlg != CKM_SSL3_MD5_MAC &&
+-	params->macAlg != CKM_SSL3_SHA1_MAC) {
++//    if (params->macAlg != CKM_SSL3_MD5_MAC &&
++//	params->macAlg != CKM_SSL3_SHA1_MAC) {
+ 	return NULL;
+     }
+     ctx = SetupMAC(mech, key);
+Index: util/hasht.h
+===================================================================
+--- util/hasht.h	(版本 235644)
++++ util/hasht.h	(工作副本)
+@@ -24,6 +24,7 @@
+     HASH_AlgSHA384 = 5,
+     HASH_AlgSHA512 = 6,
+     HASH_AlgSHA224 = 7,
++    HASH_AlgSM3    = 8,    //add by liqiangqiang
+     HASH_AlgTOTAL
+ } HASH_HashType;
+ 
+@@ -37,6 +38,7 @@
+ #define SHA256_LENGTH 	32
+ #define SHA384_LENGTH 	48
+ #define SHA512_LENGTH 	64
++#define SM3_LENGTH 32              //add by liqiangqiang
+ #define HASH_LENGTH_MAX SHA512_LENGTH
+ 
+ /*
+Index: util/pkcs11n.h
+===================================================================
+--- util/pkcs11n.h	(版本 235644)
++++ util/pkcs11n.h	(工作副本)
+@@ -219,6 +219,16 @@
+ #define CKM_NSS_CHACHA20_KEY_GEN                (CKM_NSS + 25)
+ #define CKM_NSS_CHACHA20_POLY1305               (CKM_NSS + 26)
+ 
++//add by liqiangqiang from
++/* TLS 1.2 mechanisms sm3*/
++#define CKM_NSS_TLS_PRF_GENERAL_SM3		          (CKM_NSS + 121)
++#define CKM_NSS_TLS_MASTER_KEY_DERIVE_SM3	      (CKM_NSS + 122)
++#define CKM_NSS_TLS_KEY_AND_MAC_DERIVE_SM3	      (CKM_NSS + 123)
++#define CKM_NSS_TLS_MASTER_KEY_DERIVE_DH_SM3	  (CKM_NSS + 124)
++#define CKM_NSS_TLS_PRF_SM3		                  (CKM_NSS + 125)
++//add by liqiangqiang to
++
++
+ /*
+  * HISTORICAL:
+  * Do not attempt to use these. They are only used by NETSCAPE's internal
+Index: util/pkcs11t.h
+===================================================================
+--- util/pkcs11t.h	(版本 235644)
++++ util/pkcs11t.h	(工作副本)
+@@ -401,6 +401,100 @@
+ #define CKK_VENDOR_DEFINED  0x80000000
+ 
+ 
++//add by liqiangqiang from
++////SSF33
++//#define CKK_SSF33					(CKK_VENDOR_DEFINED + 0x01)
++//#define CKM_SSF33_KEY_GEN			(CKM_VENDOR_DEFINED + 0x01)
++//#define CKM_SSF33_ECB				(CKM_VENDOR_DEFINED + 0x02)
++//#define CKM_SSF33_CBC				(CKM_VENDOR_DEFINED + 0x03)
++//#define CKM_SSF33_CBC_PAD			(CKM_VENDOR_DEFINED + 0x04)
++//#define CKM_SSF33_ECB_PAD			(CKM_VENDOR_DEFINED + 0x05)
++////SM1
++//#define CKK_SM1						(CKK_VENDOR_DEFINED + 0x10)
++//#define CKM_SM1_KEY_GEN				(CKM_VENDOR_DEFINED + 0x10)
++//#define CKM_SM1_ECB					(CKM_VENDOR_DEFINED + 0x11)
++//#define CKM_SM1_CBC					(CKM_VENDOR_DEFINED + 0x12)
++//#define CKM_SM1_CBC_PAD				(CKM_VENDOR_DEFINED + 0x13)
++//#define CKM_SM1_ECB_PAD				(CKM_VENDOR_DEFINED + 0x14)
++//#define CKM_SM1_MAC                 (CKM_VENDOR_DEFINED + 0x15)
++//#define CKM_SM1_MAC_GENERAL         (CKM_VENDOR_DEFINED + 0x16)
++//
++////SMS4
++//#define CKK_SMS4					(CKK_VENDOR_DEFINED + 0x20)
++//#define CKM_SMS4_KEY_GEN			(CKM_VENDOR_DEFINED + 0x20)
++//#define CKM_SMS4_ECB				(CKM_VENDOR_DEFINED + 0x21)
++//#define CKM_SMS4_CBC				(CKM_VENDOR_DEFINED + 0x22)
++//#define CKM_SMS4_CBC_PAD			(CKM_VENDOR_DEFINED + 0x23)
++//#define CKM_SMS4_ECB_PAD			(CKM_VENDOR_DEFINED + 0x24)
++//#define CKM_SMS4_MAC                 (CKM_VENDOR_DEFINED + 0x25)
++//#define CKM_SMS4_MAC_GENERAL         (CKM_VENDOR_DEFINED + 0x26)
++///*
++// #define CKK_SM1					(CKK_VENDOR_DEFINED + 0x27)
++// #define CKM_SM1_KEY_GEN			(CKM_VENDOR_DEFINED + 0x28)
++// #define CKM_SM1_ECB				(CKM_VENDOR_DEFINED + 0x29)
++// #define CKM_SM1_CBC				(CKM_VENDOR_DEFINED + 0x30)
++// #define CKM_SM1_CBC_PAD			(CKM_VENDOR_DEFINED + 0x31)
++// #define CKM_SM1_ECB_PAD			(CKM_VENDOR_DEFINED + 0x32)
++// #define CKM_SM1_MAC                 (CKM_VENDOR_DEFINED + 0x33)
++// #define CKM_SM1_MAC_GENERAL         (CKM_VENDOR_DEFINED + 0x34)
++// */
++////SM2
++//#define CKM_SM2_KEY_PAIR_GEN        (CKM_VENDOR_DEFINED + CKM_EC_KEY_PAIR_GEN)
++//#define CKK_SM2						(CKM_VENDOR_DEFINED + CKM_ECDSA)
++//#define CKM_SM2		                CKK_SM2
++//#define CKM_SM2_SHA1				(CKM_VENDOR_DEFINED + CKM_ECDSA_SHA1)
++//#define CKM_SM2_SHA256				(CKM_VENDOR_DEFINED + CKM_ECDSA_SHA256)
++//#define CKM_SM2_MD5					(CKM_SM2_SHA256 + 1)
++//#define CKM_SM2_SM3					(CKM_SM2_SHA256 + 2)
++//
++////attributes
++//#define CKA_SM2_BITS				(CKM_VENDOR_DEFINED + 1)
++//#define CKA_SM2_PUBLIC_X			(CKM_VENDOR_DEFINED + 2)
++//#define CKA_SM2_PUBLIC_Y			(CKM_VENDOR_DEFINED + 3)
++//#define CKA_SM2_PRIVATE_KEY			(CKM_VENDOR_DEFINED + 4)
++//
++////SM3
++//#define CKM_SSL3_SM3_MAC           (CKM_VENDOR_DEFINED + CKM_SSL3_SHA1_MAC)
++//#define CKM_SM3                     (CKM_VENDOR_DEFINED + CKM_SHA256)
++//#define CKM_SM3_HMAC				(CKM_VENDOR_DEFINED + CKM_SHA256_HMAC)
++//#define CKM_SM3_HMAC_GENERAL		(CKM_VENDOR_DEFINED + CKM_SHA256_HMAC_GENERAL)
++
++
++#define CKM_SM2                        (CKM_VENDOR_DEFINED + 0x00440002)
++#define CKM_SM2_KEY_PAIR_GEN           (CKM_VENDOR_DEFINED + 0x00440012)
++#define CKM_SM2_SHA1                   (CKM_VENDOR_DEFINED + 0x00440022)
++#define CKM_SM2_SHA256                 (CKM_VENDOR_DEFINED + 0x00440032)
++#define CKM_SM2_SM3                    (CKM_VENDOR_DEFINED + 0x00440042)
++
++#define CKM_SM3                        (CKM_VENDOR_DEFINED + 0x00440003)
++#define CKM_SM3_KEY_DERIVATION         (CKM_VENDOR_DEFINED + 0x00440013)
++#define CKM_SSL3_SM3_MAC               (CKM_VENDOR_DEFINED + 0x00440023)
++#define CKM_SM3_HMAC                   (CKM_VENDOR_DEFINED + 0x00440043)
++#define CKM_SM3_HMAC_GENERAL           (CKM_VENDOR_DEFINED + 0x00440053)
++#define CKM_SM3_RSA_PKCS               (CKM_VENDOR_DEFINED + 0x00000083)
++
++#define CKK_SM4                        (CKM_VENDOR_DEFINED + 0x00440004)
++#define CKM_SM4_KEY_GEN                (CKM_VENDOR_DEFINED + 0x00440014)
++#define CKM_SM4_ECB                    (CKM_VENDOR_DEFINED + 0x00440024)
++#define CKM_SM4_CBC                    (CKM_VENDOR_DEFINED + 0x00440034)
++#define CKM_SM4_MAC                    (CKM_VENDOR_DEFINED + 0x00440044)
++#define CKM_SM4_MAC_GENERAL            (CKM_VENDOR_DEFINED + 0x00440054)
++#define CKM_SM4_CBC_PAD                (CKM_VENDOR_DEFINED + 0x00440064)
++#define CKM_SM4_ECB_PAD                (CKM_VENDOR_DEFINED + 0x00440074)
++
++
++#define CKK_SM1                        (CKM_VENDOR_DEFINED + 0x00440001)
++#define CKM_SM1_KEY_GEN                (CKM_VENDOR_DEFINED + 0x00440011)
++#define CKM_SM1_ECB                    (CKM_VENDOR_DEFINED + 0x00440021)
++#define CKM_SM1_CBC                    (CKM_VENDOR_DEFINED + 0x00440031)
++#define CKM_SM1_MAC                    (CKM_VENDOR_DEFINED + 0x00440041)
++#define CKM_SM1_MAC_GENERAL            (CKM_VENDOR_DEFINED + 0x00440051)
++#define CKM_SM1_CBC_PAD                (CKM_VENDOR_DEFINED + 0x00440061)
++#define CKM_SM1_ECB_PAD                (CKM_VENDOR_DEFINED + 0x00440071)
++
++//add by liqiangqiang to
++
++
+ /* CK_CERTIFICATE_TYPE is a value that identifies a certificate
+  * type */
+ /* CK_CERTIFICATE_TYPE was changed from CK_USHORT to CK_ULONG
+@@ -1231,6 +1325,8 @@
+ #define CKG_MGF1_SHA384       0x00000003
+ #define CKG_MGF1_SHA512       0x00000004
+ 
++#define CKG_MGF1_SM3          0x00440033
++
+ /* v2.20 amendment 3 */
+ #define CKG_MGF1_SHA224	      0x00000005
+ 
+Index: util/secalgid.c
+===================================================================
+--- util/secalgid.c	(版本 235644)
++++ util/secalgid.c	(工作副本)
+@@ -51,6 +51,7 @@
+       case SEC_OID_PKCS1_SHA256_WITH_RSA_ENCRYPTION:
+       case SEC_OID_PKCS1_SHA384_WITH_RSA_ENCRYPTION:
+       case SEC_OID_PKCS1_SHA512_WITH_RSA_ENCRYPTION:
++        case SEC_OID_SM3:  //add by liqiangqiang from
+ 	add_null_param = PR_TRUE;
+ 	break;
+       default:
+Index: util/secdig.c
+===================================================================
+--- util/secdig.c	(版本 235644)
++++ util/secdig.c	(工作副本)
+@@ -45,6 +45,7 @@
+       case SEC_OID_SHA256:
+       case SEC_OID_SHA384:
+       case SEC_OID_SHA512:
++            case SEC_OID_SM3:  //add by liqiangqiang from
+ 	break;
+       default:
+ 	PORT_SetError(SEC_ERROR_INVALID_ALGORITHM);
+Index: util/secoid.c
+===================================================================
+--- util/secoid.c	(版本 235644)
++++ util/secoid.c	(工作副本)
+@@ -46,6 +46,8 @@
+ #define SHAXXX      NISTALGS, 2
+ #define DSA2        NISTALGS, 3
+ 
++#define SM4         NISTALGS, 44  //add by liqiangqiang from
++
+ /**
+  ** The Netscape OID space is allocated by Terry Hayes.  If you need
+  ** a piece of the space, contact him at thayes@netscape.com.
+@@ -184,6 +186,7 @@
+ CONST_OID hmac_sha256[]				= { DIGEST, 9 };
+ CONST_OID hmac_sha384[]				= { DIGEST, 10 };
+ CONST_OID hmac_sha512[]				= { DIGEST, 11 };
++CONST_OID hmac_sm3[]				= { DIGEST, 12 };  //add by liqiangqiang from
+ 
+ CONST_OID rc2cbc[]     				= { CIPHER, 0x02 };
+ CONST_OID rc4[]        				= { CIPHER, 0x04 };
+@@ -216,6 +219,9 @@
+ CONST_OID pkcs1SHA512WithRSAEncryption[] 	= { PKCS1, 13 };
+ CONST_OID pkcs1SHA224WithRSAEncryption[] 	= { PKCS1, 14 };
+ 
++
++CONST_OID pkcs1SM3WithRSAEncryption[] 	= { PKCS1, 35 };  //add by liqiangqiang from
++
+ CONST_OID pkcs5PbeWithMD2AndDEScbc[]  		= { PKCS5, 0x01 };
+ CONST_OID pkcs5PbeWithMD5AndDEScbc[]  		= { PKCS5, 0x03 };
+ CONST_OID pkcs5PbeWithSha1AndDEScbc[] 		= { PKCS5, 0x0a };
+@@ -423,6 +429,9 @@
+ CONST_OID nistDSASignaturewithSHA224Digest[]	= { DSA2, 0x01 };
+ CONST_OID nistDSASignaturewithSHA256Digest[]	= { DSA2, 0x02 };
+ 
++CONST_OID nistDSASignaturewithSM3Digest[]	    = { DSA2, 0x43 };	//add by liqiangqiang
++
++CONST_OID ansix962SignaturewithSM3Digest[] = { ANSI_X962_SPECIFY_OID, 0x05 };  //add by liqiangqiang from
+ /* verisign OIDs */
+ CONST_OID verisignUserNotices[]     		= { VERISIGN, 1, 7, 1, 1 };
+ 
+@@ -534,6 +543,7 @@
+ CONST_OID secgECsecp224k1[] = { SECG_OID, 0x20 };
+ CONST_OID secgECsecp224r1[] = { SECG_OID, 0x21 };
+ CONST_OID secgECsecp256k1[] = { SECG_OID, 0x0a };
++CONST_OID secgECsm2[] = { SECG_OID, 0x0a };            //add by liqiangqiang from
+ CONST_OID secgECsecp384r1[] = { SECG_OID, 0x22 };
+ CONST_OID secgECsecp521r1[] = { SECG_OID, 0x23 };
+ 
+@@ -585,6 +595,11 @@
+ CONST_OID evIncorporationState[]        = { EV_NAME_ATTRIBUTE, 2 };
+ CONST_OID evIncorporationCountry[]      = { EV_NAME_ATTRIBUTE, 3 };
+ 
++
++CONST_OID sm3[]        				= { DIGEST, 0x33 };  //add by liqiangqiang from
++CONST_OID sm4_ECB[] 				= { SM4, 1 };  //add by liqiangqiang from
++CONST_OID sm4_CBC[] 				= { SM4, 2 };   //add by liqiangqiang from
++
+ #define OI(x) { siDEROID, (unsigned char *)x, sizeof x }
+ #ifndef SECOID_NO_STRINGS
+ #define OD(oid,tag,desc,mech,ext) { OI(oid), tag, desc, mech, ext }
+@@ -1649,6 +1664,41 @@
+ 	CKM_INVALID_MECHANISM, INVALID_CERT_EXTENSION ),
+     OD( x520Name, SEC_OID_AVA_NAME,
+     	"X520 Name",    CKM_INVALID_MECHANISM, INVALID_CERT_EXTENSION )
++    //add by liqiangqiang from
++    OD( secgECsm2, SEC_OID_EC_NIST_P256_SM2,
++       "SECG elliptic curve secp256k1",
++       CKM_INVALID_MECHANISM,
++       INVALID_CERT_EXTENSION ),
++    
++    OD( sm3, SEC_OID_SM3, "sm3", CKM_SM3, INVALID_CERT_EXTENSION ),
++    
++    OD( hmac_sm3, SEC_OID_HMAC_SM3, "HMAC SM3",
++       CKM_SM3_HMAC, INVALID_CERT_EXTENSION ),
++    
++    
++    OD( pkcs1SM3WithRSAEncryption, SEC_OID_PKCS1_SM3_WITH_RSA_ENCRYPTION,
++       "PKCS #1 SM3 With RSA Encryption", CKM_SM3_RSA_PKCS,
++       INVALID_CERT_EXTENSION ),
++    
++    OD( nistDSASignaturewithSM3Digest,
++       SEC_OID_NIST_DSA_SIGNATURE_WITH_SM3_DIGEST,
++       "DSA with SM3 Signature",
++       CKM_INVALID_MECHANISM /* not yet defined */, INVALID_CERT_EXTENSION),
++
++    
++	OD( ansix962SignaturewithSM3Digest,
++       SEC_OID_ANSIX962_ECDSA_SM3_SIGNATURE,
++       "X9.62 ECDSA signature with SM3", CKM_INVALID_MECHANISM,
++       INVALID_CERT_EXTENSION ),
++    
++    
++    OD( sm4_ECB, SEC_OID_SM4_ECB,
++       "SM4-ECB", CKM_AES_ECB, INVALID_CERT_EXTENSION ),
++    OD( sm4_CBC, SEC_OID_SM4_CBC,
++       "SM4-CBC", CKM_AES_CBC, INVALID_CERT_EXTENSION ),
++    //add by liqiangqiang to
++
++    
+ };
+ 
+ /* PRIVATE EXTENDED SECOID Table
+Index: util/secoidt.h
+===================================================================
+--- util/secoidt.h	(版本 235644)
++++ util/secoidt.h	(工作副本)
+@@ -442,6 +442,17 @@
+ 
+     /* The 'name' attribute type in X.520 */
+     SEC_OID_AVA_NAME                        = 317,
++    //add by liqiangqiang from
++	//-------------------------------------------------------
++	SEC_OID_EC_NIST_P256_SM2                      ,
++    SEC_OID_SM3						              ,
++	SEC_OID_HMAC_SM3				              ,
++	SEC_OID_PKCS1_SM3_WITH_RSA_ENCRYPTION         ,
++	SEC_OID_NIST_DSA_SIGNATURE_WITH_SM3_DIGEST	  ,
++	SEC_OID_ANSIX962_ECDSA_SM3_SIGNATURE 	      ,
++    SEC_OID_SM4_ECB                               ,
++    SEC_OID_SM4_CBC                               ,
++    //add by liqiangqiang to
+ 
+     SEC_OID_TOTAL
+ } SECOidTag;
+Index: util/utilmodt.h
+===================================================================
+--- util/utilmodt.h	(版本 235644)
++++ util/utilmodt.h	(工作副本)
+@@ -27,6 +27,9 @@
+ #define SECMOD_SHA512_FLAG	0x00008000L	/* also for SHA384 */
+ #define SECMOD_CAMELLIA_FLAG 	0x00010000L /* = PUBLIC_MECH_CAMELLIA_FLAG */
+ #define SECMOD_SEED_FLAG	0x00020000L
++
++#define SECMOD_SM3_FLAG     0x00040000L   //add by liqiangqiang from
++
+ /* reserved bit for future, do not use */
+ #define SECMOD_RESERVED_FLAG    0X08000000L
+ #define SECMOD_FRIENDLY_FLAG	0x10000000L
+Index: util/utilpars.c
+===================================================================
+--- util/utilpars.c	(版本 235644)
++++ util/utilpars.c	(工作副本)
+@@ -534,6 +534,8 @@
+ #define NSSUTIL_ARG_ENTRY(arg,flag) \
+ { #arg , sizeof(#arg)-1, flag }
+ static struct nssutilArgSlotFlagTable nssutil_argSlotFlagTable[] = {
++    
++    NSSUTIL_ARG_ENTRY(SM3,SECMOD_SM3_FLAG),  //add by liqiangqiang 
+ 	NSSUTIL_ARG_ENTRY(RSA,SECMOD_RSA_FLAG),
+ 	NSSUTIL_ARG_ENTRY(DSA,SECMOD_RSA_FLAG),
+ 	NSSUTIL_ARG_ENTRY(RC2,SECMOD_RC4_FLAG),

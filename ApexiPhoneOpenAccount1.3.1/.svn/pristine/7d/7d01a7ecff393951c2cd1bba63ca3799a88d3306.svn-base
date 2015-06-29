@@ -1,0 +1,321 @@
+Index: pk11akey.c
+===================================================================
+--- pk11akey.c	(版本 235644)
++++ pk11akey.c	(工作副本)
+@@ -317,6 +317,7 @@
+ 	return 61; /*curve len in bytes = 30 bytes */
+     case SEC_OID_ANSIX962_EC_PRIME256V1:
+     case SEC_OID_SECG_EC_SECP256K1:
++           case SEC_OID_EC_NIST_P256_SM2:    //add by liqiangqiang
+ 	return 65; /*curve len in bytes = 32 bytes */
+     case SEC_OID_ANSIX962_EC_C2PNB272W1:
+ 	return 69; /*curve len in bytes = 34 bytes */
+Index: pk11mech.c
+===================================================================
+--- pk11mech.c	(版本 235644)
++++ pk11mech.c	(工作副本)
+@@ -59,6 +59,7 @@
+     CKM_RC2_ECB,
+     CKM_CDMF_ECB,
+     CKM_SKIPJACK_WRAP,
++    CKM_SM4_ECB,   //add by liqiangqiang from
+ };
+ 
+ int wrapMechanismCount = sizeof(wrapMechanismList)/sizeof(wrapMechanismList[0]);
+@@ -236,6 +237,26 @@
+     case CKM_NETSCAPE_AES_KEY_WRAP:
+     case CKM_NETSCAPE_AES_KEY_WRAP_PAD:
+ 	return CKK_AES;
++            
++            
++            //add by liqiangqiang from
++        case CKM_SM4_ECB:
++        case CKM_SM4_CBC:
++        case CKM_SM4_MAC:
++        case CKM_SM4_MAC_GENERAL:
++        case CKM_SM4_CBC_PAD:
++        case CKM_SM4_KEY_GEN:
++            return CKK_SM4;
++        case CKM_SM1_ECB:
++        case CKM_SM1_CBC:
++        case CKM_SM1_MAC:
++        case CKM_SM1_MAC_GENERAL:
++        case CKM_SM1_CBC_PAD:
++        case CKM_SM1_KEY_GEN:
++            return CKK_SM1;
++            //add by liqiangqiang to
++
++            
+     case CKM_DES_ECB:
+     case CKM_DES_CBC:
+     case CKM_DES_MAC:
+@@ -372,6 +393,9 @@
+ 	return CKK_EC;  /* CKK_ECDSA is deprecated */
+     case CKM_SSL3_PRE_MASTER_KEY_GEN:
+     case CKM_GENERIC_SECRET_KEY_GEN:
++            
++        case CKM_SSL3_SM3_MAC:   //add by liqiangqiang from
++            
+     case CKM_SSL3_MASTER_KEY_DERIVE:
+     case CKM_SSL3_MASTER_KEY_DERIVE_DH:
+     case CKM_SSL3_KEY_AND_MAC_DERIVE:
+@@ -385,6 +409,10 @@
+     case CKM_NSS_TLS_KEY_AND_MAC_DERIVE_SHA256:
+     case CKM_SHA_1_HMAC:
+     case CKM_SHA_1_HMAC_GENERAL:
++            
++        case CKM_SM3_HMAC:  //add by liqiangqiang from
++        case CKM_SM3_HMAC_GENERAL:  //add by liqiangqiang from
++            
+     case CKM_SHA224_HMAC:
+     case CKM_SHA224_HMAC_GENERAL:
+     case CKM_SHA256_HMAC:
+@@ -433,8 +461,6 @@
+     case CKM_CAMELLIA_CBC_PAD:
+     case CKM_CAMELLIA_KEY_GEN:
+ 	return CKM_CAMELLIA_KEY_GEN;
+-    case CKM_NSS_CHACHA20_POLY1305:
+-	return CKM_NSS_CHACHA20_KEY_GEN;
+     case CKM_AES_ECB:
+     case CKM_AES_CBC:
+     case CKM_AES_CCM:
+@@ -576,6 +602,7 @@
+     case CKM_SSL3_KEY_AND_MAC_DERIVE:
+     case CKM_SSL3_SHA1_MAC:
+     case CKM_SSL3_MD5_MAC:
++            case CKM_SSL3_SM3_MAC:  //add by liqiangqiang from
+     case CKM_TLS_MASTER_KEY_DERIVE:
+     case CKM_TLS_KEY_AND_MAC_DERIVE:
+     case CKM_NSS_TLS_KEY_AND_MAC_DERIVE_SHA256:
+@@ -582,6 +609,10 @@
+ 	return CKM_SSL3_PRE_MASTER_KEY_GEN;
+     case CKM_SHA_1_HMAC:
+     case CKM_SHA_1_HMAC_GENERAL:
++            
++        case CKM_SM3_HMAC:  //add by liqiangqiang from
++        case CKM_SM3_HMAC_GENERAL:  //add by liqiangqiang from
++            
+     case CKM_SHA224_HMAC:
+     case CKM_SHA224_HMAC_GENERAL:
+     case CKM_SHA256_HMAC:
+@@ -596,6 +627,9 @@
+     case CKM_MD5_HMAC_GENERAL:
+     case CKM_TLS_PRF_GENERAL:
+     case CKM_NSS_TLS_PRF_GENERAL_SHA256:
++            
++            case CKM_NSS_TLS_PRF_GENERAL_SM3:		//add by liqiangqiang
++            
+     case CKM_GENERIC_SECRET_KEY_GEN:
+ 	return CKM_GENERIC_SECRET_KEY_GEN;
+     case CKM_PBE_MD2_DES_CBC:
+@@ -619,6 +653,11 @@
+     case CKM_PBE_SHA1_DES2_EDE_CBC:
+     case CKM_PKCS5_PBKD2:
+     	return type;
++        //add by liqiangqiang from
++        case CKM_SM4_ECB:
++        case CKM_SM4_CBC:
++        case CKM_SM4_KEY_GEN:
++            return CKM_SM4_KEY_GEN;
+     default:
+ 	return pk11_lookup(type)->keyGen;
+     }
+@@ -718,6 +757,10 @@
+     case CKM_RSA_X_509:
+ 	/*actually it's the modulus length of the key!*/
+ 	return -1;	/* failure */
++            //add by liqiangqiang from
++            case CKM_SM4_CBC:
++            case CKM_SM4_ECB:
++            return 16;
+     default:
+ 	return pk11_lookup(type)->blockSize;
+     }
+@@ -805,6 +848,9 @@
+     case CKM_PBE_SHA1_RC4_40:
+     case CKM_PBE_SHA1_RC4_128:
+ 	return 0;
++        case CKM_SM4_CBC://add by liqiangqiang from
++        case CKM_SM4_ECB:
++            return 16;
+     default:
+ 	return pk11_lookup(type)->iv;
+     }
+@@ -844,6 +890,10 @@
+     case CKM_CAST3_ECB:
+     case CKM_CAST5_ECB:
+     case CKM_RC4:
++            
++
++        case CKM_SM4_ECB://add by liqiangqiang from
++
+ 	break;
+     case CKM_RC2_ECB:
+ 	rc2_ecb_params = (CK_RC2_PARAMS *)PORT_Alloc(sizeof(CK_RC2_PARAMS));
+@@ -932,6 +982,7 @@
+     case CKM_JUNIPER_CBC128:
+     case CKM_JUNIPER_COUNTER:
+     case CKM_JUNIPER_SHUFFLE:
++                    case CKM_SM4_CBC: //add by liqiangqiang from
+ 	if ((iv == NULL) || (iv->data == NULL)) break;
+ 	param->data = (unsigned char*)PORT_Alloc(iv->len);
+ 	if (param->data != NULL) {
+@@ -989,6 +1040,7 @@
+     case CKM_CAST3_ECB:
+     case CKM_CAST5_ECB:
+     case CKM_RC4:
++                    case CKM_SM4_ECB: //add by liqiangqiang from
+ 	return NULL;
+     case CKM_RC2_ECB:
+ 	return NULL;
+@@ -1037,6 +1089,7 @@
+     case CKM_JUNIPER_CBC128:
+     case CKM_JUNIPER_COUNTER:
+     case CKM_JUNIPER_SHUFFLE:
++            case CKM_SM4_CBC:  //add by liqiangqiang from
+ 	break;
+      /* unknown mechanism, pass IV in if it's there */
+      default:
+@@ -1272,7 +1325,8 @@
+     case CKM_CAST_ECB:
+     case CKM_CAST3_ECB:
+     case CKM_CAST5_ECB:
+-	break;
++            case CKM_SM4_ECB:  //add by liqiangqiang from
++	break;  
+ 
+     default:
+ 	if (pk11_lookup(type)->iv == 0) {
+@@ -1315,6 +1369,7 @@
+     case CKM_JUNIPER_CBC128:
+     case CKM_JUNIPER_COUNTER:
+     case CKM_JUNIPER_SHUFFLE:
++            case CKM_SM4_CBC:  //add by liqiangqiang from
+ 	/* simple cases are simply octet string encoded IVs */
+ 	rv = SEC_ASN1DecodeItem(arena, &iv,
+                                 SEC_ASN1_GET(SEC_OctetStringTemplate),
+@@ -1402,6 +1457,7 @@
+     case CKM_CAST_ECB:
+     case CKM_CAST3_ECB:
+     case CKM_CAST5_ECB:
++            case CKM_SM4_ECB:  //add by liqiangqiang from
+ 	mech->data = NULL;
+ 	mech->len = 0;
+ 	break;
+@@ -1488,6 +1544,7 @@
+     case CKM_JUNIPER_CBC128:
+     case CKM_JUNIPER_COUNTER:
+     case CKM_JUNIPER_SHUFFLE:
++            case CKM_SM4_CBC:  //add by liqiangqiang from
+ 	rv = pk11_GenIV(type,&iv);
+ 	if (rv != SECSuccess) {
+ 	    break;
+@@ -1546,6 +1603,7 @@
+     case CKM_CAST_ECB:
+     case CKM_CAST3_ECB:
+     case CKM_CAST5_ECB:
++            case CKM_SM4_ECB:  //add by liqiangqiang from
+ 	newParams = NULL;
+ 	rv = SECSuccess;
+ 	break;
+@@ -1652,6 +1710,7 @@
+     case CKM_JUNIPER_CBC128:
+     case CKM_JUNIPER_COUNTER:
+     case CKM_JUNIPER_SHUFFLE:
++            case CKM_SM4_CBC:  //add by liqiangqiang from
+ 	newParams = SEC_ASN1EncodeItem(NULL,NULL,param,
+                                        SEC_ASN1_GET(SEC_OctetStringTemplate) );
+ 	if (newParams == NULL)
+Index: pk11slot.c
+===================================================================
+--- pk11slot.c	(版本 235644)
++++ pk11slot.c	(工作副本)
+@@ -41,6 +41,7 @@
+ 	{ "SEED", SECMOD_SEED_FLAG, CKM_SEED_CBC },
+ 	{ "RC5", SECMOD_RC5_FLAG, CKM_RC5_CBC },
+ 	{ "SHA-1", SECMOD_SHA1_FLAG, CKM_SHA_1 },
++    { "SM3", SECMOD_SM3_FLAG, CKM_SM3 },   //add by liqiangqiang from
+ /*	{ "SHA224", SECMOD_SHA256_FLAG, CKM_SHA224 }, */
+ 	{ "SHA256", SECMOD_SHA256_FLAG, CKM_SHA256 },
+ /*	{ "SHA384", SECMOD_SHA512_FLAG, CKM_SHA384 }, */
+@@ -89,6 +90,8 @@
+     pk11_tlsSlotList,
+     pk11_randomSlotList,
+     pk11_sha256SlotList,
++    pk11_sm3SlotList,   //add by liqiangqiang from
++    pk11_sm4SlotList,  //add by liqiangqiang from
+     pk11_sha512SlotList;	/* slots do SHA512 and SHA384 */
+ 
+ /************************************************************
+@@ -786,6 +789,8 @@
+     pk11_InitSlotListStatic(&pk11_tlsSlotList);
+     pk11_InitSlotListStatic(&pk11_randomSlotList);
+     pk11_InitSlotListStatic(&pk11_sha256SlotList);
++    pk11_InitSlotListStatic(&pk11_sm3SlotList);   //add by liqiangqiang from
++    pk11_InitSlotListStatic(&pk11_sm4SlotList);
+     pk11_InitSlotListStatic(&pk11_sha512SlotList);
+     return SECSuccess;
+ }
+@@ -812,6 +817,8 @@
+     pk11_FreeSlotListStatic(&pk11_tlsSlotList);
+     pk11_FreeSlotListStatic(&pk11_randomSlotList);
+     pk11_FreeSlotListStatic(&pk11_sha256SlotList);
++    pk11_FreeSlotListStatic(&pk11_sm3SlotList);   //add by liqiangqiang from
++    pk11_FreeSlotListStatic(&pk11_sm4SlotList);   //add by liqiangqiang from
+     pk11_FreeSlotListStatic(&pk11_sha512SlotList);
+     return;
+ }
+@@ -839,6 +846,10 @@
+     case CKM_AES_GCM:
+     case CKM_AES_ECB:
+ 	return &pk11_aesSlotList;
++            case CKM_SM4_ECB://add by liqiangqiang from
++            case CKM_SM4_CBC://add by liqiangqiang from
++            
++            return &pk11_sm4SlotList;
+     case CKM_DES_CBC:
+     case CKM_DES_ECB:
+     case CKM_DES3_ECB:
+@@ -853,6 +864,10 @@
+     case CKM_SHA224:
+     case CKM_SHA256:
+ 	return &pk11_sha256SlotList;
++            
++        case CKM_SM3:
++            return &pk11_sm3SlotList;   //add by liqiangqiang from
++            
+     case CKM_SHA384:
+     case CKM_SHA512:
+ 	return &pk11_sha512SlotList;
+@@ -881,6 +896,9 @@
+     case CKM_SSL3_MASTER_KEY_DERIVE:
+     case CKM_SSL3_SHA1_MAC:
+     case CKM_SSL3_MD5_MAC:
++            
++        case CKM_SSL3_SM3_MAC:   //add by liqiangqiang from
++
+ 	return &pk11_sslSlotList;
+     case CKM_TLS_MASTER_KEY_DERIVE:
+     case CKM_TLS_KEY_AND_MAC_DERIVE:
+@@ -2069,7 +2087,7 @@
+ 	if ((type[i] != CKM_FAKE_RANDOM) && 
+ 	    (type[i] != CKM_SHA_1) &&
+ 	    (type[i] != CKM_SHA224) &&
+-	    (type[i] != CKM_SHA256) &&
++	    (type[i] != CKM_SHA256) && (type[i] != CKM_SM3) &&  //add by liqiangqiang from
+ 	    (type[i] != CKM_SHA384) &&
+ 	    (type[i] != CKM_SHA512) &&
+ 	    (type[i] != CKM_MD5) && 
+Index: secmodt.h
+===================================================================
+--- secmodt.h	(版本 235644)
++++ secmodt.h	(工作副本)
+@@ -280,7 +280,7 @@
+ #define SECMOD_FIPS	2	/* internal fips module */
+ 
+ /* default module configuration strings */
+-#define SECMOD_SLOT_FLAGS "slotFlags=[RSA,DSA,DH,RC2,RC4,DES,RANDOM,SHA1,MD5,MD2,SSL,TLS,AES,Camellia,SEED,SHA256,SHA512]"
++#define SECMOD_SLOT_FLAGS "slotFlags=[RSA,DSA,DH,RC2,RC4,DES,RANDOM,SHA1,MD5,MD2,SSL,TLS,AES,Camellia,SEED,SHA256,SHA512,SM3]"//add by liqiangqiang from
+ 
+ #define SECMOD_MAKE_NSS_FLAGS(fips,slot) \
+ "Flags=internal,critical" fips " slotparams=(" #slot "={" SECMOD_SLOT_FLAGS "})"

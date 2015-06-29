@@ -1,0 +1,1159 @@
+#import <Foundation/Foundation.h>
+#import "USAdditions.h"
+#import <libxml/tree.h>
+#import "USGlobals.h"
+@class UserAPIServiceSvc_queryCertResult;
+@class UserAPIServiceSvc_certInfo;
+@class UserAPIServiceSvc_userInfo;
+@class UserAPIServiceSvc_accountConfigResult;
+@class UserAPIServiceSvc_RaServiceUnavailable;
+@class UserAPIServiceSvc_queryCertByCertId;
+@class UserAPIServiceSvc_queryCertByCertIdResponse;
+@class UserAPIServiceSvc_downloadCRL;
+@class UserAPIServiceSvc_downloadCRLResponse;
+@class UserAPIServiceSvc_unsuspendCert;
+@class UserAPIServiceSvc_unsuspendCertResponse;
+@class UserAPIServiceSvc_enrollCert;
+@class UserAPIServiceSvc_enrollCertResponse;
+@class UserAPIServiceSvc_queryCerts;
+@class UserAPIServiceSvc_queryCertsResponse;
+@class UserAPIServiceSvc_renewCertAA;
+@class UserAPIServiceSvc_renewCertAAResponse;
+@class UserAPIServiceSvc_downloadDeltaCRL;
+@class UserAPIServiceSvc_downloadDeltaCRLResponse;
+@class UserAPIServiceSvc_downloadCA;
+@class UserAPIServiceSvc_downloadCAResponse;
+@class UserAPIServiceSvc_doScript;
+@class UserAPIServiceSvc_doScriptResponse;
+@class UserAPIServiceSvc_synchroTemplate;
+@class UserAPIServiceSvc_synchroTemplateResponse;
+@class UserAPIServiceSvc_queryCertBySerialNumber;
+@class UserAPIServiceSvc_queryCertBySerialNumberResponse;
+@class UserAPIServiceSvc_pickupCert;
+@class UserAPIServiceSvc_pickupCertResponse;
+@class UserAPIServiceSvc_revokeCert;
+@class UserAPIServiceSvc_revokeCertResponse;
+@class UserAPIServiceSvc_renewCert;
+@class UserAPIServiceSvc_renewCertResponse;
+@class UserAPIServiceSvc_suspendCert;
+@class UserAPIServiceSvc_suspendCertResponse;
+@class UserAPIServiceSvc_enrollCertAA;
+@class UserAPIServiceSvc_enrollCertAAResponse;
+@interface UserAPIServiceSvc_certInfo : NSObject {
+	
+/* elements */
+	NSString * certStatus;
+	NSString * certReqDate;
+	NSString * certReqTransid;
+	NSString * certReqNonce;
+	NSString * certReqBufType;
+	NSString * certReqChallenge;
+	NSString * certReqComment;
+	NSString * certApproveDate;
+	NSString * certRejectDate;
+	NSString * certSignDate;
+	NSString * certSerialNumber;
+	NSString * certNotBefore;
+	NSString * certNotAfter;
+	NSString * certIssuerHashMd5;
+	NSString * certIssuerDn;
+	NSString * certSubjectHashMd5;
+	NSString * certSubjectDn;
+	NSString * certSuspendDate;
+	NSString * certRevokeDate;
+	NSString * certRevokeReason;
+	NSString * certRenewalDate;
+	NSNumber * certRenewalPrevId;
+	NSNumber * certRenewalNextId;
+	NSNumber * certReqOverrideValidity;
+	NSNumber * id_;
+	NSString * certReqBuf;
+	NSString * certSignBuf;
+	NSString * certPin;
+	NSString * certType;
+	NSString * certKmcReq1;
+	NSString * certKmcReq2;
+	NSString * certKmcReq3;
+	NSString * certKmcRep1;
+	NSString * certKmcRep2;
+	NSString * certKmcRep3;
+	NSString * certDeliverMode;
+	NSString * certApproveAdmin1;
+	NSString * certApproveAdmin2;
+	NSString * certRenewemailDeliver;
+	NSString * certReqBufKmc;
+	NSString * certReqBufTypeKmc;
+	NSString * certSignBufKmc;
+	NSString * certSignBufP7Kmc;
+	NSString * certSignBufP7;
+	NSString * certSerialnumberKmc;
+	NSString * certTypeKmc;
+	NSString * certReqPublickey;
+	NSString * certReqPublickeyHashMd5;
+	NSString * certIdRandom;
+/* attributes */
+}
+- (NSString *)nsPrefix;
+- (xmlNodePtr)xmlNodeForDoc:(xmlDocPtr)doc elementName:(NSString *)elName;
+- (void)addAttributesToNode:(xmlNodePtr)node;
+- (void)addElementsToNode:(xmlNodePtr)node;
++ (UserAPIServiceSvc_certInfo *)deserializeNode:(xmlNodePtr)cur;
+- (void)deserializeAttributesFromNode:(xmlNodePtr)cur;
+- (void)deserializeElementsFromNode:(xmlNodePtr)cur;
+/* elements */
+@property (retain) NSString * certStatus;
+@property (retain) NSString * certReqDate;
+@property (retain) NSString * certReqTransid;
+@property (retain) NSString * certReqNonce;
+@property (retain) NSString * certReqBufType;
+@property (retain) NSString * certReqChallenge;
+@property (retain) NSString * certReqComment;
+@property (retain) NSString * certApproveDate;
+@property (retain) NSString * certRejectDate;
+@property (retain) NSString * certSignDate;
+@property (retain) NSString * certSerialNumber;
+@property (retain) NSString * certNotBefore;
+@property (retain) NSString * certNotAfter;
+@property (retain) NSString * certIssuerHashMd5;
+@property (retain) NSString * certIssuerDn;
+@property (retain) NSString * certSubjectHashMd5;
+@property (retain) NSString * certSubjectDn;
+@property (retain) NSString * certSuspendDate;
+@property (retain) NSString * certRevokeDate;
+@property (retain) NSString * certRevokeReason;
+@property (retain) NSString * certRenewalDate;
+@property (retain) NSNumber * certRenewalPrevId;
+@property (retain) NSNumber * certRenewalNextId;
+@property (retain) NSNumber * certReqOverrideValidity;
+@property (retain) NSNumber * id_;
+@property (retain) NSString * certReqBuf;
+@property (retain) NSString * certSignBuf;
+@property (retain) NSString * certPin;
+@property (retain) NSString * certType;
+@property (retain) NSString * certKmcReq1;
+@property (retain) NSString * certKmcReq2;
+@property (retain) NSString * certKmcReq3;
+@property (retain) NSString * certKmcRep1;
+@property (retain) NSString * certKmcRep2;
+@property (retain) NSString * certKmcRep3;
+@property (retain) NSString * certDeliverMode;
+@property (retain) NSString * certApproveAdmin1;
+@property (retain) NSString * certApproveAdmin2;
+@property (retain) NSString * certRenewemailDeliver;
+@property (retain) NSString * certReqBufKmc;
+@property (retain) NSString * certReqBufTypeKmc;
+@property (retain) NSString * certSignBufKmc;
+@property (retain) NSString * certSignBufP7Kmc;
+@property (retain) NSString * certSignBufP7;
+@property (retain) NSString * certSerialnumberKmc;
+@property (retain) NSString * certTypeKmc;
+@property (retain) NSString * certReqPublickey;
+@property (retain) NSString * certReqPublickeyHashMd5;
+@property (retain) NSString * certIdRandom;
+/* attributes */
+- (NSDictionary *)attributes;
+@end
+@interface UserAPIServiceSvc_userInfo : NSObject {
+	
+/* elements */
+	NSNumber * accountId;
+	NSString * userName;
+	NSString * userSurname;
+	NSString * userSerialnumber;
+	NSString * userEmail;
+	NSString * userOrganization;
+	NSString * userOrgunit;
+	NSString * userCountry;
+	NSString * userState;
+	NSString * userLocality;
+	NSString * userStreet;
+	NSString * userDns;
+	NSString * userIp;
+	NSString * userTitle;
+	NSString * userDescription;
+	NSString * userAdditionalField1;
+	NSString * userAdditionalField2;
+	NSString * userAdditionalField3;
+	NSString * userAdditionalField4;
+	NSString * userAdditionalField5;
+	NSString * userAdditionalField6;
+	NSString * userAdditionalField7;
+	NSString * userAdditionalField8;
+	NSString * userAdditionalField9;
+	NSString * userAdditionalField10;
+/* attributes */
+}
+- (NSString *)nsPrefix;
+- (xmlNodePtr)xmlNodeForDoc:(xmlDocPtr)doc elementName:(NSString *)elName;
+- (void)addAttributesToNode:(xmlNodePtr)node;
+- (void)addElementsToNode:(xmlNodePtr)node;
++ (UserAPIServiceSvc_userInfo *)deserializeNode:(xmlNodePtr)cur;
+- (void)deserializeAttributesFromNode:(xmlNodePtr)cur;
+- (void)deserializeElementsFromNode:(xmlNodePtr)cur;
+/* elements */
+@property (retain) NSNumber * accountId;
+@property (retain) NSString * userName;
+@property (retain) NSString * userSurname;
+@property (retain) NSString * userSerialnumber;
+@property (retain) NSString * userEmail;
+@property (retain) NSString * userOrganization;
+@property (retain) NSString * userOrgunit;
+@property (retain) NSString * userCountry;
+@property (retain) NSString * userState;
+@property (retain) NSString * userLocality;
+@property (retain) NSString * userStreet;
+@property (retain) NSString * userDns;
+@property (retain) NSString * userIp;
+@property (retain) NSString * userTitle;
+@property (retain) NSString * userDescription;
+@property (retain) NSString * userAdditionalField1;
+@property (retain) NSString * userAdditionalField2;
+@property (retain) NSString * userAdditionalField3;
+@property (retain) NSString * userAdditionalField4;
+@property (retain) NSString * userAdditionalField5;
+@property (retain) NSString * userAdditionalField6;
+@property (retain) NSString * userAdditionalField7;
+@property (retain) NSString * userAdditionalField8;
+@property (retain) NSString * userAdditionalField9;
+@property (retain) NSString * userAdditionalField10;
+/* attributes */
+- (NSDictionary *)attributes;
+@end
+@interface UserAPIServiceSvc_queryCertResult : NSObject {
+	
+/* elements */
+	NSNumber * totalSize;
+	NSMutableArray *certInfos;
+	NSMutableArray *userInfos;
+/* attributes */
+}
+- (NSString *)nsPrefix;
+- (xmlNodePtr)xmlNodeForDoc:(xmlDocPtr)doc elementName:(NSString *)elName;
+- (void)addAttributesToNode:(xmlNodePtr)node;
+- (void)addElementsToNode:(xmlNodePtr)node;
++ (UserAPIServiceSvc_queryCertResult *)deserializeNode:(xmlNodePtr)cur;
+- (void)deserializeAttributesFromNode:(xmlNodePtr)cur;
+- (void)deserializeElementsFromNode:(xmlNodePtr)cur;
+/* elements */
+@property (retain) NSNumber * totalSize;
+- (void)addCertInfos:(UserAPIServiceSvc_certInfo *)toAdd;
+@property (readonly) NSMutableArray * certInfos;
+- (void)addUserInfos:(UserAPIServiceSvc_userInfo *)toAdd;
+@property (readonly) NSMutableArray * userInfos;
+/* attributes */
+- (NSDictionary *)attributes;
+@end
+@interface UserAPIServiceSvc_accountConfigResult : NSObject {
+	
+/* elements */
+	NSString * certTemplate;
+	NSString * serviceUrl;
+	NSString * algorithm;
+	NSString * isDoubleCert;
+/* attributes */
+}
+- (NSString *)nsPrefix;
+- (xmlNodePtr)xmlNodeForDoc:(xmlDocPtr)doc elementName:(NSString *)elName;
+- (void)addAttributesToNode:(xmlNodePtr)node;
+- (void)addElementsToNode:(xmlNodePtr)node;
++ (UserAPIServiceSvc_accountConfigResult *)deserializeNode:(xmlNodePtr)cur;
+- (void)deserializeAttributesFromNode:(xmlNodePtr)cur;
+- (void)deserializeElementsFromNode:(xmlNodePtr)cur;
+/* elements */
+@property (retain) NSString * certTemplate;
+@property (retain) NSString * serviceUrl;
+@property (retain) NSString * algorithm;
+@property (retain) NSString * isDoubleCert;
+/* attributes */
+- (NSDictionary *)attributes;
+@end
+@interface UserAPIServiceSvc_RaServiceUnavailable : NSObject {
+	
+/* elements */
+	NSNumber * errorCode_;
+	NSString * message_;
+/* attributes */
+}
+- (NSString *)nsPrefix;
+- (xmlNodePtr)xmlNodeForDoc:(xmlDocPtr)doc elementName:(NSString *)elName;
+- (void)addAttributesToNode:(xmlNodePtr)node;
+- (void)addElementsToNode:(xmlNodePtr)node;
++ (UserAPIServiceSvc_RaServiceUnavailable *)deserializeNode:(xmlNodePtr)cur;
+- (void)deserializeAttributesFromNode:(xmlNodePtr)cur;
+- (void)deserializeElementsFromNode:(xmlNodePtr)cur;
+/* elements */
+@property (retain) NSNumber * errorCode_;
+@property (retain) NSString * message_;
+/* attributes */
+- (NSDictionary *)attributes;
+@end
+@interface UserAPIServiceSvc_queryCertByCertId : NSObject {
+	
+/* elements */
+	NSNumber * certId;
+	NSString * accountHash;
+	NSString * json;
+/* attributes */
+}
+- (NSString *)nsPrefix;
+- (xmlNodePtr)xmlNodeForDoc:(xmlDocPtr)doc elementName:(NSString *)elName;
+- (void)addAttributesToNode:(xmlNodePtr)node;
+- (void)addElementsToNode:(xmlNodePtr)node;
++ (UserAPIServiceSvc_queryCertByCertId *)deserializeNode:(xmlNodePtr)cur;
+- (void)deserializeAttributesFromNode:(xmlNodePtr)cur;
+- (void)deserializeElementsFromNode:(xmlNodePtr)cur;
+/* elements */
+@property (retain) NSNumber * certId;
+@property (retain) NSString * accountHash;
+@property (retain) NSString * json;
+/* attributes */
+- (NSDictionary *)attributes;
+@end
+@interface UserAPIServiceSvc_queryCertByCertIdResponse : NSObject {
+	
+/* elements */
+	UserAPIServiceSvc_queryCertResult * return_;
+/* attributes */
+}
+- (NSString *)nsPrefix;
+- (xmlNodePtr)xmlNodeForDoc:(xmlDocPtr)doc elementName:(NSString *)elName;
+- (void)addAttributesToNode:(xmlNodePtr)node;
+- (void)addElementsToNode:(xmlNodePtr)node;
++ (UserAPIServiceSvc_queryCertByCertIdResponse *)deserializeNode:(xmlNodePtr)cur;
+- (void)deserializeAttributesFromNode:(xmlNodePtr)cur;
+- (void)deserializeElementsFromNode:(xmlNodePtr)cur;
+/* elements */
+@property (retain) UserAPIServiceSvc_queryCertResult * return_;
+/* attributes */
+- (NSDictionary *)attributes;
+@end
+@interface UserAPIServiceSvc_downloadCRL : NSObject {
+	
+/* elements */
+	NSString * accountHash;
+/* attributes */
+}
+- (NSString *)nsPrefix;
+- (xmlNodePtr)xmlNodeForDoc:(xmlDocPtr)doc elementName:(NSString *)elName;
+- (void)addAttributesToNode:(xmlNodePtr)node;
+- (void)addElementsToNode:(xmlNodePtr)node;
++ (UserAPIServiceSvc_downloadCRL *)deserializeNode:(xmlNodePtr)cur;
+- (void)deserializeAttributesFromNode:(xmlNodePtr)cur;
+- (void)deserializeElementsFromNode:(xmlNodePtr)cur;
+/* elements */
+@property (retain) NSString * accountHash;
+/* attributes */
+- (NSDictionary *)attributes;
+@end
+@interface UserAPIServiceSvc_downloadCRLResponse : NSObject {
+	
+/* elements */
+	NSString * return_;
+/* attributes */
+}
+- (NSString *)nsPrefix;
+- (xmlNodePtr)xmlNodeForDoc:(xmlDocPtr)doc elementName:(NSString *)elName;
+- (void)addAttributesToNode:(xmlNodePtr)node;
+- (void)addElementsToNode:(xmlNodePtr)node;
++ (UserAPIServiceSvc_downloadCRLResponse *)deserializeNode:(xmlNodePtr)cur;
+- (void)deserializeAttributesFromNode:(xmlNodePtr)cur;
+- (void)deserializeElementsFromNode:(xmlNodePtr)cur;
+/* elements */
+@property (retain) NSString * return_;
+/* attributes */
+- (NSDictionary *)attributes;
+@end
+@interface UserAPIServiceSvc_unsuspendCert : NSObject {
+	
+/* elements */
+	NSString * serialNumber;
+	NSString * accountHash;
+	NSString * json;
+/* attributes */
+}
+- (NSString *)nsPrefix;
+- (xmlNodePtr)xmlNodeForDoc:(xmlDocPtr)doc elementName:(NSString *)elName;
+- (void)addAttributesToNode:(xmlNodePtr)node;
+- (void)addElementsToNode:(xmlNodePtr)node;
++ (UserAPIServiceSvc_unsuspendCert *)deserializeNode:(xmlNodePtr)cur;
+- (void)deserializeAttributesFromNode:(xmlNodePtr)cur;
+- (void)deserializeElementsFromNode:(xmlNodePtr)cur;
+/* elements */
+@property (retain) NSString * serialNumber;
+@property (retain) NSString * accountHash;
+@property (retain) NSString * json;
+/* attributes */
+- (NSDictionary *)attributes;
+@end
+@interface UserAPIServiceSvc_unsuspendCertResponse : NSObject {
+	
+/* elements */
+/* attributes */
+}
+- (NSString *)nsPrefix;
+- (xmlNodePtr)xmlNodeForDoc:(xmlDocPtr)doc elementName:(NSString *)elName;
+- (void)addAttributesToNode:(xmlNodePtr)node;
+- (void)addElementsToNode:(xmlNodePtr)node;
++ (UserAPIServiceSvc_unsuspendCertResponse *)deserializeNode:(xmlNodePtr)cur;
+- (void)deserializeAttributesFromNode:(xmlNodePtr)cur;
+- (void)deserializeElementsFromNode:(xmlNodePtr)cur;
+/* elements */
+/* attributes */
+- (NSDictionary *)attributes;
+@end
+@interface UserAPIServiceSvc_enrollCert : NSObject {
+	
+/* elements */
+	UserAPIServiceSvc_userInfo * userInfo;
+	NSString * certReqBuf;
+	NSString * certReqChallenge;
+	NSString * accountHash;
+	NSString * json;
+/* attributes */
+}
+- (NSString *)nsPrefix;
+- (xmlNodePtr)xmlNodeForDoc:(xmlDocPtr)doc elementName:(NSString *)elName;
+- (void)addAttributesToNode:(xmlNodePtr)node;
+- (void)addElementsToNode:(xmlNodePtr)node;
++ (UserAPIServiceSvc_enrollCert *)deserializeNode:(xmlNodePtr)cur;
+- (void)deserializeAttributesFromNode:(xmlNodePtr)cur;
+- (void)deserializeElementsFromNode:(xmlNodePtr)cur;
+/* elements */
+@property (retain) UserAPIServiceSvc_userInfo * userInfo;
+@property (retain) NSString * certReqBuf;
+@property (retain) NSString * certReqChallenge;
+@property (retain) NSString * accountHash;
+@property (retain) NSString * json;
+/* attributes */
+- (NSDictionary *)attributes;
+@end
+@interface UserAPIServiceSvc_enrollCertResponse : NSObject {
+	
+/* elements */
+/* attributes */
+}
+- (NSString *)nsPrefix;
+- (xmlNodePtr)xmlNodeForDoc:(xmlDocPtr)doc elementName:(NSString *)elName;
+- (void)addAttributesToNode:(xmlNodePtr)node;
+- (void)addElementsToNode:(xmlNodePtr)node;
++ (UserAPIServiceSvc_enrollCertResponse *)deserializeNode:(xmlNodePtr)cur;
+- (void)deserializeAttributesFromNode:(xmlNodePtr)cur;
+- (void)deserializeElementsFromNode:(xmlNodePtr)cur;
+/* elements */
+/* attributes */
+- (NSDictionary *)attributes;
+@end
+@interface UserAPIServiceSvc_queryCerts : NSObject {
+	
+/* elements */
+	UserAPIServiceSvc_userInfo * userInfo;
+	UserAPIServiceSvc_certInfo * certInfo;
+	NSNumber * pageIndex;
+	NSNumber * pageSize;
+	NSString * sqlTemplateFileName;
+	NSString * nextResultTag;
+	NSString * totalTag;
+	NSString * accountHash;
+/* attributes */
+}
+- (NSString *)nsPrefix;
+- (xmlNodePtr)xmlNodeForDoc:(xmlDocPtr)doc elementName:(NSString *)elName;
+- (void)addAttributesToNode:(xmlNodePtr)node;
+- (void)addElementsToNode:(xmlNodePtr)node;
++ (UserAPIServiceSvc_queryCerts *)deserializeNode:(xmlNodePtr)cur;
+- (void)deserializeAttributesFromNode:(xmlNodePtr)cur;
+- (void)deserializeElementsFromNode:(xmlNodePtr)cur;
+/* elements */
+@property (retain) UserAPIServiceSvc_userInfo * userInfo;
+@property (retain) UserAPIServiceSvc_certInfo * certInfo;
+@property (retain) NSNumber * pageIndex;
+@property (retain) NSNumber * pageSize;
+@property (retain) NSString * sqlTemplateFileName;
+@property (retain) NSString * nextResultTag;
+@property (retain) NSString * totalTag;
+@property (retain) NSString * accountHash;
+/* attributes */
+- (NSDictionary *)attributes;
+@end
+@interface UserAPIServiceSvc_queryCertsResponse : NSObject {
+	
+/* elements */
+	UserAPIServiceSvc_queryCertResult * return_;
+/* attributes */
+}
+- (NSString *)nsPrefix;
+- (xmlNodePtr)xmlNodeForDoc:(xmlDocPtr)doc elementName:(NSString *)elName;
+- (void)addAttributesToNode:(xmlNodePtr)node;
+- (void)addElementsToNode:(xmlNodePtr)node;
++ (UserAPIServiceSvc_queryCertsResponse *)deserializeNode:(xmlNodePtr)cur;
+- (void)deserializeAttributesFromNode:(xmlNodePtr)cur;
+- (void)deserializeElementsFromNode:(xmlNodePtr)cur;
+/* elements */
+@property (retain) UserAPIServiceSvc_queryCertResult * return_;
+/* attributes */
+- (NSDictionary *)attributes;
+@end
+@interface UserAPIServiceSvc_renewCertAA : NSObject {
+	
+/* elements */
+	UserAPIServiceSvc_userInfo * userInfo;
+	UserAPIServiceSvc_certInfo * origin;
+	NSString * accountHash;
+	NSString * aaCheckPoint;
+	NSString * passCode;
+	NSString * json;
+/* attributes */
+}
+- (NSString *)nsPrefix;
+- (xmlNodePtr)xmlNodeForDoc:(xmlDocPtr)doc elementName:(NSString *)elName;
+- (void)addAttributesToNode:(xmlNodePtr)node;
+- (void)addElementsToNode:(xmlNodePtr)node;
++ (UserAPIServiceSvc_renewCertAA *)deserializeNode:(xmlNodePtr)cur;
+- (void)deserializeAttributesFromNode:(xmlNodePtr)cur;
+- (void)deserializeElementsFromNode:(xmlNodePtr)cur;
+/* elements */
+@property (retain) UserAPIServiceSvc_userInfo * userInfo;
+@property (retain) UserAPIServiceSvc_certInfo * origin;
+@property (retain) NSString * accountHash;
+@property (retain) NSString * aaCheckPoint;
+@property (retain) NSString * passCode;
+@property (retain) NSString * json;
+/* attributes */
+- (NSDictionary *)attributes;
+@end
+@interface UserAPIServiceSvc_renewCertAAResponse : NSObject {
+	
+/* elements */
+	UserAPIServiceSvc_certInfo * return_;
+/* attributes */
+}
+- (NSString *)nsPrefix;
+- (xmlNodePtr)xmlNodeForDoc:(xmlDocPtr)doc elementName:(NSString *)elName;
+- (void)addAttributesToNode:(xmlNodePtr)node;
+- (void)addElementsToNode:(xmlNodePtr)node;
++ (UserAPIServiceSvc_renewCertAAResponse *)deserializeNode:(xmlNodePtr)cur;
+- (void)deserializeAttributesFromNode:(xmlNodePtr)cur;
+- (void)deserializeElementsFromNode:(xmlNodePtr)cur;
+/* elements */
+@property (retain) UserAPIServiceSvc_certInfo * return_;
+/* attributes */
+- (NSDictionary *)attributes;
+@end
+@interface UserAPIServiceSvc_downloadDeltaCRL : NSObject {
+	
+/* elements */
+	NSString * accountHash;
+/* attributes */
+}
+- (NSString *)nsPrefix;
+- (xmlNodePtr)xmlNodeForDoc:(xmlDocPtr)doc elementName:(NSString *)elName;
+- (void)addAttributesToNode:(xmlNodePtr)node;
+- (void)addElementsToNode:(xmlNodePtr)node;
++ (UserAPIServiceSvc_downloadDeltaCRL *)deserializeNode:(xmlNodePtr)cur;
+- (void)deserializeAttributesFromNode:(xmlNodePtr)cur;
+- (void)deserializeElementsFromNode:(xmlNodePtr)cur;
+/* elements */
+@property (retain) NSString * accountHash;
+/* attributes */
+- (NSDictionary *)attributes;
+@end
+@interface UserAPIServiceSvc_downloadDeltaCRLResponse : NSObject {
+	
+/* elements */
+	NSString * return_;
+/* attributes */
+}
+- (NSString *)nsPrefix;
+- (xmlNodePtr)xmlNodeForDoc:(xmlDocPtr)doc elementName:(NSString *)elName;
+- (void)addAttributesToNode:(xmlNodePtr)node;
+- (void)addElementsToNode:(xmlNodePtr)node;
++ (UserAPIServiceSvc_downloadDeltaCRLResponse *)deserializeNode:(xmlNodePtr)cur;
+- (void)deserializeAttributesFromNode:(xmlNodePtr)cur;
+- (void)deserializeElementsFromNode:(xmlNodePtr)cur;
+/* elements */
+@property (retain) NSString * return_;
+/* attributes */
+- (NSDictionary *)attributes;
+@end
+@interface UserAPIServiceSvc_downloadCA : NSObject {
+	
+/* elements */
+	NSString * accountHash;
+/* attributes */
+}
+- (NSString *)nsPrefix;
+- (xmlNodePtr)xmlNodeForDoc:(xmlDocPtr)doc elementName:(NSString *)elName;
+- (void)addAttributesToNode:(xmlNodePtr)node;
+- (void)addElementsToNode:(xmlNodePtr)node;
++ (UserAPIServiceSvc_downloadCA *)deserializeNode:(xmlNodePtr)cur;
+- (void)deserializeAttributesFromNode:(xmlNodePtr)cur;
+- (void)deserializeElementsFromNode:(xmlNodePtr)cur;
+/* elements */
+@property (retain) NSString * accountHash;
+/* attributes */
+- (NSDictionary *)attributes;
+@end
+@interface UserAPIServiceSvc_downloadCAResponse : NSObject {
+	
+/* elements */
+	NSString * return_;
+/* attributes */
+}
+- (NSString *)nsPrefix;
+- (xmlNodePtr)xmlNodeForDoc:(xmlDocPtr)doc elementName:(NSString *)elName;
+- (void)addAttributesToNode:(xmlNodePtr)node;
+- (void)addElementsToNode:(xmlNodePtr)node;
++ (UserAPIServiceSvc_downloadCAResponse *)deserializeNode:(xmlNodePtr)cur;
+- (void)deserializeAttributesFromNode:(xmlNodePtr)cur;
+- (void)deserializeElementsFromNode:(xmlNodePtr)cur;
+/* elements */
+@property (retain) NSString * return_;
+/* attributes */
+- (NSDictionary *)attributes;
+@end
+@interface UserAPIServiceSvc_doScript : NSObject {
+	
+/* elements */
+	NSString * scriptName;
+	NSString * jsonMap;
+/* attributes */
+}
+- (NSString *)nsPrefix;
+- (xmlNodePtr)xmlNodeForDoc:(xmlDocPtr)doc elementName:(NSString *)elName;
+- (void)addAttributesToNode:(xmlNodePtr)node;
+- (void)addElementsToNode:(xmlNodePtr)node;
++ (UserAPIServiceSvc_doScript *)deserializeNode:(xmlNodePtr)cur;
+- (void)deserializeAttributesFromNode:(xmlNodePtr)cur;
+- (void)deserializeElementsFromNode:(xmlNodePtr)cur;
+/* elements */
+@property (retain) NSString * scriptName;
+@property (retain) NSString * jsonMap;
+/* attributes */
+- (NSDictionary *)attributes;
+@end
+@interface UserAPIServiceSvc_doScriptResponse : NSObject {
+	
+/* elements */
+	NSString * return_;
+/* attributes */
+}
+- (NSString *)nsPrefix;
+- (xmlNodePtr)xmlNodeForDoc:(xmlDocPtr)doc elementName:(NSString *)elName;
+- (void)addAttributesToNode:(xmlNodePtr)node;
+- (void)addElementsToNode:(xmlNodePtr)node;
++ (UserAPIServiceSvc_doScriptResponse *)deserializeNode:(xmlNodePtr)cur;
+- (void)deserializeAttributesFromNode:(xmlNodePtr)cur;
+- (void)deserializeElementsFromNode:(xmlNodePtr)cur;
+/* elements */
+@property (retain) NSString * return_;
+/* attributes */
+- (NSDictionary *)attributes;
+@end
+@interface UserAPIServiceSvc_synchroTemplate : NSObject {
+	
+/* elements */
+	NSString * accountHash;
+/* attributes */
+}
+- (NSString *)nsPrefix;
+- (xmlNodePtr)xmlNodeForDoc:(xmlDocPtr)doc elementName:(NSString *)elName;
+- (void)addAttributesToNode:(xmlNodePtr)node;
+- (void)addElementsToNode:(xmlNodePtr)node;
++ (UserAPIServiceSvc_synchroTemplate *)deserializeNode:(xmlNodePtr)cur;
+- (void)deserializeAttributesFromNode:(xmlNodePtr)cur;
+- (void)deserializeElementsFromNode:(xmlNodePtr)cur;
+/* elements */
+@property (retain) NSString * accountHash;
+/* attributes */
+- (NSDictionary *)attributes;
+@end
+@interface UserAPIServiceSvc_synchroTemplateResponse : NSObject {
+	
+/* elements */
+	UserAPIServiceSvc_accountConfigResult * return_;
+/* attributes */
+}
+- (NSString *)nsPrefix;
+- (xmlNodePtr)xmlNodeForDoc:(xmlDocPtr)doc elementName:(NSString *)elName;
+- (void)addAttributesToNode:(xmlNodePtr)node;
+- (void)addElementsToNode:(xmlNodePtr)node;
++ (UserAPIServiceSvc_synchroTemplateResponse *)deserializeNode:(xmlNodePtr)cur;
+- (void)deserializeAttributesFromNode:(xmlNodePtr)cur;
+- (void)deserializeElementsFromNode:(xmlNodePtr)cur;
+/* elements */
+@property (retain) UserAPIServiceSvc_accountConfigResult * return_;
+/* attributes */
+- (NSDictionary *)attributes;
+@end
+@interface UserAPIServiceSvc_queryCertBySerialNumber : NSObject {
+	
+/* elements */
+	NSString * serialNumber;
+	NSString * accountHash;
+	NSString * json;
+/* attributes */
+}
+- (NSString *)nsPrefix;
+- (xmlNodePtr)xmlNodeForDoc:(xmlDocPtr)doc elementName:(NSString *)elName;
+- (void)addAttributesToNode:(xmlNodePtr)node;
+- (void)addElementsToNode:(xmlNodePtr)node;
++ (UserAPIServiceSvc_queryCertBySerialNumber *)deserializeNode:(xmlNodePtr)cur;
+- (void)deserializeAttributesFromNode:(xmlNodePtr)cur;
+- (void)deserializeElementsFromNode:(xmlNodePtr)cur;
+/* elements */
+@property (retain) NSString * serialNumber;
+@property (retain) NSString * accountHash;
+@property (retain) NSString * json;
+/* attributes */
+- (NSDictionary *)attributes;
+@end
+@interface UserAPIServiceSvc_queryCertBySerialNumberResponse : NSObject {
+	
+/* elements */
+	UserAPIServiceSvc_queryCertResult * return_;
+/* attributes */
+}
+- (NSString *)nsPrefix;
+- (xmlNodePtr)xmlNodeForDoc:(xmlDocPtr)doc elementName:(NSString *)elName;
+- (void)addAttributesToNode:(xmlNodePtr)node;
+- (void)addElementsToNode:(xmlNodePtr)node;
++ (UserAPIServiceSvc_queryCertBySerialNumberResponse *)deserializeNode:(xmlNodePtr)cur;
+- (void)deserializeAttributesFromNode:(xmlNodePtr)cur;
+- (void)deserializeElementsFromNode:(xmlNodePtr)cur;
+/* elements */
+@property (retain) UserAPIServiceSvc_queryCertResult * return_;
+/* attributes */
+- (NSDictionary *)attributes;
+@end
+@interface UserAPIServiceSvc_pickupCert : NSObject {
+	
+/* elements */
+	NSString * certPin;
+	NSString * certReqChallenge;
+	NSString * certReqBuf;
+	NSString * accountHash;
+	NSString * json;
+/* attributes */
+}
+- (NSString *)nsPrefix;
+- (xmlNodePtr)xmlNodeForDoc:(xmlDocPtr)doc elementName:(NSString *)elName;
+- (void)addAttributesToNode:(xmlNodePtr)node;
+- (void)addElementsToNode:(xmlNodePtr)node;
++ (UserAPIServiceSvc_pickupCert *)deserializeNode:(xmlNodePtr)cur;
+- (void)deserializeAttributesFromNode:(xmlNodePtr)cur;
+- (void)deserializeElementsFromNode:(xmlNodePtr)cur;
+/* elements */
+@property (retain) NSString * certPin;
+@property (retain) NSString * certReqChallenge;
+@property (retain) NSString * certReqBuf;
+@property (retain) NSString * accountHash;
+@property (retain) NSString * json;
+/* attributes */
+- (NSDictionary *)attributes;
+@end
+@interface UserAPIServiceSvc_pickupCertResponse : NSObject {
+	
+/* elements */
+	UserAPIServiceSvc_certInfo * return_;
+/* attributes */
+}
+- (NSString *)nsPrefix;
+- (xmlNodePtr)xmlNodeForDoc:(xmlDocPtr)doc elementName:(NSString *)elName;
+- (void)addAttributesToNode:(xmlNodePtr)node;
+- (void)addElementsToNode:(xmlNodePtr)node;
++ (UserAPIServiceSvc_pickupCertResponse *)deserializeNode:(xmlNodePtr)cur;
+- (void)deserializeAttributesFromNode:(xmlNodePtr)cur;
+- (void)deserializeElementsFromNode:(xmlNodePtr)cur;
+/* elements */
+@property (retain) UserAPIServiceSvc_certInfo * return_;
+/* attributes */
+- (NSDictionary *)attributes;
+@end
+@interface UserAPIServiceSvc_revokeCert : NSObject {
+	
+/* elements */
+	NSString * serialNumber;
+	NSString * certReqChallenge;
+	NSString * certRevokeReason;
+	NSString * accountHash;
+	NSString * json;
+/* attributes */
+}
+- (NSString *)nsPrefix;
+- (xmlNodePtr)xmlNodeForDoc:(xmlDocPtr)doc elementName:(NSString *)elName;
+- (void)addAttributesToNode:(xmlNodePtr)node;
+- (void)addElementsToNode:(xmlNodePtr)node;
++ (UserAPIServiceSvc_revokeCert *)deserializeNode:(xmlNodePtr)cur;
+- (void)deserializeAttributesFromNode:(xmlNodePtr)cur;
+- (void)deserializeElementsFromNode:(xmlNodePtr)cur;
+/* elements */
+@property (retain) NSString * serialNumber;
+@property (retain) NSString * certReqChallenge;
+@property (retain) NSString * certRevokeReason;
+@property (retain) NSString * accountHash;
+@property (retain) NSString * json;
+/* attributes */
+- (NSDictionary *)attributes;
+@end
+@interface UserAPIServiceSvc_revokeCertResponse : NSObject {
+	
+/* elements */
+/* attributes */
+}
+- (NSString *)nsPrefix;
+- (xmlNodePtr)xmlNodeForDoc:(xmlDocPtr)doc elementName:(NSString *)elName;
+- (void)addAttributesToNode:(xmlNodePtr)node;
+- (void)addElementsToNode:(xmlNodePtr)node;
++ (UserAPIServiceSvc_revokeCertResponse *)deserializeNode:(xmlNodePtr)cur;
+- (void)deserializeAttributesFromNode:(xmlNodePtr)cur;
+- (void)deserializeElementsFromNode:(xmlNodePtr)cur;
+/* elements */
+/* attributes */
+- (NSDictionary *)attributes;
+@end
+@interface UserAPIServiceSvc_renewCert : NSObject {
+	
+/* elements */
+	UserAPIServiceSvc_userInfo * userInfo;
+	UserAPIServiceSvc_certInfo * origin;
+	NSString * accountHash;
+	NSString * json;
+/* attributes */
+}
+- (NSString *)nsPrefix;
+- (xmlNodePtr)xmlNodeForDoc:(xmlDocPtr)doc elementName:(NSString *)elName;
+- (void)addAttributesToNode:(xmlNodePtr)node;
+- (void)addElementsToNode:(xmlNodePtr)node;
++ (UserAPIServiceSvc_renewCert *)deserializeNode:(xmlNodePtr)cur;
+- (void)deserializeAttributesFromNode:(xmlNodePtr)cur;
+- (void)deserializeElementsFromNode:(xmlNodePtr)cur;
+/* elements */
+@property (retain) UserAPIServiceSvc_userInfo * userInfo;
+@property (retain) UserAPIServiceSvc_certInfo * origin;
+@property (retain) NSString * accountHash;
+@property (retain) NSString * json;
+/* attributes */
+- (NSDictionary *)attributes;
+@end
+@interface UserAPIServiceSvc_renewCertResponse : NSObject {
+	
+/* elements */
+/* attributes */
+}
+- (NSString *)nsPrefix;
+- (xmlNodePtr)xmlNodeForDoc:(xmlDocPtr)doc elementName:(NSString *)elName;
+- (void)addAttributesToNode:(xmlNodePtr)node;
+- (void)addElementsToNode:(xmlNodePtr)node;
++ (UserAPIServiceSvc_renewCertResponse *)deserializeNode:(xmlNodePtr)cur;
+- (void)deserializeAttributesFromNode:(xmlNodePtr)cur;
+- (void)deserializeElementsFromNode:(xmlNodePtr)cur;
+/* elements */
+/* attributes */
+- (NSDictionary *)attributes;
+@end
+@interface UserAPIServiceSvc_suspendCert : NSObject {
+	
+/* elements */
+	NSString * serialNumber;
+	NSString * accountHash;
+	NSString * json;
+/* attributes */
+}
+- (NSString *)nsPrefix;
+- (xmlNodePtr)xmlNodeForDoc:(xmlDocPtr)doc elementName:(NSString *)elName;
+- (void)addAttributesToNode:(xmlNodePtr)node;
+- (void)addElementsToNode:(xmlNodePtr)node;
++ (UserAPIServiceSvc_suspendCert *)deserializeNode:(xmlNodePtr)cur;
+- (void)deserializeAttributesFromNode:(xmlNodePtr)cur;
+- (void)deserializeElementsFromNode:(xmlNodePtr)cur;
+/* elements */
+@property (retain) NSString * serialNumber;
+@property (retain) NSString * accountHash;
+@property (retain) NSString * json;
+/* attributes */
+- (NSDictionary *)attributes;
+@end
+@interface UserAPIServiceSvc_suspendCertResponse : NSObject {
+	
+/* elements */
+/* attributes */
+}
+- (NSString *)nsPrefix;
+- (xmlNodePtr)xmlNodeForDoc:(xmlDocPtr)doc elementName:(NSString *)elName;
+- (void)addAttributesToNode:(xmlNodePtr)node;
+- (void)addElementsToNode:(xmlNodePtr)node;
++ (UserAPIServiceSvc_suspendCertResponse *)deserializeNode:(xmlNodePtr)cur;
+- (void)deserializeAttributesFromNode:(xmlNodePtr)cur;
+- (void)deserializeElementsFromNode:(xmlNodePtr)cur;
+/* elements */
+/* attributes */
+- (NSDictionary *)attributes;
+@end
+@interface UserAPIServiceSvc_enrollCertAA : NSObject {
+	
+/* elements */
+	UserAPIServiceSvc_userInfo * userInfo;
+	NSString * certReqBuf;
+	NSString * accountHash;
+	NSString * aaCheckPoint;
+	NSString * passCode;
+	NSString * json;
+/* attributes */
+}
+- (NSString *)nsPrefix;
+- (xmlNodePtr)xmlNodeForDoc:(xmlDocPtr)doc elementName:(NSString *)elName;
+- (void)addAttributesToNode:(xmlNodePtr)node;
+- (void)addElementsToNode:(xmlNodePtr)node;
++ (UserAPIServiceSvc_enrollCertAA *)deserializeNode:(xmlNodePtr)cur;
+- (void)deserializeAttributesFromNode:(xmlNodePtr)cur;
+- (void)deserializeElementsFromNode:(xmlNodePtr)cur;
+/* elements */
+@property (retain) UserAPIServiceSvc_userInfo * userInfo;
+@property (retain) NSString * certReqBuf;
+@property (retain) NSString * accountHash;
+@property (retain) NSString * aaCheckPoint;
+@property (retain) NSString * passCode;
+@property (retain) NSString * json;
+/* attributes */
+- (NSDictionary *)attributes;
+@end
+@interface UserAPIServiceSvc_enrollCertAAResponse : NSObject {
+	
+/* elements */
+	UserAPIServiceSvc_certInfo * return_;
+/* attributes */
+}
+- (NSString *)nsPrefix;
+- (xmlNodePtr)xmlNodeForDoc:(xmlDocPtr)doc elementName:(NSString *)elName;
+- (void)addAttributesToNode:(xmlNodePtr)node;
+- (void)addElementsToNode:(xmlNodePtr)node;
++ (UserAPIServiceSvc_enrollCertAAResponse *)deserializeNode:(xmlNodePtr)cur;
+- (void)deserializeAttributesFromNode:(xmlNodePtr)cur;
+- (void)deserializeElementsFromNode:(xmlNodePtr)cur;
+/* elements */
+@property (retain) UserAPIServiceSvc_certInfo * return_;
+/* attributes */
+- (NSDictionary *)attributes;
+@end
+/* Cookies handling provided by http://en.wikibooks.org/wiki/Programming:WebObjects/Web_Services/Web_Service_Provider */
+#import <libxml/parser.h>
+#import "xs.h"
+#import "UserAPIServiceSvc.h"
+@class UserAPIServiceSoapBinding;
+@interface UserAPIServiceSvc : NSObject {
+	
+}
++ (UserAPIServiceSoapBinding *)UserAPIServiceSoapBinding;
+@end
+@class UserAPIServiceSoapBindingResponse;
+@class UserAPIServiceSoapBindingOperation;
+@protocol UserAPIServiceSoapBindingResponseDelegate <NSObject>
+- (void) operation:(UserAPIServiceSoapBindingOperation *)operation completedWithResponse:(UserAPIServiceSoapBindingResponse *)response;
+@end
+@interface UserAPIServiceSoapBinding : NSObject <UserAPIServiceSoapBindingResponseDelegate> {
+	NSURL *address;
+	NSTimeInterval defaultTimeout;
+	NSMutableArray *cookies;
+	BOOL logXMLInOut;
+	BOOL synchronousOperationComplete;
+	NSString *authUsername;
+	NSString *authPassword;
+}
+@property (copy) NSURL *address;
+@property (assign) BOOL logXMLInOut;
+@property (assign) NSTimeInterval defaultTimeout;
+@property (nonatomic, retain) NSMutableArray *cookies;
+@property (nonatomic, retain) NSString *authUsername;
+@property (nonatomic, retain) NSString *authPassword;
+- (id)initWithAddress:(NSString *)anAddress;
+- (void)sendHTTPCallUsingBody:(NSString *)body soapAction:(NSString *)soapAction forOperation:(UserAPIServiceSoapBindingOperation *)operation;
+- (void)addCookie:(NSHTTPCookie *)toAdd;
+- (UserAPIServiceSoapBindingResponse *)queryCertByCertIdUsingParameters:(UserAPIServiceSvc_queryCertByCertId *)aParameters ;
+- (void)queryCertByCertIdAsyncUsingParameters:(UserAPIServiceSvc_queryCertByCertId *)aParameters  delegate:(id<UserAPIServiceSoapBindingResponseDelegate>)responseDelegate;
+- (UserAPIServiceSoapBindingResponse *)downloadCRLUsingParameters:(UserAPIServiceSvc_downloadCRL *)aParameters ;
+- (void)downloadCRLAsyncUsingParameters:(UserAPIServiceSvc_downloadCRL *)aParameters  delegate:(id<UserAPIServiceSoapBindingResponseDelegate>)responseDelegate;
+- (UserAPIServiceSoapBindingResponse *)unsuspendCertUsingParameters:(UserAPIServiceSvc_unsuspendCert *)aParameters ;
+- (void)unsuspendCertAsyncUsingParameters:(UserAPIServiceSvc_unsuspendCert *)aParameters  delegate:(id<UserAPIServiceSoapBindingResponseDelegate>)responseDelegate;
+- (UserAPIServiceSoapBindingResponse *)enrollCertUsingParameters:(UserAPIServiceSvc_enrollCert *)aParameters ;
+- (void)enrollCertAsyncUsingParameters:(UserAPIServiceSvc_enrollCert *)aParameters  delegate:(id<UserAPIServiceSoapBindingResponseDelegate>)responseDelegate;
+- (UserAPIServiceSoapBindingResponse *)queryCertsUsingParameters:(UserAPIServiceSvc_queryCerts *)aParameters ;
+- (void)queryCertsAsyncUsingParameters:(UserAPIServiceSvc_queryCerts *)aParameters  delegate:(id<UserAPIServiceSoapBindingResponseDelegate>)responseDelegate;
+- (UserAPIServiceSoapBindingResponse *)renewCertAAUsingParameters:(UserAPIServiceSvc_renewCertAA *)aParameters ;
+- (void)renewCertAAAsyncUsingParameters:(UserAPIServiceSvc_renewCertAA *)aParameters  delegate:(id<UserAPIServiceSoapBindingResponseDelegate>)responseDelegate;
+- (UserAPIServiceSoapBindingResponse *)downloadDeltaCRLUsingParameters:(UserAPIServiceSvc_downloadDeltaCRL *)aParameters ;
+- (void)downloadDeltaCRLAsyncUsingParameters:(UserAPIServiceSvc_downloadDeltaCRL *)aParameters  delegate:(id<UserAPIServiceSoapBindingResponseDelegate>)responseDelegate;
+- (UserAPIServiceSoapBindingResponse *)downloadCAUsingParameters:(UserAPIServiceSvc_downloadCA *)aParameters ;
+- (void)downloadCAAsyncUsingParameters:(UserAPIServiceSvc_downloadCA *)aParameters  delegate:(id<UserAPIServiceSoapBindingResponseDelegate>)responseDelegate;
+- (UserAPIServiceSoapBindingResponse *)doScriptUsingParameters:(UserAPIServiceSvc_doScript *)aParameters ;
+- (void)doScriptAsyncUsingParameters:(UserAPIServiceSvc_doScript *)aParameters  delegate:(id<UserAPIServiceSoapBindingResponseDelegate>)responseDelegate;
+- (UserAPIServiceSoapBindingResponse *)synchroTemplateUsingParameters:(UserAPIServiceSvc_synchroTemplate *)aParameters ;
+- (void)synchroTemplateAsyncUsingParameters:(UserAPIServiceSvc_synchroTemplate *)aParameters  delegate:(id<UserAPIServiceSoapBindingResponseDelegate>)responseDelegate;
+- (UserAPIServiceSoapBindingResponse *)queryCertBySerialNumberUsingParameters:(UserAPIServiceSvc_queryCertBySerialNumber *)aParameters ;
+- (void)queryCertBySerialNumberAsyncUsingParameters:(UserAPIServiceSvc_queryCertBySerialNumber *)aParameters  delegate:(id<UserAPIServiceSoapBindingResponseDelegate>)responseDelegate;
+- (UserAPIServiceSoapBindingResponse *)pickupCertUsingParameters:(UserAPIServiceSvc_pickupCert *)aParameters ;
+- (void)pickupCertAsyncUsingParameters:(UserAPIServiceSvc_pickupCert *)aParameters  delegate:(id<UserAPIServiceSoapBindingResponseDelegate>)responseDelegate;
+- (UserAPIServiceSoapBindingResponse *)revokeCertUsingParameters:(UserAPIServiceSvc_revokeCert *)aParameters ;
+- (void)revokeCertAsyncUsingParameters:(UserAPIServiceSvc_revokeCert *)aParameters  delegate:(id<UserAPIServiceSoapBindingResponseDelegate>)responseDelegate;
+- (UserAPIServiceSoapBindingResponse *)renewCertUsingParameters:(UserAPIServiceSvc_renewCert *)aParameters ;
+- (void)renewCertAsyncUsingParameters:(UserAPIServiceSvc_renewCert *)aParameters  delegate:(id<UserAPIServiceSoapBindingResponseDelegate>)responseDelegate;
+- (UserAPIServiceSoapBindingResponse *)suspendCertUsingParameters:(UserAPIServiceSvc_suspendCert *)aParameters ;
+- (void)suspendCertAsyncUsingParameters:(UserAPIServiceSvc_suspendCert *)aParameters  delegate:(id<UserAPIServiceSoapBindingResponseDelegate>)responseDelegate;
+- (UserAPIServiceSoapBindingResponse *)enrollCertAAUsingParameters:(UserAPIServiceSvc_enrollCertAA *)aParameters ;
+- (void)enrollCertAAAsyncUsingParameters:(UserAPIServiceSvc_enrollCertAA *)aParameters  delegate:(id<UserAPIServiceSoapBindingResponseDelegate>)responseDelegate;
+@end
+@interface UserAPIServiceSoapBindingOperation : NSOperation {
+	UserAPIServiceSoapBinding *binding;
+	UserAPIServiceSoapBindingResponse *response;
+	id<UserAPIServiceSoapBindingResponseDelegate> delegate;
+	NSMutableData *responseData;
+	NSURLConnection *urlConnection;
+}
+@property (retain) UserAPIServiceSoapBinding *binding;
+@property (readonly) UserAPIServiceSoapBindingResponse *response;
+@property (nonatomic, assign) id<UserAPIServiceSoapBindingResponseDelegate> delegate;
+@property (nonatomic, retain) NSMutableData *responseData;
+@property (nonatomic, retain) NSURLConnection *urlConnection;
+- (id)initWithBinding:(UserAPIServiceSoapBinding *)aBinding delegate:(id<UserAPIServiceSoapBindingResponseDelegate>)aDelegate;
+@end
+@interface UserAPIServiceSoapBinding_queryCertByCertId : UserAPIServiceSoapBindingOperation {
+	UserAPIServiceSvc_queryCertByCertId * parameters;
+}
+@property (retain) UserAPIServiceSvc_queryCertByCertId * parameters;
+- (id)initWithBinding:(UserAPIServiceSoapBinding *)aBinding delegate:(id<UserAPIServiceSoapBindingResponseDelegate>)aDelegate
+	parameters:(UserAPIServiceSvc_queryCertByCertId *)aParameters
+;
+@end
+@interface UserAPIServiceSoapBinding_downloadCRL : UserAPIServiceSoapBindingOperation {
+	UserAPIServiceSvc_downloadCRL * parameters;
+}
+@property (retain) UserAPIServiceSvc_downloadCRL * parameters;
+- (id)initWithBinding:(UserAPIServiceSoapBinding *)aBinding delegate:(id<UserAPIServiceSoapBindingResponseDelegate>)aDelegate
+	parameters:(UserAPIServiceSvc_downloadCRL *)aParameters
+;
+@end
+@interface UserAPIServiceSoapBinding_unsuspendCert : UserAPIServiceSoapBindingOperation {
+	UserAPIServiceSvc_unsuspendCert * parameters;
+}
+@property (retain) UserAPIServiceSvc_unsuspendCert * parameters;
+- (id)initWithBinding:(UserAPIServiceSoapBinding *)aBinding delegate:(id<UserAPIServiceSoapBindingResponseDelegate>)aDelegate
+	parameters:(UserAPIServiceSvc_unsuspendCert *)aParameters
+;
+@end
+@interface UserAPIServiceSoapBinding_enrollCert : UserAPIServiceSoapBindingOperation {
+	UserAPIServiceSvc_enrollCert * parameters;
+}
+@property (retain) UserAPIServiceSvc_enrollCert * parameters;
+- (id)initWithBinding:(UserAPIServiceSoapBinding *)aBinding delegate:(id<UserAPIServiceSoapBindingResponseDelegate>)aDelegate
+	parameters:(UserAPIServiceSvc_enrollCert *)aParameters
+;
+@end
+@interface UserAPIServiceSoapBinding_queryCerts : UserAPIServiceSoapBindingOperation {
+	UserAPIServiceSvc_queryCerts * parameters;
+}
+@property (retain) UserAPIServiceSvc_queryCerts * parameters;
+- (id)initWithBinding:(UserAPIServiceSoapBinding *)aBinding delegate:(id<UserAPIServiceSoapBindingResponseDelegate>)aDelegate
+	parameters:(UserAPIServiceSvc_queryCerts *)aParameters
+;
+@end
+@interface UserAPIServiceSoapBinding_renewCertAA : UserAPIServiceSoapBindingOperation {
+	UserAPIServiceSvc_renewCertAA * parameters;
+}
+@property (retain) UserAPIServiceSvc_renewCertAA * parameters;
+- (id)initWithBinding:(UserAPIServiceSoapBinding *)aBinding delegate:(id<UserAPIServiceSoapBindingResponseDelegate>)aDelegate
+	parameters:(UserAPIServiceSvc_renewCertAA *)aParameters
+;
+@end
+@interface UserAPIServiceSoapBinding_downloadDeltaCRL : UserAPIServiceSoapBindingOperation {
+	UserAPIServiceSvc_downloadDeltaCRL * parameters;
+}
+@property (retain) UserAPIServiceSvc_downloadDeltaCRL * parameters;
+- (id)initWithBinding:(UserAPIServiceSoapBinding *)aBinding delegate:(id<UserAPIServiceSoapBindingResponseDelegate>)aDelegate
+	parameters:(UserAPIServiceSvc_downloadDeltaCRL *)aParameters
+;
+@end
+@interface UserAPIServiceSoapBinding_downloadCA : UserAPIServiceSoapBindingOperation {
+	UserAPIServiceSvc_downloadCA * parameters;
+}
+@property (retain) UserAPIServiceSvc_downloadCA * parameters;
+- (id)initWithBinding:(UserAPIServiceSoapBinding *)aBinding delegate:(id<UserAPIServiceSoapBindingResponseDelegate>)aDelegate
+	parameters:(UserAPIServiceSvc_downloadCA *)aParameters
+;
+@end
+@interface UserAPIServiceSoapBinding_doScript : UserAPIServiceSoapBindingOperation {
+	UserAPIServiceSvc_doScript * parameters;
+}
+@property (retain) UserAPIServiceSvc_doScript * parameters;
+- (id)initWithBinding:(UserAPIServiceSoapBinding *)aBinding delegate:(id<UserAPIServiceSoapBindingResponseDelegate>)aDelegate
+	parameters:(UserAPIServiceSvc_doScript *)aParameters
+;
+@end
+@interface UserAPIServiceSoapBinding_synchroTemplate : UserAPIServiceSoapBindingOperation {
+	UserAPIServiceSvc_synchroTemplate * parameters;
+}
+@property (retain) UserAPIServiceSvc_synchroTemplate * parameters;
+- (id)initWithBinding:(UserAPIServiceSoapBinding *)aBinding delegate:(id<UserAPIServiceSoapBindingResponseDelegate>)aDelegate
+	parameters:(UserAPIServiceSvc_synchroTemplate *)aParameters
+;
+@end
+@interface UserAPIServiceSoapBinding_queryCertBySerialNumber : UserAPIServiceSoapBindingOperation {
+	UserAPIServiceSvc_queryCertBySerialNumber * parameters;
+}
+@property (retain) UserAPIServiceSvc_queryCertBySerialNumber * parameters;
+- (id)initWithBinding:(UserAPIServiceSoapBinding *)aBinding delegate:(id<UserAPIServiceSoapBindingResponseDelegate>)aDelegate
+	parameters:(UserAPIServiceSvc_queryCertBySerialNumber *)aParameters
+;
+@end
+@interface UserAPIServiceSoapBinding_pickupCert : UserAPIServiceSoapBindingOperation {
+	UserAPIServiceSvc_pickupCert * parameters;
+}
+@property (retain) UserAPIServiceSvc_pickupCert * parameters;
+- (id)initWithBinding:(UserAPIServiceSoapBinding *)aBinding delegate:(id<UserAPIServiceSoapBindingResponseDelegate>)aDelegate
+	parameters:(UserAPIServiceSvc_pickupCert *)aParameters
+;
+@end
+@interface UserAPIServiceSoapBinding_revokeCert : UserAPIServiceSoapBindingOperation {
+	UserAPIServiceSvc_revokeCert * parameters;
+}
+@property (retain) UserAPIServiceSvc_revokeCert * parameters;
+- (id)initWithBinding:(UserAPIServiceSoapBinding *)aBinding delegate:(id<UserAPIServiceSoapBindingResponseDelegate>)aDelegate
+	parameters:(UserAPIServiceSvc_revokeCert *)aParameters
+;
+@end
+@interface UserAPIServiceSoapBinding_renewCert : UserAPIServiceSoapBindingOperation {
+	UserAPIServiceSvc_renewCert * parameters;
+}
+@property (retain) UserAPIServiceSvc_renewCert * parameters;
+- (id)initWithBinding:(UserAPIServiceSoapBinding *)aBinding delegate:(id<UserAPIServiceSoapBindingResponseDelegate>)aDelegate
+	parameters:(UserAPIServiceSvc_renewCert *)aParameters
+;
+@end
+@interface UserAPIServiceSoapBinding_suspendCert : UserAPIServiceSoapBindingOperation {
+	UserAPIServiceSvc_suspendCert * parameters;
+}
+@property (retain) UserAPIServiceSvc_suspendCert * parameters;
+- (id)initWithBinding:(UserAPIServiceSoapBinding *)aBinding delegate:(id<UserAPIServiceSoapBindingResponseDelegate>)aDelegate
+	parameters:(UserAPIServiceSvc_suspendCert *)aParameters
+;
+@end
+@interface UserAPIServiceSoapBinding_enrollCertAA : UserAPIServiceSoapBindingOperation {
+	UserAPIServiceSvc_enrollCertAA * parameters;
+}
+@property (retain) UserAPIServiceSvc_enrollCertAA * parameters;
+- (id)initWithBinding:(UserAPIServiceSoapBinding *)aBinding delegate:(id<UserAPIServiceSoapBindingResponseDelegate>)aDelegate
+	parameters:(UserAPIServiceSvc_enrollCertAA *)aParameters
+;
+@end
+@interface UserAPIServiceSoapBinding_envelope : NSObject {
+}
++ (UserAPIServiceSoapBinding_envelope *)sharedInstance;
+- (NSString *)serializedFormUsingHeaderElements:(NSDictionary *)headerElements bodyElements:(NSDictionary *)bodyElements;
+@end
+@interface UserAPIServiceSoapBindingResponse : NSObject {
+	NSArray *headers;
+	NSArray *bodyParts;
+	NSError *error;
+}
+@property (retain) NSArray *headers;
+@property (retain) NSArray *bodyParts;
+@property (retain) NSError *error;
+@end

@@ -1,0 +1,227 @@
+//
+//  SettingViewController.m
+//  ApexiPhoneOpenAccount
+//
+//  Created by mac  on 14-4-22.
+//  Copyright (c) 2014年 mac . All rights reserved.
+//
+
+#import "SettingViewController.h"
+#import "Data_Structure.h"
+#import "SJKHEngine.h"
+
+
+typedef struct
+{
+    int        type;                       // 设置类型
+    const char *     title;              // 设置标题
+    int        tag;                        // 控件标签
+} Cell_Data;
+
+typedef enum
+{
+    IS_UISWITCH                    = 22,
+    IS_UITEXTFIELD                     = 23
+} Widget_Type;
+
+@interface SettingViewController (){
+    UITableView * settignTable;
+    NSMutableArray * widgetDatas;
+    int buttonTag ;
+//    vector
+}
+
+@end
+
+@implementation SettingViewController
+
+- (id)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil
+{
+    self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil];
+    if (self) {
+        
+    }
+    return self;
+}
+
+- (void)viewDidLoad
+{
+    [super viewDidLoad];
+    
+    [self InitSet];
+    [self InitWidget];
+}
+
+- (void)InitSet{
+    widgetDatas = [NSMutableArray array];
+    buttonTag = 0;
+    
+//    Cell_Data _cellData;
+//    _cellData.type = IS_UISWITCH;
+//    _cellData.title = [[NSString stringWithFormat:@"%@",@"是否是https"] UTF8String];
+//    _cellData.tag = 0;
+    
+    //是否是https
+    [widgetDatas addObject:[NSArray arrayWithObjects:[NSNumber numberWithInt:IS_UISWITCH],@"是否是https",[NSNumber numberWithInt: buttonTag++], nil]];
+    [widgetDatas addObject:[NSArray arrayWithObjects:[NSNumber numberWithInt:IS_UITEXTFIELD],@"ip地址",[NSNumber numberWithInt: buttonTag++], nil]];
+    [widgetDatas addObject:[NSArray arrayWithObjects:[NSNumber numberWithInt:IS_UITEXTFIELD],@"端口",[NSNumber numberWithInt: buttonTag++], nil]];
+    
+//    [widgetDatas addObject:[NSArray arrayWithObjects:[NSNumber numberWithInt:IS_UITEXTFIELD],@"",buttonTag++, nil]];
+//    [widgetDatas addObject:[NSArray arrayWithObjects:[NSNumber numberWithInt:IS_UITEXTFIELD],@"ip地址",buttonTag++, nil]];
+//    [widgetDatas addObject:[NSArray arrayWithObjects:[NSNumber numberWithInt:IS_UITEXTFIELD],@"ip地址",buttonTag++, nil]];
+//    [widgetDatas addObject:[NSArray arrayWithObjects:[NSNumber numberWithInt:IS_UITEXTFIELD],@"ip地址",buttonTag++, nil]];
+    
+}
+
+- (void)InitWidget{
+    UIBarButtonItem * rightItem = [[UIBarButtonItem alloc]initWithTitle:@"Done" style:UIBarButtonItemStyleDone target:self action:@selector(Done:)];
+    self.navigationItem.rightBarButtonItem = rightItem;
+    
+    settignTable = [[UITableView alloc] initWithFrame:CGRectMake(0, 0, screenWidth , screenHeight) style:UITableViewStyleGrouped];
+    settignTable.dataSource = self;
+    settignTable.delegate = self;
+    
+    [self.view addSubview:settignTable];
+}
+
+- (void)Done:(UIButton *)btn{
+    [self dismissModalViewControllerAnimated:YES];
+}
+
+#pragma tableview delegate
+- (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView
+{
+	return 1;
+}
+
+- (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section
+{
+    return widgetDatas.count;
+}
+
+- (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath
+{
+	return ButtonHeight;
+}
+
+- (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath{
+    static NSString *CellIdentifier = @"tableViewCellIdentify";
+	UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:CellIdentifier];
+    
+	if (cell == nil)
+	{
+        cell = [[UITableViewCell alloc]initWithStyle:UITableViewCellStyleDefault reuseIdentifier:CellIdentifier];
+	}
+    
+    for (UIView * vi in cell.contentView.subviews) {
+        [vi removeFromSuperview];
+    }
+    
+    int row = indexPath.row;
+    int section = indexPath.section;
+    
+    NSArray * cellData = [widgetDatas objectAtIndex:row];
+    [self initCellContentView:[[cellData objectAtIndex:0] intValue]
+                   targetView:cell.contentView
+                      tipText:[cellData objectAtIndex:1]
+                          tag:[[cellData objectAtIndex:2] intValue]];
+    
+    cell.selectionStyle = UITableViewCellSelectionStyleNone;
+    
+    return cell;
+}
+
+- (void)initCellContentView:(Widget_Type)type targetView:(UIView *)superView tipText:(NSString *)tipText tag:(int)tag{
+    CGRect rectLeftPart = CGRectMake (10, 10, 120, 20);
+	CGRect rectRightPart = CGRectMake (100, 2, 170, 40);
+    UIFont *font = [UIFont boldSystemFontOfSize:16];
+    CGRect rec= CGRectMake (235, 7, 100, 26);
+
+    switch (type) {
+        case IS_UISWITCH:{
+            UILabel *domainLabel = [[UILabel alloc] initWithFrame: rectLeftPart];
+            domainLabel.backgroundColor = [UIColor clearColor];
+            [domainLabel setFont: font];
+            [domainLabel setText: tipText];
+            [domainLabel setTextColor: [UIColor grayColor]];
+            [domainLabel setTextAlignment: UITextAlignmentLeft];
+            [superView addSubview: domainLabel];
+            
+            UISwitch * rightSwitch = [[UISwitch alloc] initWithFrame:rec];
+            rightSwitch.on = [SJKHEngine Instance]->isHttps;
+            [rightSwitch addTarget:self action:@selector(OnTouchBegin:) forControlEvents:UIControlEventValueChanged];
+            [superView addSubview: rightSwitch];
+        }
+            break;
+            
+        case IS_UITEXTFIELD:{
+            UILabel *domainLabel = [[UILabel alloc] initWithFrame: rectLeftPart];
+            domainLabel.backgroundColor = [UIColor clearColor];
+            [domainLabel setFont: font];
+            [domainLabel setText: tipText];
+            [domainLabel setTextColor: [UIColor grayColor]];
+            [domainLabel setTextAlignment: UITextAlignmentLeft];
+            [superView addSubview: domainLabel];
+            
+            UITextField *domainEditor = [[UITextField alloc] initWithFrame: CGRectMake(rectRightPart.origin.x-20, rectRightPart.origin.y, rectRightPart.size.width+20, rectRightPart.size.height)];
+            domainEditor.backgroundColor = [UIColor clearColor];
+            domainEditor.tag=tag;
+            domainEditor.borderStyle = UITextBorderStyleRoundedRect;
+            domainEditor.keyboardType = UIKeyboardTypeDefault;
+            domainEditor.clearButtonMode = UITextFieldViewModeWhileEditing;
+            [domainEditor setTextAlignment:UITextAlignmentRight];
+            [domainEditor setFont: font];
+            [domainEditor setTextColor: [UIColor darkGrayColor]];
+            [domainEditor addTarget: self action: @selector(OnTouchBegin:) forControlEvents: UIControlEventEditingDidEnd];
+            
+            NSString * editorText = nil;
+            if(tag == 1){
+                editorText = [SJKHEngine Instance]->doMain;
+            }
+            if(tag == 2){
+                editorText = [NSString stringWithFormat:@"%i",[SJKHEngine Instance]->port];
+            }
+            domainEditor.text = editorText;
+            
+            [superView addSubview: domainEditor];
+        }
+            
+            break;
+            
+        default:
+            break;
+    }
+}
+
+- (void)OnTouchBegin:(UIView *)vi{
+    switch (vi.tag) {
+        case 0:
+            [SJKHEngine Instance]->isHttps = ((UISwitch *)vi).isOn;
+            break;
+            
+        case 1:{
+            UITextField * textfield = (UITextField *)vi;
+            NSString * text = textfield.text;
+            [PublicMethod trimText:&text];
+            [SJKHEngine Instance]->doMain = text;
+        }
+            break;
+            
+        case 2:{
+            UITextField * textfield = (UITextField *)vi;
+            NSString * text = textfield.text;
+            [PublicMethod trimText:&text];
+            [SJKHEngine Instance]->port = [text intValue];
+        }
+            break;
+        default:
+            break;
+    }
+}
+
+- (void)didReceiveMemoryWarning
+{
+    [super didReceiveMemoryWarning];
+}
+
+@end

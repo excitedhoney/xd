@@ -1,0 +1,106 @@
+//
+//  UITextField+Tools.m
+//  ApexiPhoneOpenAccount
+//
+//  Created by haoliuyang on 14-5-23.
+//  Copyright (c) 2014年 mac . All rights reserved.
+//
+
+#import "UIKit+Tools.h"
+#import "Data_Structure.h"
+
+@implementation UITextField (Tools)
+
+- (void)positSpace:(YEorNO)isCreate{
+    self.leftView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, 8, 0)];
+    
+    self.leftViewMode = UITextFieldViewModeAlways;
+    
+    return;
+}
+
+@end
+
+
+@implementation UILabel (Tools)
+
+- (void)presentCertTitleClickToTarget:(id)target andSEL:(SEL)selector WithSepString:(NSString *)sepStr{
+    self.userInteractionEnabled = YES;
+    UIButton * markButton = [UIButton buttonWithType:UIButtonTypeCustom];
+    [markButton setFrame:CGRectMake(7, 7, ButtonHeight - 7*2, ButtonHeight - 7*2)];
+    [markButton setBackgroundImage:[UIImage imageNamed:@"checkBox_default"] forState:UIControlStateNormal];
+    [markButton setBackgroundImage:[UIImage imageNamed:@"checkBox_checked"] forState:UIControlStateSelected];
+    [markButton setBackgroundImage:[UIImage imageNamed:@"checkBox_active"] forState:UIControlStateHighlighted];
+    markButton.tag = MarkBtnTag;
+    [markButton addTarget:target action: @selector(onButtonClick:) forControlEvents: UIControlEventTouchUpInside];
+    [markButton setUserInteractionEnabled:YES];
+    markButton.userInteractionEnabled = YES;
+    [self addSubview:markButton];
+    
+    float leftWidth;
+    NSArray *strArr = [self.text componentsSeparatedByString:sepStr];
+    NSString *letfStr = strArr.firstObject;
+    NSString *rightStr = strArr.lastObject;
+    
+    CGRect frame = self.frame;
+    frame.origin.x = markButton.frame.origin.x + markButton.frame.size.width + 10;
+    frame.origin.y = 0;
+    frame.size.width = letfStr.length * self.font.pointSize;;
+    UILabel *leftLab = [[UILabel alloc] initWithFrame:frame];
+    leftLab.text = [letfStr copy];
+    leftLab.backgroundColor = CLEAR_COLOR;
+    leftLab.textColor = [UIColor blackColor];
+    leftLab.font = self.font;
+    leftLab.userInteractionEnabled = YES;
+    [self addSubview:leftLab];
+    frame.origin.x += frame.size.width + 5;
+    frame.size.width = rightStr.length * self.font.pointSize;
+    UILabel *rightLab = [[UILabel alloc] initWithFrame:frame];
+    rightLab.text = [rightStr copy];
+    rightLab.backgroundColor = CLEAR_COLOR;
+    rightLab.textColor = [UIColor blueColor];
+    rightLab.font = self.font;
+    [rightLab addGestureRecognizer:[[UITapGestureRecognizer alloc] initWithTarget:target action:selector]];
+    rightLab.userInteractionEnabled = YES;
+    [self addSubview:rightLab];
+    frame.origin.y += frame.size.height - 11;
+    frame.size.height = 1;
+//    UIView *line = [[UIView alloc] initWithFrame:frame];
+//    line.backgroundColor = TITLE_RED_COLOR;
+//    [self addSubview:line];
+    self.text = nil;
+    leftLab.hidden = NO;
+    rightLab.hidden = NO;
+//    line.hidden = NO;
+}
+
+@end
+
+@implementation UIView (Tools)
+
+
+
+@end
+
+@implementation UIButton (Tools)
+
+
+
+@end
+
+
+@implementation NSString (Tools)
+
+- (YEorNO)isMailAddress{
+    NSString * mailAdd = @"^[0-9]{6}$";
+    NSPredicate *regextestmobile = [NSPredicate predicateWithFormat:@"SELF MATCHES %@", mailAdd];
+    if ([regextestmobile evaluateWithObject:self]){
+        return yep;
+    }else{
+        return nop;
+    }
+}
+
+@end
+
+

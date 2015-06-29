@@ -1,0 +1,952 @@
+//
+//  O_All.m
+//  O_All
+//
+//  Created by YXCD on 13-9-9.
+//  Copyright (c) 2013年 YXCD. All rights reserved.
+//
+
+#import "O_All.h"
+#include "base64.h"
+#include "sm3.h"
+
+#include <sys/socket.h> // Per msqr
+#include <sys/sysctl.h>
+#include <net/if.h>
+#include <net/if_dl.h>
+
+#import <CommonCrypto/CommonDigest.h>
+
+
+#if !defined(NSS_FOR_IOS)
+
+#else
+#import <UIKit/UIKit.h>
+#import "CHKeychain.h"
+#endif
+
+
+#include <stdio.h>
+#include "string.h"
+#include "stdlib.h"
+
+#include "sqldb.h"
+
+#define MAX_BUFFER_LEN 1024
+
+char * filepathDB = NULL;
+
+
+NSString * const KEY_USER_INFO = @"com.company.app.userinfo";
+NSString * const KEY_USER_VERSION_ID = @"com.company.app.user_versionID";
+NSString * const KEY_USER_BUILD_ID = @"com.company.app.user_buildID";
+NSString * const KEY_USER_HARDWARE_ID = @"com.company.app.user_hardwareID";
+NSString * const KEY_USER_PASSWORD = @"com.company.app.user_password";
+
+NSString * const KEY_DB_INFO = @"com.company.app.dbinfo";
+NSString * const KEY_DB_VERSION_ID = @"com.company.app.db_versionID";
+NSString * const KEY_DB_BUILD_ID = @"com.company.app.db_buildID";
+NSString * const KEY_DB_HARDWARE_ID = @"com.company.app.db_hardwareID";
+NSString * const KEY_DB_PASSWORD = @"com.company.app.db_password";
+
+NSString * const KEY_LICENSE_INFO = @"com.company.app.licenseinfo";
+NSString * const KEY_LICENSE_NAME = @"com.company.app.license_name";
+NSString * const KEY_LICENSE_VALUE = @"com.company.app.license_value";
+
+
+
+char * GetSystemDBDir()
+{
+    
+    if (filepathDB) {
+        return filepathDB;
+    }
+    
+    filepathDB = malloc(255);
+    
+    memset(filepathDB, 0, 255);
+    memcpy(filepathDB, [NSHomeDirectory() UTF8String], [NSHomeDirectory() length]);
+    strcat(filepathDB, "/Documents");
+    
+    return filepathDB;
+}
+
+NSString * macaddress(){
+    
+    int                 mib[6];
+    size_t              len;
+    char                *buf;
+    unsigned char       *ptr;
+    struct if_msghdr    *ifm;
+    struct sockaddr_dl  *sdl;
+    
+    mib[0] = CTL_NET;
+    mib[1] = AF_ROUTE;
+    mib[2] = 0;
+    mib[3] = AF_LINK;
+    mib[4] = NET_RT_IFLIST;
+    
+    if ((mib[5] = if_nametoindex("en0")) == 0) {
+        printf("Error: if_nametoindex error\n");
+        return NULL;
+    }
+    
+    if (sysctl(mib, 6, NULL, &len, NULL, 0) < 0) {
+        printf("Error: sysctl, take 1\n");
+        return NULL;
+    }
+    
+    if ((buf = malloc(len)) == NULL) {
+        printf("Could not allocate memory. error!\n");
+        return NULL;
+    }
+    
+    if (sysctl(mib, 6, buf, &len, NULL, 0) < 0) {
+        printf("Error: sysctl, take 2");
+        free(buf);
+        return NULL;
+    }
+    
+    ifm = (struct if_msghdr *)buf;
+    sdl = (struct sockaddr_dl *)(ifm + 1);
+    ptr = (unsigned char *)LLADDR(sdl);
+    NSString *outstring = [NSString stringWithFormat:@"%02X:%02X:%02X:%02X:%02X:%02X",
+                           *ptr, *(ptr+1), *(ptr+2), *(ptr+3), *(ptr+4), *(ptr+5)];
+    free(buf);
+    
+    return outstring;
+}
+
+int hardwareID(OUT uchar * ptr_out_data, IN OUT uint * ptr_out_len)
+{
+    
+#if defined(__MAC_OS__)
+    NSString * strUUID = macaddress();
+#else
+    
+#if __IPHONE_OS_VERSION_MIN_REQUIRED >= __IPHONE_6_0
+    NSString * strUUID = [[[UIDevice currentDevice] identifierForVendor] UUIDString]; //Vindor标示符
+    //NSString * strUUID = [[[ASIdentifierManager sharedManager] advertisingIdentifier] UUIDString];  //广告标示符
+#elif __IPHONE_OS_VERSION_MIN_REQUIRED >= __IPHONE_5_0
+    NSString * strUUID = macaddress();
+#else
+    NSString * strUUID = [[UIDevicecurrentDevice] uniqueIdentifier];
+#endif
+    
+#endif
+    strcpy((char *)ptr_out_data, [strUUID UTF8String]);
+    
+    *ptr_out_len = strlen((char *)ptr_out_data);
+    
+    return * ptr_out_len;
+}
+
+
+int itrus_Info_User_IS_update(int * bFlagUpdate)
+{
+    int iRet = 0;
+#if !defined(NSS_FOR_IOS)
+    
+    SUserInfo aInfo = {0};
+    
+    sqlite3 * database;
+    
+    iRet = functionOpenDB(&database);
+    iRet = functionCreateTableUserInfo(database);
+    iRet = functionUserInfoSelect(database,&aInfo);
+    
+    if (0 == strlen(aInfo.version_id)) {
+        * bFlagUpdate = 0;
+    }
+    else
+    {
+        if (0 == strcmp(itrus_vesion, aInfo.version_id)) {
+            * bFlagUpdate = 0;
+        }
+        else
+        {
+            * bFlagUpdate = 1;
+        }
+    }
+    functionCloseDB(database);
+    
+#else
+    NSMutableDictionary * userInfoKVPairs = (NSMutableDictionary *)[CHKeychain load:KEY_USER_INFO];
+    
+    
+    if (nil == userInfoKVPairs ) {
+        * bFlagUpdate = 0;
+    }
+    else
+    {
+        NSString * str_version_id = [userInfoKVPairs objectForKey:KEY_USER_VERSION_ID];
+        
+        if (0 == strcmp(itrus_vesion, [str_version_id UTF8String])) {
+            * bFlagUpdate = 0;
+        }
+        else
+        {
+            * bFlagUpdate = 1;
+        }
+        
+    }
+    
+#endif
+    return iRet;
+}
+
+
+int itrus_Info_DB_IS_update(int * bFlagUpdate)
+{
+    int iRet = 0;
+#if !defined(NSS_FOR_IOS)
+    
+    SDBInfo aInfo = {0};
+    
+    sqlite3 * database;
+    
+    iRet = functionOpenDB(&database);
+    iRet = functionCreateTableDBInfo(database);
+    iRet = functionDBInfoSelect(database,&aInfo);
+    
+    if (0 == strlen(aInfo.version_id)) {
+        * bFlagUpdate = 0;
+    }
+    else
+    {
+        if (0 == strcmp(itrus_vesion, aInfo.version_id)) {
+            * bFlagUpdate = 0;
+        }
+        else
+        {
+            * bFlagUpdate = 1;
+        }
+    }
+    functionCloseDB(database);
+    
+#else
+    NSMutableDictionary * dbInfoKVPairs = (NSMutableDictionary *)[CHKeychain load:KEY_DB_INFO];
+    
+
+    if (nil == dbInfoKVPairs ) {
+        * bFlagUpdate = 0;
+    }
+    else
+    {
+        NSString * str_version_id = [dbInfoKVPairs objectForKey:KEY_DB_VERSION_ID];
+        
+        if (0 == strcmp(itrus_vesion, [str_version_id UTF8String])) {
+            * bFlagUpdate = 0;
+        }
+        else
+        {
+            * bFlagUpdate = 1;
+        }
+      
+    }
+    
+#endif
+    return iRet;
+}
+
+
+
+int itrus_Has_Info_User(int * bFlagExist)
+{
+    int iRet = 0;
+#if !defined(NSS_FOR_IOS)
+    SUserInfo aInfo = {0};
+    
+    sqlite3 * database;
+    
+    iRet = functionOpenDB(&database);
+    iRet = functionCreateTableUserInfo(database);
+    iRet = functionUserInfoSelect(database,&aInfo);
+    
+    if (0 == strlen(aInfo.version_id)) {
+        * bFlagExist = 0;
+    }
+    else
+    {
+        * bFlagExist = 1;
+    }
+    functionCloseDB(database);
+    
+#else
+    NSMutableDictionary * userInfoKVPairs = (NSMutableDictionary *)[CHKeychain load:KEY_USER_INFO];
+    
+    if (nil == userInfoKVPairs) {
+        * bFlagExist = 0;
+    }
+    else
+    {
+        * bFlagExist = 1;
+    }
+#endif
+    
+    return iRet;
+}
+
+int itrus_Has_Info_DB(int * bFlagExist)
+{
+    int iRet = 0;
+#if !defined(NSS_FOR_IOS)
+    
+    SDBInfo aInfo = {0};
+    
+    sqlite3 * database;
+    
+    iRet = functionOpenDB(&database);
+    iRet = functionCreateTableDBInfo(database);
+    iRet = functionDBInfoSelect(database,&aInfo);
+    
+    if (0 == strlen(aInfo.version_id)) {
+        * bFlagExist = 0;
+    }
+    else
+    {
+        * bFlagExist = 1;
+    }
+    functionCloseDB(database);
+    
+#else
+    NSMutableDictionary * dbInfoKVPairs = (NSMutableDictionary *)[CHKeychain load:KEY_DB_INFO];
+    
+    if (nil == dbInfoKVPairs) {
+        * bFlagExist = 0;
+    }
+    else
+    {
+        * bFlagExist = 1;
+    }
+    
+#endif
+    return iRet;
+}
+
+
+int itrus_Save_Info_User(IN uchar * ptr_in_usr_pwd_data, IN uint in_usr_pwd_len)
+{
+    int iRet = 0;
+#if !defined(NSS_FOR_IOS)
+    
+    SUserInfo aInfo = {0};
+    int bFlagExist = 0;
+    
+    aInfo.ID = 0;
+    
+    strcpy(aInfo.version_id, itrus_vesion);
+    strcpy(aInfo.build_id,itrus_builder_id);
+    
+    unsigned int k = 0;
+    hardwareID((unsigned char *)aInfo.hardware_id,&k);
+    
+    sqlite3 * database;
+    
+    iRet = functionOpenDB(&database);
+    iRet = functionCreateTableUserInfo(database);
+    iRet = itrus_Has_Info_User(&bFlagExist);
+    
+    
+    
+    if (0 == bFlagExist) {
+        iRet = functionUserInfoInsert(database,&aInfo);
+    }
+    else
+    {
+        iRet = functionUserInfoUpdate(database,&aInfo);
+    }
+    
+    
+    functionCloseDB(database);
+    
+    
+#else
+    NSMutableDictionary * userInfoKVPairs = [[NSMutableDictionary alloc] init];
+    
+    NSString * str_version_id = [[NSString alloc] initWithFormat:@"%s", itrus_vesion];
+    NSString * str_build_id  = [[NSString alloc] initWithFormat:@"%s", itrus_builder_id];
+    
+    char szData[MAX_BUFFER_LEN] = {0};
+    
+    unsigned int k = 0;
+    
+    hardwareID((unsigned char *)szData,&k);
+    
+    NSString * str_hardware_id  = [[NSString alloc] initWithFormat:@"%s", szData];
+    NSString * str_password = [[NSString alloc] initWithFormat:@"%s", (char *)ptr_in_usr_pwd_data];
+    
+    
+    [userInfoKVPairs setObject:str_version_id forKey:KEY_USER_VERSION_ID];
+    [userInfoKVPairs setObject:str_build_id forKey:KEY_USER_BUILD_ID];
+    [userInfoKVPairs setObject:str_hardware_id forKey:KEY_USER_HARDWARE_ID];
+    [userInfoKVPairs setObject:str_password forKey:KEY_USER_PASSWORD];
+    
+    
+    [CHKeychain save:KEY_USER_INFO data:userInfoKVPairs];
+#endif
+    return iRet;
+}
+
+
+int itrus_Save_Info_DB(IN uchar * ptr_in_usr_pwd_data, IN uint in_usr_pwd_len)
+{
+    int iRet = 0;
+#if !defined(NSS_FOR_IOS)
+    
+    SDBInfo aInfo = {0};
+    int bFlagExist = 0;
+    
+    aInfo.ID = 0;
+    
+    strcpy(aInfo.version_id, itrus_vesion);
+    strcpy(aInfo.build_id,itrus_builder_id);
+    
+    unsigned int k = 0;
+    hardwareID((unsigned char *)aInfo.hardware_id,&k);
+    
+        sqlite3 * database;
+    
+    iRet = functionOpenDB(&database);
+    iRet = functionCreateTableDBInfo(database);
+    iRet = itrus_Has_Info_DB(&bFlagExist);
+    
+    if (0 == bFlagExist) {
+        iRet = functionDBInfoInsert(database,&aInfo);
+    }
+    else
+    {
+        iRet = functionDBInfoUpdate(database,&aInfo);
+    }
+    
+    
+    functionCloseDB(database);
+    
+    
+#else
+    NSMutableDictionary * dbInfoKVPairs = [[NSMutableDictionary alloc] init];
+    
+    NSString * str_version_id = [[NSString alloc] initWithFormat:@"%s", itrus_vesion];
+    NSString * str_build_id  = [[NSString alloc] initWithFormat:@"%s", itrus_builder_id];
+    
+    char szData[MAX_BUFFER_LEN] = {0};
+    
+    unsigned int k = 0;
+    
+    hardwareID((unsigned char *)szData,&k);
+    
+    NSString * str_hardware_id  = [[NSString alloc] initWithFormat:@"%s", szData];
+    NSString * str_password = [[NSString alloc] initWithFormat:@"%s", (char *)ptr_in_usr_pwd_data];
+    
+    
+    [dbInfoKVPairs setObject:str_version_id forKey:KEY_DB_VERSION_ID];
+    [dbInfoKVPairs setObject:str_build_id forKey:KEY_DB_BUILD_ID];
+    [dbInfoKVPairs setObject:str_hardware_id forKey:KEY_DB_HARDWARE_ID];
+    [dbInfoKVPairs setObject:str_password forKey:KEY_DB_PASSWORD];
+    
+    
+    [CHKeychain save:KEY_DB_INFO data:dbInfoKVPairs];
+    
+#endif
+    return iRet;
+}
+
+
+int itrus_Password_Generator_User_Old(OUT uchar * ptr_out_pwd_data,IN OUT uint * ptr_out_pwd_len, IN uchar * ptr_in_usr_pwd_data, IN uint in_usr_pwd_len)
+{
+    int iRet = 0;
+    if (0 == * ptr_out_pwd_len || NULL == ptr_out_pwd_data)
+    {
+        *ptr_out_pwd_len = SM3_DIGEST_LEN * 2;
+        
+        return 0;
+    }
+    else
+    {
+        if (*ptr_out_pwd_len < SM3_DIGEST_LEN * 2) {
+            return -1;
+        }
+        
+        
+#if !defined(NSS_FOR_IOS)
+        
+        SUserInfo aInfo = {0};
+        int bFlagExist = 0;
+        
+        sqlite3 * database;
+
+        
+        iRet = functionOpenDB(&database);
+        iRet = functionCreateTableUserInfo(database);
+        iRet = itrus_Has_Info_User(&bFlagExist);
+        
+        if (0 == bFlagExist) {
+            iRet = -1;
+        }
+        else
+        {
+            iRet = functionUserInfoSelect(database,&aInfo);
+            
+            char * szData = malloc(MAX_BUFFER_LEN);
+            char szSM3Digest[SM3_DIGEST_LEN] = {0};
+            int current_pos = 0;
+            
+            memset(szData, 0, MAX_BUFFER_LEN);
+            
+            memcpy(szData + current_pos, aInfo.version_id, strlen(aInfo.version_id));
+            current_pos += strlen(aInfo.version_id);
+            memcpy(szData + current_pos, aInfo.build_id,strlen(aInfo.build_id));
+            current_pos += strlen(aInfo.build_id);
+            memcpy(szData + current_pos, aInfo.hardware_id,strlen(aInfo.hardware_id));
+            current_pos += strlen(aInfo.hardware_id);
+            memcpy(szData + current_pos, ptr_in_usr_pwd_data, in_usr_pwd_len);
+            current_pos += in_usr_pwd_len;
+            /*
+             //Show by 16bit
+             *ptr_out_pwd_len = SM3_DIGEST_LEN * 2;*/
+            
+            tcm_sch_hash(current_pos, szData, szSM3Digest);
+            
+            /*
+             for (k = 0; k < SM3_DIGEST_LEN; k++) {
+             sprintf(ptr_out_pwd_data + 2 * k, "%02X", szSM3Digest[k]);
+             }
+             */
+            //Show by base64
+            char * asciiDATA = BTOA_DataToAscii(szSM3Digest, SM3_DIGEST_LEN);
+            
+            strcpy((char *)ptr_out_pwd_data,asciiDATA);
+            *ptr_out_pwd_len = strlen(asciiDATA);
+            
+            PORT_Free(asciiDATA);
+            
+            /*
+             //Show by plaintext
+             memcpy(ptr_out_pwd_data, szData, current_pos);
+             *ptr_out_pwd_len = current_pos;
+             */
+            
+            free(szData);
+        }
+        functionCloseDB(database);
+#else
+        
+        NSMutableDictionary * userInfoKVPairs = (NSMutableDictionary *)[CHKeychain load:KEY_USER_INFO];
+        
+        if (nil == userInfoKVPairs) {
+            return -1;
+        }
+        
+        
+        NSString * str_version_id = [userInfoKVPairs objectForKey:KEY_USER_VERSION_ID];
+        NSString * str_build_id  = [userInfoKVPairs objectForKey:KEY_USER_BUILD_ID];
+        NSString * str_hardware_id  = [userInfoKVPairs objectForKey:KEY_USER_HARDWARE_ID];
+        NSString * str_password = [userInfoKVPairs objectForKey:KEY_USER_PASSWORD];
+        
+        char * szData = malloc(MAX_BUFFER_LEN);
+        char szSM3Digest[SM3_DIGEST_LEN] = {0};
+        int current_pos = 0;
+        
+        memset(szData, 0, MAX_BUFFER_LEN);
+        
+        memcpy(szData + current_pos, [str_version_id UTF8String], strlen([str_version_id UTF8String]));
+        current_pos += strlen([str_version_id UTF8String]);
+        memcpy(szData + current_pos, [str_build_id UTF8String],strlen([str_build_id UTF8String]));
+        current_pos += strlen([str_build_id UTF8String]);
+        memcpy(szData + current_pos, [str_hardware_id UTF8String],strlen([str_hardware_id UTF8String]));
+        current_pos += strlen([str_hardware_id UTF8String]);
+        memcpy(szData + current_pos, ptr_in_usr_pwd_data, in_usr_pwd_len);
+        current_pos += in_usr_pwd_len;
+        /*
+         //Show by 16bit
+         *ptr_out_pwd_len = SM3_DIGEST_LEN * 2;*/
+        
+        tcm_sch_hash(current_pos, szData, szSM3Digest);
+        
+        /*
+         for (k = 0; k < SM3_DIGEST_LEN; k++) {
+         sprintf(ptr_out_pwd_data + 2 * k, "%02X", szSM3Digest[k]);
+         }
+         */
+        //Show by base64
+        char * asciiDATA = BTOA_DataToAscii(szSM3Digest, SM3_DIGEST_LEN);
+        
+        strcpy((char *)ptr_out_pwd_data,asciiDATA);
+        *ptr_out_pwd_len = strlen(asciiDATA);
+        
+        PORT_Free(asciiDATA);
+        
+        /*
+         //Show by plaintext
+         memcpy(ptr_out_pwd_data, szData, current_pos);
+         *ptr_out_pwd_len = current_pos;
+         */
+        
+        free(szData);
+#endif
+    }
+    
+    return iRet;
+}
+
+
+
+int itrus_Password_Generator_User_New(OUT uchar * ptr_out_pwd_data,IN OUT uint * ptr_out_pwd_len, IN uchar * ptr_in_usr_pwd_data, IN uint in_usr_pwd_len)
+{
+    if (0 == * ptr_out_pwd_len || NULL == ptr_out_pwd_data)
+    {
+        *ptr_out_pwd_len = SM3_DIGEST_LEN * 2;
+        
+        return 0;
+    }
+    else
+    {
+        if (*ptr_out_pwd_len < SM3_DIGEST_LEN * 2) {
+            return -1;
+        }
+        
+        int k = 0;
+        char * szData = malloc(MAX_BUFFER_LEN);
+        char szSM3Digest[SM3_DIGEST_LEN] = {0};
+        int current_pos = 0;
+        
+        memset(szData, 0, MAX_BUFFER_LEN);
+        
+        memcpy(szData + current_pos, itrus_vesion, strlen(itrus_vesion));
+        current_pos += strlen(itrus_vesion);
+        memcpy(szData + current_pos, itrus_builder_id,strlen(itrus_builder_id));
+        current_pos += strlen(itrus_builder_id);
+        hardwareID(szData + current_pos,&k);
+        current_pos += k;
+        memcpy(szData + current_pos, ptr_in_usr_pwd_data, in_usr_pwd_len);
+        current_pos += in_usr_pwd_len;
+        /*
+         //Show by 16bit
+         *ptr_out_pwd_len = SM3_DIGEST_LEN * 2;*/
+        
+        tcm_sch_hash(current_pos, szData, szSM3Digest);
+        
+        /*
+         for (k = 0; k < SM3_DIGEST_LEN; k++) {
+         sprintf(ptr_out_pwd_data + 2 * k, "%02X", szSM3Digest[k]);
+         }
+         */
+        //Show by base64
+        char * asciiDATA = BTOA_DataToAscii(szSM3Digest, SM3_DIGEST_LEN);
+        
+        strcpy((char *)ptr_out_pwd_data,asciiDATA);
+        *ptr_out_pwd_len = strlen(asciiDATA);
+        
+        PORT_Free(asciiDATA);
+        
+        /*
+         //Show by plaintext
+         memcpy(ptr_out_pwd_data, szData, current_pos);
+         *ptr_out_pwd_len = current_pos;
+         */
+        
+        free(szData);
+        
+        return 0;
+    }
+    
+    return 0;
+}
+
+
+
+int itrus_Password_Generator_DB_Old(OUT uchar * ptr_out_pwd_data,IN OUT uint * ptr_out_pwd_len, IN uchar * ptr_in_usr_pwd_data, IN uint in_usr_pwd_len)
+{
+    int iRet = 0;
+    if (0 == * ptr_out_pwd_len || NULL == ptr_out_pwd_data)
+    {
+        *ptr_out_pwd_len = SM3_DIGEST_LEN * 2;
+        
+        return 0;
+    }
+    else
+    {
+        if (*ptr_out_pwd_len < SM3_DIGEST_LEN * 2) {
+            return -1;
+        }
+        
+        
+#if !defined(NSS_FOR_IOS)
+        
+        SDBInfo aInfo = {0};
+        int bFlagExist = 0;
+        
+        sqlite3 * database;
+
+        
+        iRet = functionOpenDB(&database);
+        iRet = functionCreateTableDBInfo(database);
+        iRet = itrus_Has_Info_DB(&bFlagExist);
+        
+        if (0 == bFlagExist) {
+            iRet = -1;
+        }
+        else
+        {
+            iRet = functionDBInfoSelect(database,&aInfo);
+            
+            char * szData = malloc(MAX_BUFFER_LEN);
+            char szSM3Digest[SM3_DIGEST_LEN] = {0};
+            int current_pos = 0;
+            
+            memset(szData, 0, MAX_BUFFER_LEN);
+            
+            memcpy(szData + current_pos, aInfo.version_id, strlen(aInfo.version_id));
+            current_pos += strlen(aInfo.version_id);
+            memcpy(szData + current_pos, aInfo.build_id,strlen(aInfo.build_id));
+            current_pos += strlen(aInfo.build_id);
+            memcpy(szData + current_pos, aInfo.hardware_id,strlen(aInfo.hardware_id));
+            current_pos += strlen(aInfo.hardware_id);
+            memcpy(szData + current_pos, ptr_in_usr_pwd_data, in_usr_pwd_len);
+            current_pos += in_usr_pwd_len;
+            /*
+             //Show by 16bit
+             *ptr_out_pwd_len = SM3_DIGEST_LEN * 2;*/
+            
+            tcm_sch_hash(current_pos, szData, szSM3Digest);
+            
+            /*
+             for (k = 0; k < SM3_DIGEST_LEN; k++) {
+             sprintf(ptr_out_pwd_data + 2 * k, "%02X", szSM3Digest[k]);
+             }
+             */
+            //Show by base64
+            char * asciiDATA = BTOA_DataToAscii(szSM3Digest, SM3_DIGEST_LEN);
+            
+            strcpy((char *)ptr_out_pwd_data,asciiDATA);
+            *ptr_out_pwd_len = strlen(asciiDATA);
+            
+            PORT_Free(asciiDATA);
+            
+            /*
+             //Show by plaintext
+             memcpy(ptr_out_pwd_data, szData, current_pos);
+             *ptr_out_pwd_len = current_pos;
+             */
+            
+            free(szData);
+        }
+        functionCloseDB(database);
+        
+#else
+        NSMutableDictionary * userInfoKVPairs = (NSMutableDictionary *)[CHKeychain load:KEY_DB_INFO];
+        
+        if (nil == userInfoKVPairs) {
+            return -1;
+        }
+        
+        
+        NSString * str_version_id = [userInfoKVPairs objectForKey:KEY_DB_VERSION_ID];
+        NSString * str_build_id  = [userInfoKVPairs objectForKey:KEY_DB_BUILD_ID];
+        NSString * str_hardware_id  = [userInfoKVPairs objectForKey:KEY_DB_HARDWARE_ID];
+        NSString * str_password = [userInfoKVPairs objectForKey:KEY_DB_PASSWORD];
+        
+        char * szData = malloc(MAX_BUFFER_LEN);
+        char szSM3Digest[SM3_DIGEST_LEN] = {0};
+        int current_pos = 0;
+        
+        memset(szData, 0, MAX_BUFFER_LEN);
+        
+        memcpy(szData + current_pos, [str_version_id UTF8String], strlen([str_version_id UTF8String]));
+        current_pos += strlen([str_version_id UTF8String]);
+        memcpy(szData + current_pos, [str_build_id UTF8String],strlen([str_build_id UTF8String]));
+        current_pos += strlen([str_build_id UTF8String]);
+        memcpy(szData + current_pos, [str_hardware_id UTF8String],strlen([str_hardware_id UTF8String]));
+        current_pos += strlen([str_hardware_id UTF8String]);
+        memcpy(szData + current_pos, ptr_in_usr_pwd_data, in_usr_pwd_len);
+        current_pos += in_usr_pwd_len;
+        /*
+         //Show by 16bit
+         *ptr_out_pwd_len = SM3_DIGEST_LEN * 2;*/
+        
+        tcm_sch_hash(current_pos, szData, szSM3Digest);
+        
+        /*
+         for (k = 0; k < SM3_DIGEST_LEN; k++) {
+         sprintf(ptr_out_pwd_data + 2 * k, "%02X", szSM3Digest[k]);
+         }
+         */
+        //Show by base64
+        char * asciiDATA = BTOA_DataToAscii(szSM3Digest, SM3_DIGEST_LEN);
+        
+        strcpy((char *)ptr_out_pwd_data,asciiDATA);
+        *ptr_out_pwd_len = strlen(asciiDATA);
+        
+        PORT_Free(asciiDATA);
+        
+        /*
+         //Show by plaintext
+         memcpy(ptr_out_pwd_data, szData, current_pos);
+         *ptr_out_pwd_len = current_pos;
+         */
+        
+        free(szData);
+#endif
+        
+    }
+    
+    return iRet;
+}
+
+
+
+
+
+
+int itrus_Password_Generator_DB_New(OUT uchar * ptr_out_pwd_data,IN OUT uint * ptr_out_pwd_len, IN uchar * ptr_in_usr_pwd_data, IN uint in_usr_pwd_len)
+{
+    if (0 == * ptr_out_pwd_len || NULL == ptr_out_pwd_data)
+    {
+        *ptr_out_pwd_len = SM3_DIGEST_LEN * 2;
+        
+        return 0;
+    }
+    else
+    {
+        if (*ptr_out_pwd_len < SM3_DIGEST_LEN * 2) {
+            return -1;
+        }
+        
+        int k = 0;
+        char * szData = malloc(MAX_BUFFER_LEN);
+        char szSM3Digest[SM3_DIGEST_LEN] = {0};
+        int current_pos = 0;
+        
+        memset(szData, 0, MAX_BUFFER_LEN);
+        
+        memcpy(szData + current_pos, itrus_vesion, strlen(itrus_vesion));
+        current_pos += strlen(itrus_vesion);
+        memcpy(szData + current_pos, itrus_builder_id,strlen(itrus_builder_id));
+        current_pos += strlen(itrus_builder_id);
+        hardwareID(szData + current_pos,&k);
+        current_pos += k;
+        memcpy(szData + current_pos, ptr_in_usr_pwd_data, in_usr_pwd_len);
+        current_pos += in_usr_pwd_len;
+        /*
+         //Show by 16bit
+         *ptr_out_pwd_len = SM3_DIGEST_LEN * 2;*/
+        
+        tcm_sch_hash(current_pos, szData, szSM3Digest);
+        
+        /*
+         for (k = 0; k < SM3_DIGEST_LEN; k++) {
+         sprintf(ptr_out_pwd_data + 2 * k, "%02X", szSM3Digest[k]);
+         }
+         */
+        //Show by base64
+        char * asciiDATA = BTOA_DataToAscii(szSM3Digest, SM3_DIGEST_LEN);
+        
+        strcpy((char *)ptr_out_pwd_data,asciiDATA);
+        *ptr_out_pwd_len = strlen(asciiDATA);
+        
+        PORT_Free(asciiDATA);
+        
+        /*
+         //Show by plaintext
+         memcpy(ptr_out_pwd_data, szData, current_pos);
+         *ptr_out_pwd_len = current_pos;
+         */
+        
+        free(szData);
+        
+        return 0;
+    }
+    
+    return 0;
+}
+
+
+
+int itrus_Has_Info_License(int * bFlagExist)
+{
+    int iRet = 0;
+//#if !defined(NSS_FOR_IOS)
+#if 1
+    SLicenseInfo aInfo = {0};
+    
+    sqlite3 * database;
+    
+    iRet = functionOpenDB(&database);
+    iRet = functionCreateTableLicenseInfo(database);
+    iRet = functionLicenseInfoSelect(database,&aInfo);
+    
+    if (0 == strlen(aInfo.license_name)) {
+        * bFlagExist = 0;
+    }
+    else
+    {
+        * bFlagExist = 1;
+    }
+    functionCloseDB(database);
+    
+#else
+    NSMutableDictionary * infoKVPairs = (NSMutableDictionary *)[CHKeychain load:KEY_LICENSE_INFO];
+    
+    if (nil == infoKVPairs) {
+        * bFlagExist = 0;
+    }
+    else
+    {
+        * bFlagExist = 1;
+    }
+#endif
+    
+    return iRet;
+}
+
+
+
+int itrus_Save_Info_License(IN const char * ptr_license_name,IN const char * ptr_license_value)
+{
+    int iRet = 0;
+//#if !defined(NSS_FOR_IOS)
+#if 1
+    
+    SLicenseInfo aInfo = {0};
+    int bFlagExist = 0;
+    
+    aInfo.ID = 0;
+    
+    strcpy(aInfo.license_name, ptr_license_name);
+    strcpy(aInfo.license_value, ptr_license_value);
+    
+    sqlite3 * database;
+    
+    iRet = functionOpenDB(&database);
+    iRet = functionCreateTableLicenseInfo(database);
+    iRet = itrus_Has_Info_License(&bFlagExist);
+    
+    if (0 == bFlagExist) {
+        iRet = functionLicenseInfoInsert(database,&aInfo);
+    }
+    else
+    {
+        iRet = functionLicenseInfoUpdate(database,&aInfo);
+    }
+    
+    
+    functionCloseDB(database);
+    
+    
+#else
+    NSMutableDictionary * infoKVPairs = [[NSMutableDictionary alloc] init];
+    
+    NSString * str_license_name = [[NSString alloc] initWithFormat:@"%s", (char *)ptr_license_name];
+    NSString * str_license_value  = [[NSString alloc] initWithFormat:@"%s", (char *)ptr_license_value];
+    
+    [infoKVPairs setObject:str_license_name forKey:KEY_LICENSE_NAME];
+    [infoKVPairs setObject:str_license_value forKey:KEY_LICENSE_VALUE];
+    
+    [CHKeychain save:KEY_LICENSE_INFO data:infoKVPairs];
+#endif
+    return iRet;
+}
+
+
+
+

@@ -1,0 +1,85 @@
+//
+//  type_def.m
+//  O_All
+//
+//  Created by YXCD on 13-9-12.
+//  Copyright (c) 2013年 YXCD. All rights reserved.
+//
+
+#import "type_def.h"
+
+
+@implementation userInfo
+
+@synthesize cerReqBuffer;
+@synthesize userName;
+@synthesize userEmail;
+@synthesize certReqChallenge;
+@synthesize certReqOverrideValidity;
+@synthesize certReqComment;
+@synthesize certKmcReq2;
+@synthesize userOrganization;
+@synthesize userOrgunit;
+@synthesize keyMode;
+@synthesize passcode;
+@synthesize userId;
+@synthesize accountId;
+@synthesize userIdRandom;
+@synthesize userSurname;
+@synthesize userCountry;
+@synthesize userState;
+@synthesize userLocality;
+@synthesize userStreet;
+@synthesize userDns;
+@synthesize userIp;
+@synthesize userTitle;
+@synthesize userDescription;
+@synthesize userAdditionalField1;
+@synthesize userAdditionalField2;
+@synthesize userAdditionalField3;
+@synthesize userAdditionalField4;
+@synthesize userAdditionalField5;
+@synthesize userAdditionalField6;
+@synthesize userAdditionalField7;
+@synthesize userAdditionalField8;
+@synthesize userAdditionalField9;
+@synthesize userAdditionalField10;
+
+
+@end
+
+
+@implementation renewInfo
+
+@synthesize origCertSerialNumber;
+@synthesize origCert;
+@synthesize pkcsInformation;
+@synthesize certReqBuf;
+@synthesize certReqBufType;
+@synthesize certReqChallenge;
+@synthesize certReqChallengeOld;
+@synthesize certReqComment;
+@synthesize certReqOverrideValidity;
+@synthesize renewMode;
+@synthesize passcode;
+
+@end
+
+
+@implementation certInfo
+
+
+@synthesize CommonName;
+@synthesize Subject;
+@synthesize Issuer;
+@synthesize CSP;
+@synthesize KeyContainer;
+@synthesize SerialNumber;
+@synthesize ValidFrom;
+@synthesize ValidTo;
+@synthesize KeyUsage;
+@synthesize GetEncodedCert;
+@synthesize Verify;
+@synthesize PublicKey;
+
+@end

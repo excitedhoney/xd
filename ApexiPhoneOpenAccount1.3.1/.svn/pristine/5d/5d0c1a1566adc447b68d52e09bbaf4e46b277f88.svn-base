@@ -1,0 +1,441 @@
+//
+//  SecretSetViewCtrl.m
+//  ApexiPhoneOpenAccount
+//
+//  Created by mac  on 14-3-11.
+//  Copyright (c) 2014年 mac . All rights reserved.
+//
+
+#import "SecretSetViewCtrl.h"
+#import "DepositBankViewCtrl.h"
+
+#define CellHeight 120
+#define CellTag 101
+#define FieldControlTag   231
+
+@interface SecretSetViewCtrl (){
+    NSMutableArray * filterArray;
+    UITableView * table_view;
+//    NSMutableArray * fieldArray;
+    UIButton * frontBtn;
+    BOOL bIsSelected;
+    UIButton * sameSecretBtn;
+    
+    UITextField * ZJMMFirstField;
+    UITextField * ZJMMSecondField;
+    UITextField * JYMMFirstField;
+    UITextField * JYMMSecondField;
+}
+
+@end
+
+@implementation SecretSetViewCtrl
+
+- (id)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil
+{
+    self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil];
+    if (self) {
+        
+    }
+    return self;
+}
+
+- (void)viewDidLoad
+{
+    [self InitConfig];
+    [self InitWidgets];
+    
+    [super viewDidLoad];
+}
+
+- (void)viewWillAppear:(BOOL)animated{
+    [super viewWillAppear:animated];
+//    [self addGesture:self.navigationController.navigationBar];
+}
+
+- (void)viewWillDisappear:(BOOL)animated{
+    [super viewWillDisappear:animated];
+//    [self.navigationController.navigationBar removeGestureRecognizer:singleTapRecognizer];
+}
+
+- (void) InitConfig{
+    filterArray = [[NSMutableArray alloc]initWithObjects:@"资金密码", nil];
+    bIsSelected = YES;
+    
+    [self.view setBackgroundColor:PAGE_BG_COLOR];
+    
+    [self.navigationItem setHidesBackButton:YES];
+}
+
+- (void) InitWidgets{
+    UILabel * tipLabel = [PublicMethod initLabelWithFrame:CGRectMake(levelSpace, 0, screenWidth - 2*levelSpace, 60) title:@"请您设置资金密码,资金密码可以用于证券交易" target:self.view];
+    tipLabel.textColor = GrayTipColor_Wu;
+    tipLabel.numberOfLines = 0;
+    
+    table_view = [[UITableView alloc]initWithFrame:CGRectMake(0, 60, screenWidth, screenHeight - UpHeight - 60)];
+    table_view.delegate = self;
+    table_view.dataSource = self;
+    [table_view setSeparatorStyle:UITableViewCellSeparatorStyleNone];
+    
+    [self.view addSubview:table_view];
+    
+    [self addGesture:self.view];
+    
+    [super InitWidgets];
+}
+
+#pragma tableview delegate
+- (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView
+{
+	return 1;
+}
+
+- (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section
+{
+    return filterArray.count + 1;
+}
+
+- (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath
+{
+	return CellHeight;
+}
+
+- (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath{
+    static NSString *CellIdentifier = @"tableViewCellIdentify";
+	UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:CellIdentifier];
+    
+	if (cell == nil)
+	{
+        cell = [[UITableViewCell alloc]initWithStyle:UITableViewCellStyleDefault reuseIdentifier:CellIdentifier];
+	}
+    
+    for (UIView * vi in cell.contentView.subviews) {
+        for(UIView * subV in vi.subviews){
+            [subV removeFromSuperview];
+        }
+        [vi removeFromSuperview];
+    }
+    
+    int row = indexPath.row;
+    float space = (CellHeight - 44*2)/3;
+    if(row == filterArray.count){
+        sameSecretBtn = [PublicMethod InitReadXY:@"交易密码同资金密码"
+                                                  withFrame:CGRectMake(levelSpace ,
+                                                                       space ,
+                                                                       screenWidth - 2*levelSpace ,
+                                                                       44)
+                                                  tag:FieldControlTag + 100
+                                               target:self];
+        UIButton * markBtn = (UIButton *)[sameSecretBtn viewWithTag:MarkBtnTag];
+        [markBtn setBackgroundImage:[UIImage imageNamed:@"checkBox_checked"] forState:UIControlStateNormal];
+        [sameSecretBtn removeTarget:self action:@selector(onButtonClick:) forControlEvents:UIControlEventTouchUpInside];
+        [sameSecretBtn addTarget:self action:@selector(onSelectButton:) forControlEvents:UIControlEventTouchUpInside];
+        [cell.contentView addSubview:sameSecretBtn];
+        
+//        frontBtn = [self createSelectImageButton:FieldControlTag + 100 withFrame:CGRectMake(levelSpace,
+//                                                                                   space ,
+//                                                                                   40,
+//                                                                                   44)];
+//        [frontBtn addTarget:self action:@selector(onSelectButton:) forControlEvents:UIControlEventTouchDown];
+//        [frontBtn setSelected:YES];
+//        [frontBtn setBackgroundColor:[UIColor redColor]];
+//        [cell.contentView addSubview:frontBtn];
+//        
+//        UIButton * afterBtn = [self createSelectTitleButton:0 withFrame:CGRectMake(levelSpace + 40,
+//                                                                                   space ,
+//                                                                                   screenWidth - 2*levelSpace - 40,
+//                                                                                   44) title:@"交易密码同资金密码"];
+//        [afterBtn addTarget:self action:@selector(onSelectButton:) forControlEvents:UIControlEventTouchDown];
+//        [cell.contentView addSubview:afterBtn];
+        
+        [self InitNextStepButton:CGRectMake (levelSpace,
+                                             space * 2 + 44,
+                                             screenWidth - 2 * levelSpace,
+                                             44)
+                             tag:0
+                           title:@"下一步"];
+        [cell.contentView addSubview:nextStepBtn];
+    }
+    else{
+        [cell.contentView addSubview:[self createFieldSupeView:row]];
+    }
+    
+    return cell;
+}
+
+- (void)onSelectButton:(UIButton *)btn{
+    
+    UIButton * markBtn = (UIButton *)[btn viewWithTag:MarkBtnTag];
+    if(!bIsSelected){
+        [markBtn setBackgroundImage:[UIImage imageNamed:@"checkBox_checked"] forState:UIControlStateNormal];
+        [self insertJYField:NO];
+        bIsSelected = YES;
+    }
+    else{
+        [markBtn setBackgroundImage:[UIImage imageNamed:@"checkBox_default"] forState:UIControlStateNormal];
+        [self insertJYField:YES];
+        bIsSelected = NO;
+    }
+}
+
+- (UIView *)createFieldSupeView:(int)index{
+    int space = 3;
+    int cellWidth = screenWidth - 2*space;
+    int localCellHeight = CellHeight - space;
+    UIView *la=[[UIView alloc]initWithFrame: CGRectMake(space, space, cellWidth, localCellHeight)];
+    [la setBackgroundColor:LikeWhiteColor];
+    [PublicMethod publicCornerBorderStyle:la];
+    
+    NSString * placeHolder = [filterArray objectAtIndex:index];
+    NSArray * currentHolders = [NSArray arrayWithObjects:placeHolder,[NSString stringWithFormat:@"确定%@",placeHolder],nil];
+    if(index == 0){
+        ZJMMFirstField = [self createLocalField:0 placeHolder:currentHolders target:la];
+        ZJMMSecondField = [self createLocalField:1 placeHolder:currentHolders target:la];
+    }
+    if(index == 1){
+        JYMMFirstField = [self createLocalField:0 placeHolder:currentHolders target:la];
+        JYMMSecondField = [self createLocalField:1 placeHolder:currentHolders target:la];
+    }
+    
+    return la;
+}
+
+- (UITextField *)createLocalField:(int)index placeHolder:(NSArray *)holders target:(UIView *)vi{
+    int verticalSpace = 10;
+    int fieldWidth = screenWidth - 2*levelSpace;
+    int fieldHeight = (CellHeight - 3*verticalSpace)/2;
+    UITextField *field = [PublicMethod CreateField:[holders objectAtIndex:index]
+                                         withFrame:CGRectMake(levelSpace, verticalSpace +(fieldHeight + verticalSpace)*index , fieldWidth, fieldHeight)
+                                               tag:0
+                                            target:vi];
+    [field setSecureTextEntry:YES];
+    field.delegate = self;
+    [field setBackgroundColor:[UIColor whiteColor]];
+    [PublicMethod publicCornerBorderStyle:field];
+    
+    return field;
+}
+
+-(void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath{
+    
+    //    [table_view reloadData];
+}
+
+- (void)insertJYField:(BOOL)isInsert{
+    NSIndexPath * index = [NSIndexPath indexPathForRow:1 inSection:0];
+    NSArray *ar = [NSArray arrayWithObjects:index, nil];
+    
+    if(isInsert){
+        [filterArray addObject:@"交易密码"];
+        [table_view insertRowsAtIndexPaths:ar withRowAnimation:UITableViewRowAnimationTop];
+    }
+    else{
+        [filterArray removeObjectAtIndex:1];
+        [table_view deleteRowsAtIndexPaths:ar withRowAnimation:UITableViewRowAnimationBottom];
+    }
+}
+
+#pragma textfield Delegate
+-(void)textFieldDidBeginEditing:(UITextField *)textField{
+    bKeyBoardShow = YES;
+    
+    CGRect newFrame=[textField convertRect:[[UIScreen mainScreen] applicationFrame] toView:self.view];
+    
+    keyboardOffset = newFrame.origin.y - 20 + ButtonHeight - (screenHeight - UpHeight - KeyBoardHeight);
+    textField.layer.borderColor = TEXTFEILD_BOLD_HIGHLIGHT_COLOR.CGColor;
+    if(keyboardOffset > 0){
+        [self beginEdit:YES textFieldArrar:nil];
+    }
+}
+
+- (void)textFieldDidEndEditing:(UITextField *)textField{
+    textField.layer.borderColor = FieldNormalColor.CGColor;
+}
+
+- (BOOL)textFieldShouldReturn:(UITextField *)textField{
+    if(bKeyBoardShow ){
+        [self beginEdit:NO textFieldArrar:[NSMutableArray arrayWithObjects:textField,nil]];
+    }
+    return YES;
+}
+
+#pragma scrollview delegate
+- (void)scrollViewWillBeginDragging: (UIScrollView *)_scrollView
+{
+    if(bKeyBoardShow ){
+        [self beginEdit:NO textFieldArrar:[NSMutableArray arrayWithObjects:ZJMMFirstField,ZJMMSecondField,JYMMFirstField,JYMMSecondField, nil]];
+    }
+}
+
+- (void)OnTouchDownResign:(UIControl *)control{
+    dispatch_async(dispatch_get_main_queue(), ^{
+        [ZJMMFirstField resignFirstResponder];
+        [ZJMMSecondField resignFirstResponder];
+        [JYMMFirstField resignFirstResponder];
+        [JYMMSecondField resignFirstResponder];
+        
+        if(bKeyBoardShow ){
+            [self beginEdit:NO textFieldArrar:[NSMutableArray arrayWithObjects:ZJMMFirstField,ZJMMSecondField,JYMMFirstField,JYMMSecondField, nil]];
+        }
+    });
+}
+
+- (void)updateUI{
+    [super updateUI];
+    
+    dispatch_async(dispatch_get_main_queue(), ^{
+        
+    });
+}
+
+- (BOOL) textField:(UITextField *)textField shouldChangeCharactersInRange:(NSRange)range replacementString:(NSString *)string{
+    NSString * fieldText = [NSString stringWithFormat:@"%@%@", textField.text , string];
+    
+    int index = [rmmArray indexOfObject:fieldText];
+    if(index >= 0 && index < rmmArray.count){
+//        UIAlertView * alertview = [[UIAlertView alloc] initWithTitle:@"提示" message:@"请输入保密等级高的密码" delegate:self cancelButtonTitle:nil otherButtonTitles:@"确定", nil];
+//        [alertview show];
+//        
+//        return NO;
+    }
+    if (fieldText.length>6) {
+//        UIAlertView * alertview = [[UIAlertView alloc] initWithTitle:Nil message:@"您的密码不能超过6位" delegate:self cancelButtonTitle:nil otherButtonTitles:@"确定", nil];
+//        [alertview show];
+        
+        return NO;
+    }
+    
+    return YES;
+}
+
+- (void)onButtonClick:(UIButton *)btn{
+    if(bKeyBoardShow ){
+        [self beginEdit:NO textFieldArrar:[NSMutableArray arrayWithObjects:ZJMMFirstField,ZJMMSecondField,JYMMFirstField,JYMMSecondField, nil]];
+    }
+    
+    if(btn.tag == MarkBtnTag){
+        if(!bIsSelected){
+            [btn setBackgroundImage:[UIImage imageNamed:@"checkBox_checked"] forState:UIControlStateNormal];
+            bIsSelected = YES;
+            [self insertJYField:NO];
+            [self chageNextStepButtonStype:YES];
+        }
+        else{
+            [btn setBackgroundImage:[UIImage imageNamed:@"checkBox_default"] forState:UIControlStateNormal];
+            bIsSelected = NO;
+            [self insertJYField:YES];
+            [self chageNextStepButtonStype:NO];
+        }
+        return ;
+    }
+    
+    NSDictionary * dic =nil;
+    
+    NSString * insertZJ = ZJMMFirstField.text;
+    [PublicMethod trimText: &insertZJ];
+    NSString * fieldText = ZJMMSecondField.text;
+    [PublicMethod trimText:&fieldText];
+    
+    if(![fieldText isEqualToString:insertZJ])
+    {
+        UIAlertView * alertview = [[UIAlertView alloc] initWithTitle:Nil message:@"资金密码不一致,请重新输入" delegate:self cancelButtonTitle:nil otherButtonTitles:@"确定", nil];
+        [alertview show];
+        return ;
+    }
+    if(fieldText==nil ||fieldText.length == 0 ||insertZJ==nil || insertZJ.length == 0){
+        UIAlertView * alertview = [[UIAlertView alloc] initWithTitle:Nil message:@"请输入资金密码" delegate:self cancelButtonTitle:nil otherButtonTitles:@"确定", nil];
+        [alertview show];
+        return ;
+    }
+    if (insertZJ.length<6) {
+        UIAlertView * alertview = [[UIAlertView alloc] initWithTitle:Nil message:@"您的资金密码不能少于6位" delegate:self cancelButtonTitle:nil otherButtonTitles:@"确定", nil];
+        [alertview show];
+        return ;
+    }
+    
+    NSString * insertJY = Nil;
+    insertJY = JYMMFirstField.text;
+    [PublicMethod trimText: &insertJY];
+
+    fieldText = JYMMSecondField.text;
+    [PublicMethod trimText:&fieldText];
+    
+    if(bIsSelected == NO){
+        if(![fieldText isEqualToString:insertJY]){
+            UIAlertView * alertview = [[UIAlertView alloc] initWithTitle:Nil message:@"交易密码不一致,请重新输入" delegate:self cancelButtonTitle:nil otherButtonTitles:@"确定", nil];
+            [alertview show];
+            return ;
+        }
+        if(fieldText==nil ||fieldText.length == 0 ||insertJY==nil || insertJY.length == 0){
+            UIAlertView * alertview = [[UIAlertView alloc] initWithTitle:Nil message:@"请输入交易密码" delegate:self cancelButtonTitle:nil otherButtonTitles:@"确定", nil];
+            [alertview show];
+            return ;
+        }
+        if (insertZJ.length<6) {
+            UIAlertView * alertview = [[UIAlertView alloc] initWithTitle:Nil message:@"您的资金密码不能少于6位" delegate:self cancelButtonTitle:nil otherButtonTitles:@"确定", nil];
+            [alertview show];
+            return ;
+        }
+    }
+    else {
+        insertJY = insertZJ;
+    }
+    
+//    ""mmsz"":{""JYMM"":""123321"",""ZJMM"":""321123"",""SFTB"":""0""}
+    NSMutableDictionary * saveDic = [NSMutableDictionary dictionaryWithObjectsAndKeys:
+                                     insertZJ,ZJMM_MMSZ,
+                                     bIsSelected?insertZJ:insertJY,JYMM_MMSZ,
+                                     bIsSelected?@"1":@"0",SFTB_MMSZ,nil];
+    [self sendSaveStepInfo:MMSZ_STEP dataDictionary:&dic arrar:saveDic];
+    
+    while (!bSaveStepFinish) {
+        [[NSRunLoop currentRunLoop] runMode:NSDefaultRunLoopMode beforeDate:[NSDate distantFuture]];
+    }
+    
+    if(bSaveStepSuccess){
+        [self activityIndicate:YES tipContent:@"加载存管银行页面信息..." MBProgressHUD:nil target:self.navigationController.view];
+        DepositBankViewCtrl * bankVC = [[DepositBankViewCtrl alloc]init];
+        
+        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+            [self dispatchBankVC:bankVC];
+        });
+    }
+    else{
+        [self activityIndicate:NO tipContent:@"保存失败" MBProgressHUD:nil target:nil];
+    }
+}
+
+- (void)dispatchBankVC:(DepositBankViewCtrl *)bankVC{
+    NSDictionary * stepDictionary = nil;
+    if([self sendSaveCurrentStepKey:CGZD_STEP dataDictionary:&stepDictionary]){
+        BOOL ok = [self sendGoToStep:CGZD_STEP dataDictionary:&stepDictionary];
+        if(ok){
+            [SJKHEngine Instance]->cgzd_step_Dic = [stepDictionary mutableCopy];
+            bankVC->filterArray = [NSMutableArray array];
+            for (NSDictionary * yhDic in [[SJKHEngine Instance]->cgzd_step_Dic objectForKey:CGYHARR_CGYH]) {
+                [bankVC->filterArray addObject:[yhDic objectForKey:YHMC_CGYH]];
+            }
+            
+            dispatch_async(dispatch_get_main_queue(), ^{
+                [self activityIndicate:NO tipContent:nil MBProgressHUD:nil target:nil];
+                [self.navigationController pushViewController:bankVC animated:YES];
+                [bankVC updateUI];
+            });
+        }
+        else {
+            [self activityIndicate:NO tipContent:@"加载存管银行页面失败" MBProgressHUD:nil target:nil];
+            [[SJKHEngine Instance] dispatchMessage:POP_MESSAGE];
+        }
+    }
+}
+
+- (void)didReceiveMemoryWarning
+{
+    [super didReceiveMemoryWarning];
+}
+
+- (void)dealloc{
+    NSLog(@"密码设置回收");
+}
+
+@end

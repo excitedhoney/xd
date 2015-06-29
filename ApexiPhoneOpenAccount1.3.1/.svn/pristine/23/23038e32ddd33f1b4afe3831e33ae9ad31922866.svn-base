@@ -1,0 +1,49 @@
+
+// sms4.h
+#ifndef _SMS4_H_
+#define _SMS4_H_	1
+
+#include "blapi.h"
+
+typedef unsigned char BYTE;
+
+#define SMS4_KEY_LEN		16
+#define SMS4_BLOCK_LEN		16
+//#define SMS4_MAX_LEN		512
+
+typedef enum {
+    SM4_ENCRYPT = 0x1111,
+    SM4_DECRYPT = 0x2222
+} SM4Direction;
+
+typedef void SM4Func(struct SM4ContextStr *cx, BYTE *out, const BYTE *in, 
+                     unsigned int len);
+
+struct SM4ContextStr {    
+    unsigned char pbKey[SMS4_KEY_LEN];
+    unsigned char pbIV[SMS4_BLOCK_LEN];
+    SM4Direction direction;
+    SM4Func  *worker;
+};
+
+//#ifdef	__cplusplus
+//extern "C" {
+//#endif
+
+// 加密函数
+int SMS4EncryptECB(unsigned char *pbKey, unsigned char *pbInData, unsigned int uInDataLen, unsigned char *pbOutData);
+// 解密函数
+int SMS4DecryptECB(unsigned char *pbKey, unsigned char *pbInData, unsigned int uInDataLen, unsigned char *pbOutData);
+
+unsigned int tcm_sms4_encrypt(unsigned char *IV, unsigned char *input, unsigned int inputLen, unsigned char *output, unsigned char *key);
+
+unsigned int tcm_sms4_decrypt(unsigned char *IV, unsigned char *input, unsigned int inputLen, unsigned char *output, unsigned char *key);
+
+
+//#ifdef	__cplusplus
+//}
+//#endif
+
+
+
+#endif

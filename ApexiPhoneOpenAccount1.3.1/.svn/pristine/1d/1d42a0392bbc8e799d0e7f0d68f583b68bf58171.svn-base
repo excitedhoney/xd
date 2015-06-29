@@ -1,0 +1,1243 @@
+1.
+/*
+ 获取步骤页面数据返回的字典值结构
+ Printing description of stepResponseDic:
+ {
+ note = "\U5f71\U50cf\U4fe1\U606f\U52a0\U8f7d\U6210\U529f\U3002";
+ success = 1;
+ yxArr =     (
+ {
+ BX = 1;        //
+ JGBZ = 0;
+ KHFS = 3;
+ WJLX = 1;
+ YXHQFS = "1;2";
+ YXLX = 275;                //影像类型
+ YXLXMC = "\U8eab\U4efd\U8bc1\U6b63\U9762";  //影像类型名称
+ YXSX = 1;
+ ZJLB = "-1";
+ },
+ {
+ BX = 1;
+ JGBZ = 0;
+ KHFS = 3;
+ WJLX = 1;
+ YXHQFS = "1;2";
+ YXLX = 276;
+ YXLXMC = "\U8eab\U4efd\U8bc1\U80cc\U9762";
+ YXSX = 2;
+ ZJLB = "-1";
+ }
+ );
+ }
+ */
+ 
+
+ 2.gotoStep 在“基本资料“中获得的数据
+ {
+    note = "\U300a\U4e2a\U4eba\U6570\U5b57\U8bc1\U4e66\U7533\U8bf7\U8d23\U4efb\U4e66\U300b\U4fe1\U606f\U52a0\U8f7d\U6210\U529f\U3002";
+    success = 1;
+    szzrsArr =     (
+                {
+            ID = 31;
+            XYBB = "\Uff11\Uff0e\Uff10";  //协议版本
+            XYBT = "\Uff11\Uff0e\Uff10";  //协议标题
+        }
+    );
+    xldm =     {
+        note = "\U6210\U529f";
+        records =         (
+                        {
+                CBM = 1;
+                FLAG = 0;
+                IBM = 1;    //标签
+                ID = 1;
+                NOTE = "\U535a\U58eb";   //文本
+            },
+                        {
+                CBM = 2;
+                FLAG = 0;
+                IBM = 2;
+                ID = 2;
+                NOTE = "\U7855\U58eb";
+            },
+                        {
+                CBM = 3;
+                FLAG = 0;
+                IBM = 3;
+                ID = 3;
+                NOTE = "\U5b66\U58eb";
+            },
+                        {
+                CBM = 4;
+                FLAG = 0;
+                IBM = 4;
+                ID = 4;
+                NOTE = "\U5927\U4e13";
+            },
+                        {
+                CBM = 5;
+                FLAG = 0;
+                IBM = 5;
+                ID = 5;
+                NOTE = "\U4e2d\U4e13";
+            },
+                        {
+                CBM = 6;
+                FLAG = 0;
+                IBM = 6;
+                ID = 6;
+                NOTE = "\U9ad8\U4e2d";
+            },
+                        {
+                CBM = 7;
+                FLAG = 0;
+                IBM = 7;
+                ID = 7;
+                NOTE = "\U521d\U4e2d\U53ca\U5176\U4ee5\U4e0b";
+            },
+                        {
+                CBM = 8;
+                FLAG = 0;
+                IBM = 8;
+                ID = 8;
+                NOTE = "\U5176\U4ed6";
+            }
+        );
+        success = 1;
+        total = 8;
+    };
+    zydm =     {
+        note = "\U6210\U529f";
+        records =         (
+                        {
+                CBM = 1;
+                FLAG = 0;
+                IBM = 1;
+                ID = 1;
+                NOTE = "\U6587\U6559\U79d1\U536b\U4e13\U4e1a\U4eba\U5458";
+            },
+                        {
+                CBM = 2;
+                FLAG = 0;
+                IBM = 2;
+                ID = 2;
+                NOTE = "\U515a\U653f\U673a\U5173\U5e72\U90e8";
+            },
+                        {
+                CBM = 3;
+                FLAG = 0;
+                IBM = 3;
+                ID = 3;
+                NOTE = "\U4f01\U4e8b\U4e1a\U5355\U4f4d\U5e72\U90e8";
+            },
+                        {
+                CBM = 4;
+                FLAG = 0;
+                IBM = 4;
+                ID = 4;
+                NOTE = "\U884c\U653f\U4f01\U4e8b\U4e1a\U5355\U4f4d\U5de5\U4eba";
+            },
+                        {
+                CBM = 5;
+                FLAG = 0;
+                IBM = 5;
+                ID = 5;
+                NOTE = "\U519c\U6c11";
+            },
+                        {
+                CBM = 6;
+                FLAG = 0;
+                IBM = 6;
+                ID = 6;
+                NOTE = "\U4e2a\U4f53";
+            },
+                        {
+                CBM = 7;
+                FLAG = 0;
+                IBM = 7;
+                ID = 7;
+                NOTE = "\U65e0\U4e1a";
+            },
+                        {
+                CBM = 8;
+                FLAG = 0;
+                IBM = 8;
+                ID = 8;
+                NOTE = "\U519b\U4eba";
+            },
+                        {
+                CBM = 9;
+                FLAG = 0;
+                IBM = 9;
+                ID = 9;
+                NOTE = "\U5b66\U751f";
+            },
+                        {
+                CBM = 10;
+                FLAG = 0;
+                IBM = 10;
+                ID = 10;
+                NOTE = "\U8bc1\U5238\U4ece\U4e1a\U4eba\U5458";
+            },
+                        {
+                CBM = 99;
+                FLAG = 0;
+                IBM = 99;
+                ID = 11;
+                NOTE = "\U5176\U4ed6";
+            }
+        );
+        success = 1;
+        total = 11;
+    };
+}
+
+
+3.ocr数据
+    CSRQ = 19800101;     //出生日期
+    KHXM = "\U5b59\U6167\U654f"; //开户姓名
+    MZDM = 01;           //名族代码
+    MZMC = "\U6c49";     //名族名称
+    XB = 2;              //性别
+    XBMC = "\U5973";     //性别名称
+    YZBM = 350000;       //邮政编码
+    ZJBH = 310101198001013534;  //证件编号
+    ZJDZ = "\U798f\U5efa\U7701\U798f\U5dde\U5e02\U9f13\U697c\U533a\U8f6f\U4ef6\U56edA\U533a11#";  //证件地址
+    ZJFZJG = "\U798f\U5dde\U5e02\U9f13\U697c\U533a\U516c\U5b89\U5c40";   //证件发证机关
+    ZJYXQ = 20281230;           //证件有效期
+    note = "OCR\U8bc6\U522b\U6210\U529f\Uff01";
+    success = 1;
+    
+    CSRQ = 10104;
+    DZ = "\U524d";
+    KHXM = "\U5448";
+    MZDM = 1;
+    MZMC = "\U5df4";
+    XB = 1;
+    XBMC = "\U7537";
+    YZBM = 000000;
+    ZJBH = 163;
+    ZJDZ = "\U524d";
+    ZJFZJG = "";
+    ZJYXQ = "";
+    note = "\U8bc6\U522b\U6210\U529f";
+    success = 1;
+
+
+4.视频见证数据
+stepDictionary:
+{
+    note = "\U6570\U636e\U52a0\U8f7d\U6210\U529f\U3002";
+    spjzParams =     {
+        "COWORK_CC_PORT" = 5222;
+        "COWORK_CC_SERVER" = "172.26.64.229";
+        "COWORK_CC_WORKGROUP" = "openaccount_1@workgroup.apex";
+        "COWORK_CC_WSKH_URL" = "http://172.26.64.112:8088";
+        "FXCKH_WSKH_ZDZH_UID" = 0;
+        YYB = 1001;
+    };
+    success = 1;
+}
+
+
+5.mmsz密码设置数据：
+note = "\U6570\U636e\U52a0\U8f7d\U6210\U529f\U3002";
+    rmmArr =     (
+                {
+            MM = 000000;
+        },
+                {
+            MM = 111111;
+        },
+                {
+            MM = 222222;
+        },
+                {
+            MM = 333333;
+        },
+                {
+            MM = 444444;
+        },
+                {
+            MM = 555555;
+        },
+                {
+            MM = 666666;
+        },
+                {
+            MM = 777777;
+        },
+                {
+            MM = 888888;
+        },
+                {
+            MM = 999999;
+        },
+                {
+            MM = 123456;
+        },
+                {
+            MM = 123123;
+        }
+    );
+    success = 1;
+
+
+6.
+cgyhArr =     (
+                {
+            BZ = 1;         //币种
+            CGBZ = 1;       //存管标志
+            CGZDFS = 2;     //存管指定方式。有1必须输入密码，有2是预指定；如果有1和2,就优先选1.1直接指定，2预指定。
+            KHFS = "2;3;4"; //开户方式
+            MMSR = "";      //密码输入。预指定选了不弹出两个框来.有1必须输入密码，没1不用输入。
+            YHDM = GSYH;    //银行代码
+            YHMC = "\U5de5\U884c\U5b58\U7ba1";  //银行名称
+            YYBFW =                             "1001;1002;1003;1005;1006;1007;1008;1009;1010;1012;1013;1015;1016;1017;1018;1019;1020;1022;1023;1025;1026;1027;1028;1029;1031;1033;1035;1036;1037;1038;1039;1050;1051;1053;1055;1056;1057;1059;1060;1061;1062;1063;1065;1066;1067;1068;1070;1071;1072;1073;1075;1076;1088;1052;1077;1078;1079;1080";
+                            //暂时没用到。
+        },
+                {
+            BZ = 1;
+            CGBZ = 1;
+            CGZDFS = "1;2";     //优先1.
+            KHFS = "2;3;4";
+            MMSR = 1;
+            YHDM = PFYH;
+            YHMC = "\U6d66\U53d1\U94f6\U884c";
+            YYBFW = "1001;1002;1003;1005;1006;1007;1008;1009;1010;1012;1013;1015;1016;1017;1018;1019;1020;1022;1023;1025;1026;1027;1028;1029;1031;1033;1035;1036;1037;1038;1039;1050;1051;1053;1055;1056;1057;1059;1060;1061;1062;1063;1065;1066;1067;1068;1070;1073;1052;1071;1072;1075;1076;1077;1078;1079;1080";
+        },
+                {
+            BZ = 1;
+            CGBZ = 1;
+            CGZDFS = "1;2";
+            KHFS = "2;3;4";
+            MMSR = "";
+            YHDM = SHSH;
+            YHMC = "\U4e0a\U6d77\U94f6\U884c";
+            YYBFW = "1001;1002;1003;1005;1006";
+        },
+                {
+            BZ = 1;
+            CGBZ = 1;
+            CGZDFS = "1;2";
+            KHFS = "2;3;4";
+            MMSR = "1;2;3";
+            YHDM = ZGYH;
+            YHMC = "\U4e2d\U884c\U5b58\U7ba1";
+            YYBFW = "1001;1002;1003;1005;1006;1007;1008;1009;1010;1012;1013;1015;1016;1017;1018;1019;1020;1022;1023;1025;1026;1027;1028;1029;1031;1033;1035;1036;1037;1038;1039;1050;1051;1053;1055;1056;1057;1059;1060;1061;1062;1063;1065;1066;1067;1068;1070;1073;1052;1071;1072;1075;1076;1077;1078;1079;1080";
+        },
+                {
+            BZ = 1;
+            CGBZ = 1;
+            CGZDFS = "1;2";
+            KHFS = "2;3;4";
+            MMSR = "";
+            YHDM = ZSYH;
+            YHMC = "\U62db\U884c\U5b58\U7ba1";
+            YYBFW = "1001;1002;1003;1005;1006;1007;1008;1009;1010;1012;1013;1015;1016;1017;1018;1019;1020;1022;1023;1025;1026;1027;1028;1029;1031;1033;1035;1036;1037;1038;1039;1050;1051;1053;1055;1056;1057;1059;1060;1061;1062;1063;1065;1066;1067;1068;1070;1073;1052;1071;1072;1075;1076;1077;1078;1079;1080";
+        }
+    );
+    dhyhParams = ZGYH;
+    note = "\U5b58\U7ba1\U94f6\U884c\U4fe1\U606f\U52a0\U8f7d\U6210\U529f\Uff01";
+    success = 1;
+
+
+
+7.风险评测
+fxpcJson =     {
+        bzRecords =         (                                       //标准
+                        {
+                FXCSNL = 1;                                         //风险测试内容
+                FXCSNLMC = "\U4fdd\U5b88\U578b";                    //风险测试内容名称(要显示)
+                PFSX = 25;                                          //评分分上线
+                PFXX = 0;                                           //评分下线
+                TZMS = "\U60a8\U662f\U4e00\U4e2a\U4fdd\U5b88\U7684\U6295\U8d44\U8005\Uff0c\U98ce\U9669\U627f\U53d7\U80fd\U529b\U6781\U4f4e\Uff0c\U5efa\U8bae\U6295\U8d44\U4e8e\U56fd\U503a\U3001\U8d27\U5e01\U5e02\U573a\U57fa\U91d1\U3001\U4fdd\U672c\U57fa\U91d1\U7b49\U4f4e\U98ce\U9669\U57fa\U91d1\U4ea7\U54c1\Uff0c\U8c28\U614e\U6295\U8d44\U80a1\U7968";
+                                                                    //投资描述
+                WJID = 9;                                           //问卷id
+            },
+                        {
+                FXCSNL = 2;
+                FXCSNLMC = "\U7a33\U5065\U578b";
+                PFSX = 73;
+                PFXX = 37;
+                TZMS = "\U60a8\U662f\U4e00\U4e2a\U76f8\U5bf9\U7a33\U5065\U7684\U6295\U8d44\U8005\Uff0c\U98ce\U9669\U627f\U53d7\U80fd\U529b\U4e2d\U7b49\Uff0c\U5efa\U8bae\U6295\U8d44\U4e8e\U56fd\U503a\U3001\U8d27\U5e01\U5e02\U573a\U57fa\U91d1\U3001\U4fdd\U672c\U57fa\U91d1\U7b49\U4f4e\U98ce\U9669\U57fa\U91d1\U4ea7\U54c1\Uff0c\U8c28\U614e\U6295\U8d44\U80a1\U7968";
+                WJID = 9;
+            },
+                        {
+                FXCSNL = 3;
+                FXCSNLMC = "\U76f8\U5bf9\U79ef\U6781\U578b";
+                PFSX = 87;
+                PFXX = 73;
+                TZMS = "\U60a8\U662f\U4e00\U4e2a\U76f8\U5bf9\U79ef\U6781\U578b\U7684\U6295\U8d44\U8005\Uff0c\U98ce\U9669\U627f\U53d7\U80fd\U529b\U4e2d\U7b49\Uff0c\U5efa\U8bae\U6295\U8d44\U4e8e\U56fd\U503a\U3001\U8d27\U5e01\U5e02\U573a\U57fa\U91d1\U3001\U4fdd\U672c\U57fa\U91d1\U7b49\U4f4e\U98ce\U9669\U57fa\U91d1\U4ea7\U54c1\Uff0c\U8c28\U614e\U6295\U8d44\U80a1\U7968";
+                WJID = 9;
+            },
+                        {
+                FXCSNL = 4;
+                FXCSNLMC = "\U79ef\U6781\U578b";
+                PFSX = 101;
+                PFXX = 87;
+                TZMS = "\U60a8\U662f\U4e00\U4e2a\U79ef\U6781\U578b\U7684\U6295\U8d44\U8005\Uff0c\U98ce\U9669\U627f\U53d7\U80fd\U529b\U4e2d\U7b49\Uff0c\U5efa\U8bae\U6295\U8d44\U4e8e\U56fd\U503a\U3001\U8d27\U5e01\U5e02\U573a\U57fa\U91d1\U3001\U4fdd\U672c\U57fa\U91d1\U7b49\U4f4e\U98ce\U9669\U57fa\U91d1\U4ea7\U54c1\Uff0c\U8c28\U614e\U6295\U8d44\U80a1\U7968";
+                WJID = 9;
+            },
+                        {
+                FXCSNL = 6;
+                FXCSNLMC = "\U76f8\U5bf9\U4fdd\U5b88\U578b";
+                PFSX = 37;
+                PFXX = 25;
+                TZMS = "\U60a8\U662f\U4e00\U4e2a\U76f8\U5bf9\U4fdd\U5b88\U7684\U6295\U8d44\U8005\Uff0c\U98ce\U9669\U627f\U53d7\U80fd\U529b\U6781\U4f4e\Uff0c\U5efa\U8bae\U6295\U8d44\U4e8e\U56fd\U503a\U3001\U8d27\U5e01\U5e02\U573a\U57fa\U91d1\U3001\U4fdd\U672c\U57fa\U91d1\U7b49\U4f4e\U98ce\U9669\U57fa\U91d1\U4ea7\U54c1\Uff0c\U8c28\U614e\U6295\U8d44\U80a1\U7968";
+                WJID = 9;
+            }
+        );
+        note = "\U6210\U529f";
+        success = 1;
+        tmRecords =         (                               //题目
+                        {
+                ANSWER = "A;B;C;D;E";                       //
+                BH = 1;                                     //编号
+                JGBZ = 0;                                   //机构标志
+                JSFS = 0;                                   //计分方式。2取大，3取小。else,1累加.
+                QDESCRIBE = "\U5e74\U9f84*";                //问题类型(题目描述)
+                QID = 182;                                  //问题id
+                QTYPE = 0;                                  //0单选，1多选
+                SANSWER = "A|30\U5c81\U4ee5\U4e0b;B|31-40\U5c81;C|41-50\U5c81;D|51-60\U5c81;E|60\U5c81\U4ee5\U4e0a";                  //各选项的内容，|后面的就是
+                SCORE = "3;7;9;5;1";
+                WJBM = JJFXCSNL;                            //问卷编码
+                WJID = 9;                                   //问卷id
+                WJMC = "\U98ce\U9669\U627f\U53d7\U80fd\U529b\U6d4b\U8bc4\Uff08\U4e2a\U4eba\Uff09";  //问卷名称
+            },
+                        {
+                ANSWER = "";
+                BH = 3;
+                JGBZ = 0;
+                JSFS = 0;
+                QDESCRIBE = "\U6240\U5c5e\U884c\U4e1a";
+                QID = 184;
+                QTYPE = 0;
+                SANSWER = "A|\U653f\U5e9c\U673a\U6784;B|\U90ae\U7535\U901a\U8baf;C|\U79d1\U6559\U6587\U4f53;D|\U533b\U7597\U4fdd\U5065;E|\U5236\U9020\U4e1a;F|\U91d1\U878d\U4e1a;H|\U670d\U52a1\U4e1a;I|\U623f\U5730\U4ea7;J|\U4f20\U5a92\U4e1a;K|\U519c\U6797\U7267\U6e14;L|\U6cd5\U5f8b\U3001\U53f8\U6cd5;M|\U5546\U8d38;N|\U7f51\U7edc\U3001IT\U4e1a;O|\U7a0e\U52a1;P|\U54a8\U8be2;Q|\U65c5\U6e38;R|\U4ea4\U901a\U8fd0\U8f93;S|\U5a31\U4e50\U670d\U52a1\U884c\U4e1a;T|\U5178\U5f53\U62cd\U5356\U884c\U4e1a;U|\U5e9f\U54c1\U6536\U8d2d\U884c\U4e1a;V|\U6148\U5584\U7ec4\U7ec7;W|\U5176\U4ed6";
+                SCORE = 0;
+                WJBM = JJFXCSNL;
+                WJID = 9;
+                WJMC = "\U98ce\U9669\U627f\U53d7\U80fd\U529b\U6d4b\U8bc4\Uff08\U4e2a\U4eba\Uff09";
+            },
+                        {
+                ANSWER = "";
+                BH = 4;
+                JGBZ = 0;
+                JSFS = 0;
+                QDESCRIBE = "\U4e2a\U4eba\U7231\U597d";
+                QID = 185;
+                QTYPE = 1;
+                SANSWER = "A|\U8fd0\U52a8;B|\U65c5\U6e38;C|\U8d2d\U7269;D|\U5f71\U97f3\U5a31\U4e50;E|\U4e0a\U7f51;F|\U9605\U8bfb;G|\U65f6\U5c1a\U7528\U54c1;H|\U5176\U4ed6";
+                SCORE = 0;
+                WJBM = JJFXCSNL;
+                WJID = 9;
+                WJMC = "\U98ce\U9669\U627f\U53d7\U80fd\U529b\U6d4b\U8bc4\Uff08\U4e2a\U4eba\Uff09";
+            },
+                        {
+                ANSWER = "";
+                BH = 5;
+                JGBZ = 0;
+                JSFS = 0;
+                QDESCRIBE = "\U4e2a\U4eba\U5e74\U6536\U5165";
+                QID = 186;
+                QTYPE = 0;
+                SANSWER = "A|12\U4e07\U5143\U4ee5\U4e0a;B|6\U201412\U4e07\U5143;C|2\U20146\U4e07\U5143;D|2\U4e07\U5143\U4ee5\U4e0b";
+                SCORE = 0;
+                WJBM = JJFXCSNL;
+                WJID = 9;
+                WJMC = "\U98ce\U9669\U627f\U53d7\U80fd\U529b\U6d4b\U8bc4\Uff08\U4e2a\U4eba\Uff09";
+            },
+                        {
+                ANSWER = "";
+                BH = 6;
+                JGBZ = 0;
+                JSFS = 0;
+                QDESCRIBE = "\U5bb6\U5ead\U4eba\U6570";
+                QID = 187;
+                QTYPE = 0;
+                SANSWER = "A|1;B|2;C|3;D|\U22653";
+                SCORE = 0;
+                WJBM = JJFXCSNL;
+                WJID = 9;
+                WJMC = "\U98ce\U9669\U627f\U53d7\U80fd\U529b\U6d4b\U8bc4\Uff08\U4e2a\U4eba\Uff09";
+            },
+                        {
+                ANSWER = "";
+                BH = 7;
+                JGBZ = 0;
+                JSFS = 0;
+                QDESCRIBE = "\U5bb6\U5ead\U5e74\U6536\U5165";
+                QID = 188;
+                QTYPE = 0;
+                SANSWER = "A|5\U4e07\U5143\U4ee5\U4e0b;B|5\U201420\U4e07\U5143;C|20\U201450\U4e07\U5143;D|50\U2014100\U4e07\U5143;E|100\U4e07\U5143\U4ee5\U4e0a";
+                SCORE = 0;
+                WJBM = JJFXCSNL;
+                WJID = 9;
+                WJMC = "\U98ce\U9669\U627f\U53d7\U80fd\U529b\U6d4b\U8bc4\Uff08\U4e2a\U4eba\Uff09";
+            },
+                        {
+                ANSWER = "";
+                BH = 8;
+                JGBZ = 0;
+                JSFS = 0;
+                QDESCRIBE = "\U62e5\U6709\U623f\U4ea7";
+                QID = 189;
+                QTYPE = 0;
+                SANSWER = "A|\U662f;B|\U5426";
+                SCORE = 0;
+                WJBM = JJFXCSNL;
+                WJID = 9;
+                WJMC = "\U98ce\U9669\U627f\U53d7\U80fd\U529b\U6d4b\U8bc4\Uff08\U4e2a\U4eba\Uff09";
+            },
+                        {
+                ANSWER = "";
+                BH = 9;
+                JGBZ = 0;
+                JSFS = 0;
+                QDESCRIBE = "\U623f\U4ea7\U8d2d\U4e70\U4ef7\U683c";
+                QID = 190;
+                QTYPE = 0;
+                SANSWER = "A|50\U4e07\U5143\U4ee5\U4e0b;B|50\U4e07\U5143\U2014100\U4e07\U5143;C|100\U4e07\U5143\U2014200\U4e07\U5143;D|200\U4e07\U5143\U4ee5\U4e0a";
+                SCORE = 0;
+                WJBM = JJFXCSNL;
+                WJID = 9;
+                WJMC = "\U98ce\U9669\U627f\U53d7\U80fd\U529b\U6d4b\U8bc4\Uff08\U4e2a\U4eba\Uff09";
+            },
+                        {
+                ANSWER = "";
+                BH = 10;
+                JGBZ = 0;
+                JSFS = 0;
+                QDESCRIBE = "\U62e5\U6709\U673a\U52a8\U8f66";
+                QID = 191;
+                QTYPE = 0;
+                SANSWER = "A|\U662f;B|\U5426";
+                SCORE = 0;
+                WJBM = JJFXCSNL;
+                WJID = 9;
+                WJMC = "\U98ce\U9669\U627f\U53d7\U80fd\U529b\U6d4b\U8bc4\Uff08\U4e2a\U4eba\Uff09";
+            }
+        );
+    };
+    note = "\U98ce\U9669\U8bc4\U6d4b\U4fe1\U606f\U52a0\U8f7d\U6210\U529f\Uff01";
+    success = 1;
+
+
+
+8.回访问卷
+    fxpcJson =     {
+        bzRecords =         (
+                        {
+                FXCSNL = 1;                     //风险测试内容
+                FXCSNLMC = "\U4fdd\U5b88\U578b";//风险测试内容题目
+                PFSX = 5;                       //评分上限
+                PFXX = 0;                       //评分下限
+                TZMS = "";
+                WJID = 13;                      //问券id
+            },
+                        {
+                FXCSNL = 2;
+                FXCSNLMC = "\U7a33\U5065\U578b";
+                PFSX = 10;
+                PFXX = 6;
+                TZMS = "";
+                WJID = 13;
+            },
+                        {
+                FXCSNL = 3;
+                FXCSNLMC = "\U76f8\U5bf9\U79ef\U6781\U578b";
+                PFSX = 15;
+                PFXX = 11;
+                TZMS = "";
+                WJID = 13;
+            },
+                        {
+                FXCSNL = 4;
+                FXCSNLMC = "\U79ef\U6781\U578b";
+                PFSX = 20;
+                PFXX = 16;
+                TZMS = "";
+                WJID = 13;
+            },
+                        {
+                FXCSNL = 6;
+                FXCSNLMC = "\U76f8\U5bf9\U4fdd\U5b88\U578b";
+                PFSX = 100;
+                PFXX = 21;
+                TZMS = "";
+                WJID = 13;
+            }
+        );
+        note = "\U6210\U529f";
+        success = 1;
+        tmRecords =         (
+                        {
+                ANSWER = "A;B";
+                BH = 1;                                     //编号
+                JGBZ = 0;                                   //机构标志
+                JSFS = 1;                                   //计分方式
+                QDESCRIBE = "\U62e5\U6709\U623f\U4ea7";     //问题描述
+                QID = 260;                                  //问题id
+                QTYPE = 0;                                  //0单选，1多选
+                SANSWER = "A|\U662f;B|\U5426";              //各选项的内容，|后面的就是
+                SCORE = "3;0";                              //分数
+                WJBM = WSKHHFWJ;                            //问卷编号
+                WJID = 13;                                  //问券id
+                WJMC = "\U56de\U8bbf\U95ee\U5377";          //问券名称
+            },
+                        {
+                ANSWER = "A;B";
+                BH = 2;
+                JGBZ = 0;
+                JSFS = 1;
+                QDESCRIBE = "\U62e5\U6709\U623f\U4ea7";
+                QID = 261;
+                QTYPE = 0;
+                SANSWER = "A|\U662f;B|\U5426";
+                SCORE = "3;0";
+                WJBM = WSKHHFWJ;
+                WJID = 13;
+                WJMC = "\U56de\U8bbf\U95ee\U5377";
+            },
+                        {
+                ANSWER = "A;B";
+                BH = 3;
+                JGBZ = 0;
+                JSFS = 1;
+                QDESCRIBE = "\U62e5\U6709\U623f\U4ea7";
+                QID = 262;
+                QTYPE = 0;
+                SANSWER = "A|\U662f;B|\U5426";
+                SCORE = "3;0";
+                WJBM = WSKHHFWJ;
+                WJID = 13;
+                WJMC = "\U56de\U8bbf\U95ee\U5377";
+            },
+                        {
+                ANSWER = "A;B";
+                BH = 4;
+                JGBZ = 0;
+                JSFS = 1;
+                QDESCRIBE = "\U62e5\U6709\U623f\U4ea7";
+                QID = 263;
+                QTYPE = 0;
+                SANSWER = "A|\U662f;B|\U5426";
+                SCORE = "3;0";
+                WJBM = WSKHHFWJ;
+                WJID = 13;
+                WJMC = "\U56de\U8bbf\U95ee\U5377";
+            },
+                        {
+                ANSWER = "A;B";
+                BH = 5;
+                JGBZ = 0;
+                JSFS = 1;
+                QDESCRIBE = "\U62e5\U6709\U623f\U4ea7";
+                QID = 264;
+                QTYPE = 0;
+                SANSWER = "A|\U662f;B|\U5426";
+                SCORE = "3;0";
+                WJBM = WSKHHFWJ;
+                WJID = 13;
+                WJMC = "\U56de\U8bbf\U95ee\U5377";
+            },
+                        {
+                ANSWER = "A;B";
+                BH = 6;
+                JGBZ = 0;
+                JSFS = 1;
+                QDESCRIBE = "\U62e5\U6709\U673a\U52a8\U8f66";
+                QID = 265;
+                QTYPE = 0;
+                SANSWER = "A|\U662f;B|\U5426";
+                SCORE = "3;0";
+                WJBM = WSKHHFWJ;
+                WJID = 13;
+                WJMC = "\U56de\U8bbf\U95ee\U5377";
+            },
+                        {
+                ANSWER = "A;B";
+                BH = 7;
+                JGBZ = 0;
+                JSFS = 1;
+                QDESCRIBE = "\U62e5\U6709\U673a\U52a8\U8f66";
+                QID = 266;
+                QTYPE = 0;
+                SANSWER = "A|\U662f;B|\U5426";
+                SCORE = "3;0";
+                WJBM = WSKHHFWJ;
+                WJID = 13;
+                WJMC = "\U56de\U8bbf\U95ee\U5377";
+            },
+                        {
+                ANSWER = "A;B";
+                BH = 8;
+                JGBZ = 0;
+                JSFS = 1;
+                QDESCRIBE = "\U62e5\U6709\U673a\U52a8\U8f66";
+                QID = 267;
+                QTYPE = 0;
+                SANSWER = "A|\U662f;B|\U5426";
+                SCORE = "3;0";
+                WJBM = WSKHHFWJ;
+                WJID = 13;
+                WJMC = "\U56de\U8bbf\U95ee\U5377";
+            },
+                        {
+                ANSWER = "A;B";
+                BH = 9;
+                JGBZ = 0;
+                JSFS = 1;
+                QDESCRIBE = "\U62e5\U6709\U673a\U52a8\U8f66";
+                QID = 268;
+                QTYPE = 0;
+                SANSWER = "A|\U662f;B|\U5426";
+                SCORE = "3;0";
+                WJBM = WSKHHFWJ;
+                WJID = 13;
+                WJMC = "\U56de\U8bbf\U95ee\U5377";
+            },
+                        {
+                ANSWER = "A;B";
+                BH = 10;
+                JGBZ = 0;
+                JSFS = 1;
+                QDESCRIBE = "\U62e5\U6709\U673a\U52a8\U8f66";
+                QID = 269;
+                QTYPE = 0;
+                SANSWER = "A|\U662f;B|\U5426";
+                SCORE = "3;0";
+                WJBM = WSKHHFWJ;
+                WJID = 13;
+                WJMC = "\U56de\U8bbf\U95ee\U5377";
+            }
+        );
+    };
+    note = "\U56de\U8bbf\U95ee\U5377\U8bc4\U6d4b\U4fe1\U606f\U52a0\U8f7d\U6210\U529f\Uff01";
+    success = 1;
+
+
+9."*接口入参（formjson）数据简要说明（按照流程步骤顺序）
+1.基本资料传送数据：""jbzl"":{
+""KHXM"":""金连燕"",
+""ZJBH"":""330321196107036321"",
+""ZJDZ"":""福建省福州市鼓楼区软件园A区11#"",
+""ZJFZJG"":""福州市鼓楼区公安局"",
+""XB"":""2"",
+""CSRQ"":""19860410"",
+""MZDM"":""1"",
+""DZ"":""福建省福州市鼓楼区软件园A区11#"",
+""ZJYXQ"":""20281230"",
+""YZBM"":""350000"",
+""ZYDM"":""3"",
+""XL"":""2"",
+""ZJLB"":0,
+""GJ"":156
+}
+2.视频见证传送数据：""spjz"":{
+""KHSP"":""23423"",
+""JZR"":""1005""
+}
+3.开户协议与股东开户传送数据：""zqzh"":{
+""IBY1"":3,
+""XYSTR"":
+[
+{
+""HTXY"":""1"",
+""XYBH"":"""",
+""QMLSH"":""2012""
+},
+{""HTXY"":""2"",
+""XYBH"":"""",
+""QMLSH"":""2012""
+},
+{""HTXY"":""5"",
+""XYBH"":"""",
+""QMLSH"":""2012""
+}
+]
+}
+4.风险评测传送数据：""fxpc"":{""WJID"":""9"",""TMDAC"":""182|A;184|A;185|C;186|A;187|D;188|A""}
+5.密码设置传送数据：""mmsz"":{""JYMM"":""123321"",""ZJMM"":""321123"",""SFTB"":""0""}
+6.存管银行传送数据：""cgzd"":{""CGYHSTR"":[{""YHZH"":""555555555555555555"",""YHMM"":""500005500005500005"",""ZZHBZ"":""1"",""BZ"":""1"",""YHDM"":""MSYH""}],""CGXYSTR"":[{""HTXY"":""1"",""XYBH"":"""",""QMLSH"":""2012""}]}
+7.回访问卷：hfwj:{HFWJID"":""?"",""HFTMDAC"":""182|A;184|A;185|C;186|A;187|D;188|A"",""HFJG"":""1""}
+8.开户提交整个开户数据全部归档到数据库
+"																			
+
+																			
+																			
+																			
+																			
+10.证书查询：
+    certJson =     {
+        AUTHCODE = CRQDGTUMJ5ZY4KGJ;
+        BFJG = 1;
+        CKH = TDJDX46XDGMDAU4G;
+        DN = "CN=C@1@1000034905,OU=Customers01,O=CSDC Test,C=CN";
+        EMAIL = "";
+        ENDTIME = "";
+        GJ = 156;
+        ID = 231;
+        KHH = "";
+        KHQC = "\U8d75\U5468";
+        KHXM = "\U8d75\U5468";
+        LX = 1;
+        MOBILE = 18680268037;
+        MODIFYTIME = "";
+        SN = 2AB20C51;
+        SQFS = 3;
+        STARTTIME = "";
+        STATUS = 1;
+        YYB = "";
+        YYBID = "";
+        YYBMC = "";
+        ZJBH = 330382198706300931;
+        ZJLB = 0;
+    };
+    note = "\U67e5\U8be2\U6210\U529f!";
+    success = 1;
+		
+      
+11.DN = "CN=C@1@1000034905,OU=Customers01,O=CSDC Test,C=CN";
+    ID = "-1";
+    "O_CODE" = 1;
+    ZSJSSJ = 20150317181539;
+    ZSKSSJ = 20140317181539;
+    ZSSJ = "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";
+    note = "\U4e2a\U4eba\U8bc1\U4e66\U4e0b\U8f7d\U6210\U529f";
+    success = 1;
+    
+    
+12.khbdinfo =     {
+        BZ = "";
+        CBY1 = "";
+        CBY2 = "";
+        CBY3 = "";
+        CGYH = "";
+        CGYHMM = "";
+        CGYHZH = "";
+        CITY = "";
+        CITYMC = "";
+        CLJGSM = "";
+        CSRQ = 19560616;
+        CYBKT = 0;
+        CYBKTFS = 0;
+        CZ = "";
+        CZZD = "IP:127.0.0.1;SJ:13800000015";
+        DATETIME = "2014-3-25 15:37:12";
+        DH = "";
+        "DJFS_HKD" = 0;
+        "DJFS_USD" = 0;
+        DJR = 0;
+        DN = "";
+        DZ = "";
+        EDZ = 1;
+        EMAIL = "";
+        FHYJ = "";
+        FRDBXM = "";
+        FRDBZJBH = "";
+        FRDBZJLB = 0;
+        FRDBZJYXQ = "";
+        FRLB = 0;
+        FWMM = "";
+        FWXM = "";
+        FXCSNL = 0;
+        FXCSNLMC = "";
+        FXJB = 0;
+        FXQHYLB = 0;
+        FXQHYLBMC = "";
+        "GDDJ_HB" = "";
+        "GDDJ_HJ" = "";
+        "GDDJ_SB" = "";
+        "GDDJ_SH" = "";
+        "GDDJ_SJ" = "";
+        "GDDJ_SZ" = "";
+        "GDDJ_TA" = "";
+        "GDDJ_TU" = "";
+        "GDJYQX_HB" = "";
+        "GDJYQX_HJ" = "";
+        "GDJYQX_SB" = "";
+        "GDJYQX_SH" = "";
+        "GDJYQX_SJ" = "";
+        "GDJYQX_SZ" = "";
+        "GDJYQX_TA" = "";
+        "GDJYQX_TU" = "";
+        "GDKH_HB" = 0;
+        "GDKH_HBMC" = "\U4e0d\U5f00\U6237";
+        "GDKH_HBSH" = "\U4e0d\U5f00\U6237";
+        "GDKH_HJ" = 0;
+        "GDKH_HJMC" = "\U4e0d\U5f00\U6237";
+        "GDKH_HJSH" = "\U4e0d\U5f00\U6237";
+        "GDKH_SB" = 0;
+        "GDKH_SBMC" = "\U4e0d\U5f00\U6237";
+        "GDKH_SBSZ" = "\U4e0d\U5f00\U6237";
+        "GDKH_SH" = 0;
+        "GDKH_SHMC" = "\U4e0d\U5f00\U6237";
+        "GDKH_SHSH" = "\U4e0d\U5f00\U6237";
+        "GDKH_SJ" = 0;
+        "GDKH_SJMC" = "\U4e0d\U5f00\U6237";
+        "GDKH_SJSZ" = "\U4e0d\U5f00\U6237";
+        "GDKH_SZ" = 0;
+        "GDKH_SZMC" = "\U4e0d\U5f00\U6237";
+        "GDKH_SZSZ" = "\U4e0d\U5f00\U6237";
+        "GDKH_TA" = 0;
+        "GDKH_TAMC" = "\U4e0d\U5f00\U6237";
+        "GDKH_TATA" = "\U4e0d\U767b\U8bb0";
+        "GDKH_TU" = 0;
+        "GDKH_TUMC" = "\U4e0d\U5f00\U6237";
+        "GDKH_TUTU" = "\U4e0d\U767b\U8bb0";
+        GJ = 156;
+        GJMC = "\U4e2d\U56fd";
+        GPFXCSNL = 0;
+        GTKHH = "";    //柜台客户号
+        GZDW = "";
+        GZDWDZ = "";
+        HBZDJY = 0;
+        HFGYDM = "";
+        HFGYXM = "";
+        HFJG = 1;
+        HFJGSM = "";
+        HFRQ = 0;
+        HFSJ = "";
+        HFTJ = 0;
+        HFTMDAC = "234|B;235|B;236|B;237|B;238|A";
+        HFWJID = 13;
+        HYDM = 0;
+        HYZK = 0;
+        HYZKMC = "";
+        IBY1 = 3;
+        IBY2 = 0;
+        IBY3 = 0;
+        ID = 1297;
+        INSTID = "-1";
+        JBRDH = "";
+        JBRSJ = "";
+        JBRXB = 0;
+        JBRXM = "";
+        JBRZJBH = "";
+        JBRZJLB = 0;
+        JBRZJYXQ = "";
+        JG = "";
+        JGBZ = 0;
+        JGBZMC = "\U4e2a\U4eba";
+        JGGSDH = "";
+        JGJYFW = "";
+        JGLTGB = 0;
+        JGZCDZ = "";
+        JGZCRQ = 0;
+        JGZCZB = 0;
+        JGZGB = 0;
+        JTDZ = "";
+        JTDZYB = "";
+        JYMM = "\U7fc1\U8717\U58ec\U5107";
+        JZR = 710;
+        KHFS = 3;
+        KHFSMC = "\U7f51\U4e0a\U5f00\U6237";
+        KHKH = "";
+        KHLY = 8;
+        KHLYMC = "\U65b0\U5ba2\U6237";
+        KHQC = "\U9648\U7ecd\U666e";
+        KHQZ = 3394;
+        KHSP = 2014032515401203348;
+        KHXM = "\U9648\U7ecd\U666e";
+        KHXZR = 0;
+        KHZD = 4;
+        KHZP = "";
+        MZDM = 0;
+        MZDMMC = "";
+        PROVINCE = "";
+        PROVINCEMC = "";
+        QDBM = "";
+        QYXZ = 0;
+        SEC = "";
+        SECMC = "";
+        SFTB = 1;
+        SFWLFW = 0;
+        SHGY = 0;
+        SHZDJY = 0;
+        SHZT = 0;
+        SJ = 13800000015;
+        SQJJZH = "";
+        SQJJZHMC = "";
+        SQRQ = 20140325;
+        SQSJ = "15:37:12";
+        STEP = 0;
+        SWDJZ = "";
+        SWDJZFZJG = "";
+        SWDJZNJRQ = 0;
+        SWDJZYXQ = 0;
+        TBSM = "";
+        TMDAC = "182|C;184|A;185|A;186|A;187|A;188|A;189|A;190|A;191|A";
+        WJID = 9;
+        WLFWMM = "";
+        WTFS = "";
+        XB = 1;
+        XBMC = "\U7537";
+        XL = 6;
+        XLMC = "\U9ad8\U4e2d";
+        XQFXDJ = 0;
+        XQFXDJMC = "";
+        "YHDM_HKD" = "";
+        "YHDM_USD" = "";
+        "YHMM_HKD" = "";
+        "YHMM_USD" = "";
+        "YHZH_HKD" = "";
+        "YHZH_USD" = "";
+        YWMC = "";
+        YXRY = "";
+        YYB = 1001;
+        YYBMC = "\U4e0a\U6d77\U4e34\U5e73\U8def\U8bc1\U5238\U8425\U4e1a\U90e8";
+        YYZZNJRQ = 0;
+        YZBM = 350000;
+        ZJBH = 330323195606161811;
+        ZJDZ = "\U798f\U5efa\U7701\U798f\U5dde\U5e02\U9f13\U697c\U533a\U8f6f\U4ef6\U56edA\U533a11#";
+        ZJDZYB = "";
+        ZJFZJG = "\U798f\U5dde\U5e02\U9f13\U697c\U533a\U516c\U5b89\U5c40";
+        ZJLB = 0;
+        ZJLBMC = "\U8eab\U4efd\U8bc1";
+        ZJMM = "\U7fc1\U8717\U58ec\U5107";
+        ZJYXQ = 20281230;
+        ZJYZLY = 0;
+        ZJYZLYMC = "\U4eba\U5de5\U6838\U67e5";
+        ZJZP = CA4xNTEyMzcyMDE0MDMyNTk5NC45MzUzNjE1ODgy;
+        ZYDM = 6;
+        ZYDMMC = "\U4e2a\U4f53";
+        ZZJGDM = "";
+        ZZJGDMFZJG = "";
+        ZZJGDMNJRQ = 0;
+        ZZJGDMYXQ = 0;
+    };
+    note = "13800000015 \U5f00\U6237\U4fe1\U606f\U67e5\U8be2\U6210\U529f\Uff01";
+    success = 1;
+
+13. //    if(imgData.length / 1024.0 > 500){
+        //        imgData = UIImageJPEGRepresentation([UIImage imageWithData:imgData], 0.1);
+        //    }
+        //    imgData = [PublicMethod compressImage:image];
+        //    imgData = UIImageJPEGRepresentation([image imageByResizingToSize:CGSizeMake(300, 300)],0.5);
+        //    imgData = [PublicMethod convertImageToCapacity:image capacity:50];
+        
+        //    NSData * cropImageData = [PublicMethod compressImage:croppedImage];
+    
+//    NSData *  cropImageData = UIImageJPEGRepresentation([croppedImage imageByResizingToSize:CGSizeMake(300, 300)],0.5);
+    
+//    NSData * cropImageData =[PublicMethod convertImageToCapacity:croppedImage capacity:50];
+    NSData * cropImageData = [self reduceImageSize:croppedImage];
+//    NSData * cropImageData = UIImageJPEGRepresentation(croppedImage, 1);
+    [cropImageData writeToFile:[PublicMethod getFilePath:DOCUMENT_CACHE fileName:CropImageData] atomically:YES];
+    
+    
+14.int status = importCert(@"iPhone",@"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");
+
+
+15.如已经提交成功了的开户信息
+    responseDci ={
+    khbdinfo =     {
+        note = "\U6210\U529f";
+        records =         (
+                        {
+                BZ = "";
+                CBY1 = "";
+                CBY2 = "";
+                CBY3 = "";
+                CGYH = "";
+                CGYHMM = "";
+                CGYHZH = "";
+                CITY = "";
+                CITYMC = "";
+                CLJGSM = "";
+                CSRQ = 19900616;
+                CYBKT = 0;
+                CYBKTFS = 0;
+                CZ = "";
+                CZZD = "IP:127.0.0.1;MOBILE:13800000150";
+                DATETIME = "2014-3-26 19:50:41";
+                DH = 13800000150;
+                "DJFS_HKD" = 0;
+                "DJFS_USD" = 0;
+                DJR = 0;
+                DN = "";
+                DZ = "\U6c5f\U897f\U7701\U8d63\U5dde\U5e02\U5174\U7530B1s\U884c\U4e61\U5747\U6751\U6751\U7f57\U7530\U7ec402\U53f7";
+                EDZ = 0;
+                EMAIL = "";
+                FHYJ = "";
+                FRDBXM = "";
+                FRDBZJBH = "";
+                FRDBZJLB = 0;
+                FRDBZJYXQ = "";
+                FRLB = 0;
+                FWMM = "";
+                FWXM = "";
+                FXCSNL = 1;
+                FXCSNLMC = "\U4fdd\U5b88\U578b";
+                FXJB = 0;
+                FXQHYLB = 0;
+                FXQHYLBMC = "";
+                "GDDJ_HB" = "";
+                "GDDJ_HJ" = "";
+                "GDDJ_SB" = "";
+                "GDDJ_SH" = "";
+                "GDDJ_SJ" = "";
+                "GDDJ_SZ" = "";
+                "GDDJ_TA" = "";
+                "GDDJ_TU" = "";
+                "GDJYQX_HB" = "";
+                "GDJYQX_HJ" = "";
+                "GDJYQX_SB" = "";
+                "GDJYQX_SH" = "";
+                "GDJYQX_SJ" = "";
+                "GDJYQX_SZ" = "";
+                "GDJYQX_TA" = "";
+                "GDJYQX_TU" = "";
+                "GDKH_HB" = 0;
+                "GDKH_HBMC" = "\U4e0d\U5f00\U6237";
+                "GDKH_HBSH" = "\U4e0d\U5f00\U6237";
+                "GDKH_HJ" = 0;
+                "GDKH_HJMC" = "\U4e0d\U5f00\U6237";
+                "GDKH_HJSH" = "\U4e0d\U5f00\U6237";
+                "GDKH_SB" = 0;
+                "GDKH_SBMC" = "\U4e0d\U5f00\U6237";
+                "GDKH_SBSZ" = "\U4e0d\U5f00\U6237";
+                "GDKH_SH" = 0;
+                "GDKH_SHMC" = "\U4e0d\U5f00\U6237";
+                "GDKH_SHSH" = "\U4e0d\U5f00\U6237";
+                "GDKH_SJ" = 0;
+                "GDKH_SJMC" = "\U4e0d\U5f00\U6237";
+                "GDKH_SJSZ" = "\U4e0d\U5f00\U6237";
+                "GDKH_SZ" = 0;
+                "GDKH_SZMC" = "\U4e0d\U5f00\U6237";
+                "GDKH_SZSZ" = "\U4e0d\U5f00\U6237";
+                "GDKH_TA" = 0;
+                "GDKH_TAMC" = "\U4e0d\U5f00\U6237";
+                "GDKH_TATA" = "\U4e0d\U767b\U8bb0";
+                "GDKH_TU" = 0;
+                "GDKH_TUMC" = "\U4e0d\U5f00\U6237";
+                "GDKH_TUTU" = "\U4e0d\U767b\U8bb0";
+                GJ = 156;
+                GJMC = "\U4e2d\U56fd";
+                GPFXCSNL = 0;
+                GTKHH = "";
+                GZDW = "";
+                GZDWDZ = "";
+                HBZDJY = 0;
+                HFGYDM = "";
+                HFGYXM = "";
+                HFJG = 1;
+                HFJGSM = "";
+                HFRQ = 0;
+                HFSJ = "";
+                HFTJ = 0;
+                HFTMDAC = "234|A;235|B;236|A;237|A;238|B";
+                HFWJID = 13;
+                HYDM = 0;
+                HYZK = 0;
+                HYZKMC = "";
+                IBY1 = 3;
+                IBY2 = 0;
+                IBY3 = 0;
+                ID = 1103;
+                INSTID = "-1";
+                JBRDH = "";
+                JBRSJ = "";
+                JBRXB = 0;
+                JBRXM = "";
+                JBRZJBH = "";
+                JBRZJLB = 0;
+                JBRZJYXQ = "";
+                JG = "";
+                JGBZ = 0;
+                JGBZMC = "\U4e2a\U4eba";
+                JGGSDH = "";
+                JGJYFW = "";
+                JGLTGB = 0;
+                JGZCDZ = "";
+                JGZCRQ = 0;
+                JGZCZB = 0;
+                JGZGB = 0;
+                JTDZ = "";
+                JTDZYB = "";
+                JYMM = "\U5018\U5948\U6e29\U5107";
+                JZR = 710;
+                KHFS = 3;
+                KHFSMC = "\U7f51\U4e0a\U5f00\U6237";
+                KHKH = "";
+                KHLY = 8;
+                KHLYMC = "\U65b0\U5ba2\U6237";
+                KHQC = "\U5218\U4ee5\U6d69";
+                KHQZ = 3394;
+                KHSP = 2013050215442700172;
+                KHXM = "\U5218\U4ee5\U6d69";
+                KHXZR = 0;
+                KHZD = 5;
+                KHZP = "";
+                MZDM = 0;
+                MZDMMC = "";
+                PROVINCE = "";
+                PROVINCEMC = "";
+                QDBM = "";
+                QYXZ = 0;
+                SEC = "";
+                SECMC = "";
+                SFTB = 1;
+                SFWLFW = 0;
+                SHGY = 0;
+                SHZDJY = 0;
+                SHZT = 0;
+                SJ = 13800000150;
+                SQJJZH = "";
+                SQJJZHMC = "";
+                SQRQ = 20140326;
+                SQSJ = "19:50:41";
+                STEP = 1;
+                SWDJZ = "";
+                SWDJZFZJG = "";
+                SWDJZNJRQ = 0;
+                SWDJZYXQ = 0;
+                TBSM = "";
+                TMDAC = "182|A;184|B;185|A,C;186|A;187|A;188|A;189|A;190|A;191|A";
+                WJID = 9;
+                WLFWMM = "";
+                WTFS = "1;4;6";
+                XB = 1;
+                XBMC = "\U7537";
+                XL = 4;
+                XLMC = "\U5927\U4e13";
+                XQFXDJ = 0;
+                XQFXDJMC = "";
+                "YHDM_HKD" = "";
+                "YHDM_USD" = "";
+                "YHMM_HKD" = "";
+                "YHMM_USD" = "";
+                "YHZH_HKD" = "";
+                "YHZH_USD" = "";
+                YWMC = "";
+                YXRY = "";
+                YYB = 1001;
+                YYBMC = "\U4e0a\U6d77\U4e34\U5e73\U8def\U8bc1\U5238\U8425\U4e1a\U90e8";
+                YYZZNJRQ = 0;
+                YZBM = 000000;
+                ZJBH = 360732199006163639;
+                ZJDZ = "\U6c5f\U897f\U7701\U8d63\U5dde\U5e02\U5174\U7530B1s\U884c\U4e61\U5747\U6751\U6751\U7f57\U7530\U7ec402\U53f7";
+                ZJDZYB = "";
+                ZJFZJG = 123;
+                ZJLB = 0;
+                ZJLBMC = "\U8eab\U4efd\U8bc1";
+                ZJMM = "\U5018\U5948\U6e29\U5107";
+                ZJYXQ = 20200802;
+                ZJYZLY = 0;
+                ZJYZLYMC = "\U4eba\U5de5\U6838\U67e5";
+                ZJZP = "";
+                ZYDM = 3;
+                ZYDMMC = "\U4f01\U4e8b\U4e1a\U5355\U4f4d\U5e72\U90e8";
+                ZZJGDM = "";
+                ZZJGDMFZJG = "";
+                ZZJGDMNJRQ = 0;
+                ZZJGDMYXQ = 0;
+            }
+        );
+        success = 1;
+        total = 1;
+    };
+    note = "13800000150 \U5f00\U6237\U4fe1\U606f\U67e5\U8be2\U6210\U529f\Uff01";
+    success = 1;

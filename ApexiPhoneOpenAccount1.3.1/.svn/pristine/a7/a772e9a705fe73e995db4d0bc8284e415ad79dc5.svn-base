@@ -1,0 +1,107 @@
+//
+//  AppDelegate.m
+//  ApexiPhoneOpenAccount
+//
+//  Created by mac  on 14-3-2.
+//  Copyright (c) 2014年 mac . All rights reserved.
+//
+
+#import "SJKHAppDelegate.h"
+#import "RootModelViewCtrl.h"
+#include "SJKHEngine.h"
+#include "func_def.h"
+#include "type_def.h"
+#import "VideoWitnessViewCtrl.h"
+#import "framework.h"
+
+
+@implementation SJKHAppDelegate
+
+
+- (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
+{
+//    height += ceilf([text sizeWithFont:[UIFont systemFontOfSize:kSummaryTextFontSize] constrainedToSize:CGSizeMake(270.0f, CGFLOAT_MAX) lineBreakMode:UILineBreakModeWordWrap].height);
+/*haoyee alert downsite*/
+    
+    // 信安工具构造
+    
+    [self loadReveal];
+    
+/*haoyee alert upsite*/
+    
+    
+    NSDictionary* infoDict =[[NSBundle mainBundle] infoDictionary];
+    NSString*appName =[infoDict objectForKey:@"CFBundleDisplayName"];
+    int ret = setLicense(appName);
+    if (ret != 0) {
+        NSString* error;
+        getLastErrInfo(&error);
+        NSLog(@"setLicense error=%@", error);
+    }
+    
+    self.window = [[UIWindow alloc] initWithFrame:[[UIScreen mainScreen] bounds]];
+    [self.window setHidden:NO];
+    
+    RootModelViewCtrl * vc =[[RootModelViewCtrl alloc] init];
+    self.window.rootViewController = [[UINavigationController alloc]initWithRootViewController:vc];
+//    self.window.rootViewController = vc;
+    [self.window makeKeyAndVisible];
+    
+    return YES;
+}
+							
+- (void)applicationWillResignActive:(UIApplication *)application
+{
+    // Sent when the application is about to move from active to inactive state. This can occur for certain types of temporary interruptions (such as an incoming phone call or SMS message) or when the user quits the application and it begins the transition to the background state.
+    // Use this method to pause ongoing tasks, disable timers, and throttle down OpenGL ES frame rates. Games should use this method to pause the game.
+}
+
+- (void)applicationDidEnterBackground:(UIApplication *)application
+{
+    for(UIViewController * vc in [SJKHEngine Instance].observeCtrls){
+        if([vc isMemberOfClass:[VideoWitnessViewCtrl class]]){
+            [((VideoWitnessViewCtrl *)vc) BackToUrls:Nil];
+        }
+    }
+}
+
+- (void)applicationWillEnterForeground:(UIApplication *)application
+{
+    // Called as part of the transition from the background to the inactive state; here you can undo many of the changes made on entering the background.
+}
+
+- (void)applicationDidBecomeActive:(UIApplication *)application
+{
+    // Restart any tasks that were paused (or not yet started) while the application was inactive. If the application was previously in the background, optionally refresh the user interface.
+}
+
+- (void)applicationWillTerminate:(UIApplication *)application
+{
+    // Called when the application is about to terminate. Save data if appropriate. See also applicationDidEnterBackground:.
+}
+
+
+#pragma mark - Reveal
+
+#import <dlfcn.h>
+- (void)loadReveal
+{
+    NSString *revealLibName = @"libReveal";
+    NSString *revealLibExtension = @"dylib";
+    NSString *dyLibPath = [[NSBundle mainBundle] pathForResource:revealLibName ofType:revealLibExtension];
+    NSLog(@"Loading dynamic library: %@", dyLibPath);
+    
+    void *revealLib = NULL;
+    revealLib = dlopen([dyLibPath cStringUsingEncoding:NSUTF8StringEncoding], RTLD_NOW);
+    
+    if (revealLib == NULL)
+    {
+        char *error = dlerror();
+        NSLog(@"dlopen error: %s", error);
+        NSString *message = [NSString stringWithFormat:@"%@.%@ failed to load with error: %s", revealLibName, revealLibExtension, error];
+        [[[UIAlertView alloc] initWithTitle:@"Reveal library could not be loaded" message:message delegate:nil cancelButtonTitle:@"OK" otherButtonTitles:nil] show];
+    }
+}
+
+
+@end

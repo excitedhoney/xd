@@ -1,0 +1,145 @@
+Index: sechash.c
+===================================================================
+--- sechash.c	(版本 235644)
++++ sechash.c	(工作副本)
+@@ -63,6 +63,11 @@
+ sha224_NewContext(void) {
+ 	return (void *) PK11_CreateDigestContext(SEC_OID_SHA224);
+ }
++//add by liqiangqiang from
++static void *
++sm3_NewContext(void) {
++	return (void *) PK11_CreateDigestContext(SEC_OID_SM3);
++}
+ 
+ static void *
+ sha256_NewContext(void) {
+@@ -168,6 +173,17 @@
+     SHA224_BLOCK_LENGTH,
+     HASH_AlgSHA224
+   },
++  { SM3_LENGTH,  //add by liqiangqiang from
++        (void * (*)(void)) sm3_NewContext,
++        (void * (*)(void *)) PK11_CloneContext,
++        (void (*)(void *, PRBool)) PK11_DestroyContext,
++        (void (*)(void *)) PK11_DigestBegin,
++        (void (*)(void *, const unsigned char *, unsigned int)) PK11_DigestOp,
++        (void (*)(void *, unsigned char *, unsigned int *, unsigned int))
++        PK11_DigestFinal,
++        SHA224_BLOCK_LENGTH,
++        HASH_AlgSM3
++  },
+ };
+ 
+ const SECHashObject * 
+@@ -189,7 +205,10 @@
+     case SEC_OID_SHA256: ht = HASH_AlgSHA256; break;
+     case SEC_OID_SHA384: ht = HASH_AlgSHA384; break;
+     case SEC_OID_SHA512: ht = HASH_AlgSHA512; break;
+-    default:             ht = HASH_AlgNULL;   
++            
++    case SEC_OID_SM3:    ht = HASH_AlgSM3; break;    //add by liqiangqiang 
++            
++    default:             ht = HASH_AlgNULL;
+ 	PORT_SetError(SEC_ERROR_INVALID_ALGORITHM);
+ 	break;
+     }
+@@ -209,7 +228,10 @@
+     case SEC_OID_HMAC_SHA256: hashOid = SEC_OID_SHA256; break;
+     case SEC_OID_HMAC_SHA384: hashOid = SEC_OID_SHA384; break;
+     case SEC_OID_HMAC_SHA512: hashOid = SEC_OID_SHA512; break;
+-    default:                  hashOid = SEC_OID_UNKNOWN;   
++            
++    case SEC_OID_HMAC_SM3: hashOid = SEC_OID_SM3; break;	//add by liqiangqiang
++    
++    default:                  hashOid = SEC_OID_UNKNOWN;
+ 	PORT_SetError(SEC_ERROR_INVALID_ALGORITHM);
+ 	break;
+     }
+@@ -229,6 +251,9 @@
+     case SEC_OID_SHA256: hmacOid = SEC_OID_HMAC_SHA256; break;
+     case SEC_OID_SHA384: hmacOid = SEC_OID_HMAC_SHA384; break;
+     case SEC_OID_SHA512: hmacOid = SEC_OID_HMAC_SHA512; break;
++    
++    case SEC_OID_SM3: hmacOid = SEC_OID_HMAC_SM3; break;		//add by liqiangqiang
++            
+     default:             hmacOid = SEC_OID_UNKNOWN;   
+ 	PORT_SetError(SEC_ERROR_INVALID_ALGORITHM);
+ 	break;
+Index: seckey.c
+===================================================================
+--- seckey.c	(版本 235644)
++++ seckey.c	(工作副本)
+@@ -751,6 +751,7 @@
+     case SEC_OID_ANSIX962_EC_PRIME239V3:
+ 	return 239;
+ 
++    case SEC_OID_EC_NIST_P256_SM2:   //add by liqiangqiang from
+     case SEC_OID_SECG_EC_SECP256K1:
+     case SEC_OID_ANSIX962_EC_PRIME256V1:
+ 	return 256;
+@@ -896,6 +897,7 @@
+     case SEC_OID_ANSIX962_EC_PRIME239V3:
+ 	return 239;
+ 
++    case SEC_OID_EC_NIST_P256_SM2:   //add by liqiangqiang from
+     case SEC_OID_SECG_EC_SECP256K1:
+     case SEC_OID_ANSIX962_EC_PRIME256V1:
+ 	return 256;
+Index: secsign.c
+===================================================================
+--- secsign.c	(版本 235644)
++++ secsign.c	(工作副本)
+@@ -456,6 +456,10 @@
+ 	    sigTag = SEC_OID_PKCS1_SHA384_WITH_RSA_ENCRYPTION;	break;
+ 	case SEC_OID_SHA512:
+ 	    sigTag = SEC_OID_PKCS1_SHA512_WITH_RSA_ENCRYPTION;	break;
++            
++        case SEC_OID_SM3:
++            sigTag = SEC_OID_PKCS1_SM3_WITH_RSA_ENCRYPTION;	break;  //add by liqiangqiang from
++            
+ 	default:
+ 	    break;
+ 	}
+@@ -469,6 +473,10 @@
+ 	    sigTag = SEC_OID_NIST_DSA_SIGNATURE_WITH_SHA224_DIGEST; break;
+ 	case SEC_OID_SHA256:
+ 	    sigTag = SEC_OID_NIST_DSA_SIGNATURE_WITH_SHA256_DIGEST; break;
++            
++        case SEC_OID_SM3:
++            sigTag = SEC_OID_NIST_DSA_SIGNATURE_WITH_SM3_DIGEST; break;  //add by liqiangqiang from
++            
+ 	default:
+ 	    break;
+ 	}
+@@ -486,6 +494,10 @@
+             sigTag = SEC_OID_ANSIX962_ECDSA_SHA384_SIGNATURE; break;
+ 	case SEC_OID_SHA512:
+             sigTag = SEC_OID_ANSIX962_ECDSA_SHA512_SIGNATURE; break;
++            
++
++        case SEC_OID_SM3:
++            sigTag = SEC_OID_ANSIX962_ECDSA_SM3_SIGNATURE; break;  //add by liqiangqiang from
+ 	default:
+ 	break;
+ 	}
+Index: secvfy.c
+===================================================================
+--- secvfy.c	(版本 235644)
++++ secvfy.c	(工作副本)
+@@ -190,6 +190,15 @@
+     PR_ASSERT(encalg!=NULL);
+ 
+     switch (sigAlg) {
++            
++            //add by liqiangqiang from
++        case SEC_OID_ANSIX962_ECDSA_SM3_SIGNATURE:
++        case SEC_OID_PKCS1_SM3_WITH_RSA_ENCRYPTION:
++        case SEC_OID_NIST_DSA_SIGNATURE_WITH_SM3_DIGEST:
++            *hashalg = SEC_OID_SM3;
++            break;
++            //add by liqiangqiang to
++
+       /* We probably shouldn't be generating MD2 signatures either */
+       case SEC_OID_PKCS1_MD2_WITH_RSA_ENCRYPTION:
+         *hashalg = SEC_OID_MD2;

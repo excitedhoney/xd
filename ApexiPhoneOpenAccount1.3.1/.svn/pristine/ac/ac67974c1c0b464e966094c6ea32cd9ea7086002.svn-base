@@ -1,0 +1,22 @@
+//
+//  ClientInfoViewCtrl.h
+//  ApexiPhoneOpenAccount
+//
+//  Created by mac  on 14-3-8.
+//  Copyright (c) 2014年 mac . All rights reserved.
+//
+
+#import "BaseViewController.h"
+#import "TTTAttributedLabel.h"
+
+@interface ClientInfoViewCtrl : BaseViewController<UIScrollViewDelegate,UITextFieldDelegate,TTTAttributedLabelDelegate>{
+    @public
+    NSString * HTXYID;
+    NSMutableDictionary * jbzl_step_OCR_Dic;
+}
+
+- (void) updateUI;
+
+- (void) failGetOcrData;
+
+@end

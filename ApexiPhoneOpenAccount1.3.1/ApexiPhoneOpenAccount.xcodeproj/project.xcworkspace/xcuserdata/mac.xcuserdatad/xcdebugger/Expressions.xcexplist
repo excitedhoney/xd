@@ -1,0 +1,1325 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<VariablesViewState
+   version = "1.0">
+   <ContextStates>
+      <ContextState
+         contextName = "-[KHRequestOrSearchViewCtrl httpFailed:]:KHRequestOrSearchViewCtrl.m">
+      </ContextState>
+      <ContextState
+         contextName = "-[BaseViewController parseResponseData:dic:]:BaseViewController.m">
+         <PersistentStrings>
+            <PersistentString
+               value = "*stepResponseDic">
+            </PersistentString>
+            <PersistentString
+               value = "po *stepResponseDic">
+            </PersistentString>
+            <PersistentString
+               value = "theRequest.responseData">
+            </PersistentString>
+         </PersistentStrings>
+      </ContextState>
+      <ContextState
+         contextName = "-[SJKHEngine InitConfig]:SJKHEngine.mm">
+      </ContextState>
+      <ContextState
+         contextName = "-[UploadImageViewCtrl popToLastPage]:UploadImageViewCtrl.m">
+         <PersistentStrings>
+            <PersistentString
+               value = "self.navigationController.childViewControllers">
+            </PersistentString>
+         </PersistentStrings>
+      </ContextState>
+      <ContextState
+         contextName = "-[CustomAlertView tableView:numberOfRowsInSection:]:CustomAlertView.mm">
+      </ContextState>
+      <ContextState
+         contextName = "-[InstallProfileViewCtrl sendQueryCert:]:InstallProfileViewCtrl.m">
+         <PersistentStrings>
+            <PersistentString
+               value = "[SJKHEngine Instance]-&gt;SJHM">
+            </PersistentString>
+            <PersistentString
+               value = "[SJKHEngine Instance]-&gt;bfjg_type">
+            </PersistentString>
+         </PersistentStrings>
+      </ContextState>
+      <ContextState
+         contextName = "-[KHRequestOrSearchViewCtrl viewDidAppear:]:KHRequestOrSearchViewCtrl.m">
+         <PersistentStrings>
+            <PersistentString
+               value = "self.navigationItem">
+            </PersistentString>
+            <PersistentString
+               value = "self.navigationController">
+            </PersistentString>
+            <PersistentString
+               value = "self.navigationItem.leftBarButtonItem">
+            </PersistentString>
+            <PersistentString
+               value = "rootView">
+            </PersistentString>
+            <PersistentString
+               value = "self.view">
+            </PersistentString>
+            <PersistentString
+               value = "self.navigationController.viewControllers">
+            </PersistentString>
+         </PersistentStrings>
+      </ContextState>
+      <ContextState
+         contextName = "-[DepositBankViewCtrl showMore:]:DepositBankViewCtrl.m">
+      </ContextState>
+      <ContextState
+         contextName = "-[ClientInfoViewCtrl InitWidgets]:ClientInfoViewCtrl.m">
+         <PersistentStrings>
+            <PersistentString
+               value = "[SJKHEngine Instance]-&gt;jbzl_user_datas">
+            </PersistentString>
+         </PersistentStrings>
+      </ContextState>
+      <ContextState
+         contextName = "-[CustomAlertView initWidgets]:CustomAlertView.mm">
+         <PersistentStrings>
+            <PersistentString
+               value = "searchBar.subviews">
+            </PersistentString>
+         </PersistentStrings>
+      </ContextState>
+      <ContextState
+         contextName = "__34-[ClientInfoViewCtrl loadTaskBook]_block_invoke:ClientInfoViewCtrl.m">
+         <PersistentStrings>
+            <PersistentString
+               value = "taskBook">
+            </PersistentString>
+         </PersistentStrings>
+      </ContextState>
+      <ContextState
+         contextName = "-[CustomAlertView onOKClick:]:CustomAlertView.m">
+      </ContextState>
+      <ContextState
+         contextName = "-[RiskEvaluateViewCtrl caculateVC]:RiskEvaluateViewCtrl.m">
+         <PersistentStrings>
+            <PersistentString
+               value = "point">
+            </PersistentString>
+            <PersistentString
+               value = "fxpcFormData.tmdac">
+            </PersistentString>
+         </PersistentStrings>
+      </ContextState>
+      <ContextState
+         contextName = "-[UploadImageViewCtrl httpFinished:]:UploadImageViewCtrl.m">
+         <PersistentStrings>
+            <PersistentString
+               value = "http.request_type">
+            </PersistentString>
+         </PersistentStrings>
+      </ContextState>
+      <ContextState
+         contextName = "-[ClientInfoViewCtrl gotoVideoWitness]:ClientInfoViewCtrl.m">
+         <PersistentStrings>
+            <PersistentString
+               value = "jsonDic">
+            </PersistentString>
+            <PersistentString
+               value = "[SJKHEngine Instance].jbzl_step_OCR_Dic">
+            </PersistentString>
+            <PersistentString
+               value = "[SJKHEngine Instance]-&gt;khjbzl">
+            </PersistentString>
+         </PersistentStrings>
+      </ContextState>
+      <ContextState
+         contextName = "-[CustomAlertView setSelfTipIndex]:CustomAlertView.m">
+      </ContextState>
+      <ContextState
+         contextName = "-[KHRequestOrSearchViewCtrl sendGoToStep]:KHRequestOrSearchViewCtrl.m">
+         <PersistentStrings>
+            <PersistentString
+               value = "">
+            </PersistentString>
+         </PersistentStrings>
+      </ContextState>
+      <ContextState
+         contextName = "-[PECropRectView resizeConrolViewDidResize:]:PECropRectView.m">
+         <PersistentStrings>
+            <PersistentString
+               value = "self.frame">
+            </PersistentString>
+         </PersistentStrings>
+      </ContextState>
+      <ContextState
+         contextName = "-[LoginViewCtrl viewDidLayoutSubviews]:LoginViewCtrl.m">
+      </ContextState>
+      <ContextState
+         contextName = "-[RiskEvaluateViewCtrl tableView:numberOfRowsInSection:]:RiskEvaluateViewCtrl.m">
+      </ContextState>
+      <ContextState
+         contextName = "-[LoginViewCtrl OnTouchDownResign:]:LoginViewCtrl.m">
+      </ContextState>
+      <ContextState
+         contextName = "-[UploadImageViewCtrl onButtonClick:]:UploadImageViewCtrl.m">
+         <PersistentStrings>
+            <PersistentString
+               value = "[SJKHEngine Instance]-&gt;jbzl_step_Dic">
+            </PersistentString>
+         </PersistentStrings>
+      </ContextState>
+      <ContextState
+         contextName = "-[CustomAlertView initConfig]:CustomAlertView.m">
+      </ContextState>
+      <ContextState
+         contextName = "-[ReturnVisitViewCtrl InitWidgets]:ReturnVisitViewCtrl.m">
+         <PersistentStrings>
+            <PersistentString
+               value = "rootImageView">
+            </PersistentString>
+            <PersistentString
+               value = "rootView">
+            </PersistentString>
+            <PersistentString
+               value = "self.view">
+            </PersistentString>
+            <PersistentString
+               value = "table_view">
+            </PersistentString>
+         </PersistentStrings>
+      </ContextState>
+      <ContextState
+         contextName = "__42-[InstallProfileViewCtrl onInstallButton:]_block_invoke:InstallProfileViewCtrl.m">
+         <PersistentStrings>
+            <PersistentString
+               value = "ar">
+            </PersistentString>
+         </PersistentStrings>
+      </ContextState>
+      <ContextState
+         contextName = "-[KHRequestOrSearchViewCtrl vcOperation:]:KHRequestOrSearchViewCtrl.m">
+         <PersistentStrings>
+            <PersistentString
+               value = "[self.navigationController childViewControllers]">
+            </PersistentString>
+         </PersistentStrings>
+      </ContextState>
+      <ContextState
+         contextName = "-[PECropViewController viewDidAppear:]:PECropViewController.m">
+      </ContextState>
+      <ContextState
+         contextName = "-[KHRequestOrSearchViewCtrl InitConfig]:KHRequestOrSearchViewCtrl.m">
+         <PersistentStrings>
+            <PersistentString
+               value = "self.navigationController.view">
+            </PersistentString>
+            <PersistentString
+               value = "self.view">
+            </PersistentString>
+            <PersistentString
+               value = "self.navigationController.navigationBar.barPosition">
+            </PersistentString>
+         </PersistentStrings>
+      </ContextState>
+      <ContextState
+         contextName = "-[SJKHAppDelegate application:didFinishLaunchingWithOptions:]:SJKHAppDelegate.m">
+         <PersistentStrings>
+            <PersistentString
+               value = "[SJKHEngine Instance]-&gt;doMain">
+            </PersistentString>
+         </PersistentStrings>
+      </ContextState>
+      <ContextState
+         contextName = "-[VideoWitnessViewCtrl viewDidAppear:]:VideoWitnessViewCtrl.mm">
+         <PersistentStrings>
+            <PersistentString
+               value = "scrollView">
+            </PersistentString>
+         </PersistentStrings>
+      </ContextState>
+      <ContextState
+         contextName = "-[ClientInfoViewCtrl onButtonClick:]:ClientInfoViewCtrl.m">
+         <PersistentStrings>
+            <PersistentString
+               value = "flatDatePicker.alpha">
+            </PersistentString>
+            <PersistentString
+               value = "[SJKHEngine Instance]-&gt;jbzl_step_Dic">
+            </PersistentString>
+            <PersistentString
+               value = "sfzField.text">
+            </PersistentString>
+         </PersistentStrings>
+      </ContextState>
+      <ContextState
+         contextName = "-[LoanMainViewCtrl tabBar:didSelectItem:]:LoanMainViewCtrl.m">
+         <PersistentStrings>
+            <PersistentString
+               value = "self.viewControllers">
+            </PersistentString>
+         </PersistentStrings>
+      </ContextState>
+      <ContextState
+         contextName = "-[MBProgressHUD hide:]:MBProgressHUD.m">
+      </ContextState>
+      <ContextState
+         contextName = "-[UploadImageViewCtrl CertTitleClicked:]:UploadImageViewCtrl.m">
+         <PersistentStrings>
+            <PersistentString
+               value = "(UILabel *)tgr.view">
+            </PersistentString>
+            <PersistentString
+               value = "tgr.view">
+            </PersistentString>
+         </PersistentStrings>
+      </ContextState>
+      <ContextState
+         contextName = "-[VideoWitnessViewCtrl StartAgentOnNewThread]:VideoWitnessViewCtrl.mm">
+      </ContextState>
+      <ContextState
+         contextName = "-[DepositBankViewCtrl createItemButtons]:DepositBankViewCtrl.m">
+      </ContextState>
+      <ContextState
+         contextName = "-[BaseViewController sendGetUUID:]:BaseViewController.m">
+         <PersistentStrings>
+            <PersistentString
+               value = "[SJKHEngine Instance]-&gt;SJHM">
+            </PersistentString>
+         </PersistentStrings>
+      </ContextState>
+      <ContextState
+         contextName = "-[KHRequestOrSearchViewCtrl viewWillAppear:]:KHRequestOrSearchViewCtrl.m">
+         <PersistentStrings>
+            <PersistentString
+               value = "self.navigationController.navigationBar">
+            </PersistentString>
+            <PersistentString
+               value = "rootView">
+            </PersistentString>
+            <PersistentString
+               value = "self.view">
+            </PersistentString>
+            <PersistentString
+               value = "rootview">
+            </PersistentString>
+         </PersistentStrings>
+      </ContextState>
+      <ContextState
+         contextName = "-[ASIHTTPRequest main]:ASIHTTPRequest.m">
+         <PersistentStrings>
+            <PersistentString
+               value = "complete">
+            </PersistentString>
+         </PersistentStrings>
+      </ContextState>
+      <ContextState
+         contextName = "axim::CTAgentMgr::OnGroupMemberPresencePush(axim::ConferenceMemberStatus const&amp;):tagentmgr.cc">
+         <PersistentStrings>
+            <PersistentString
+               value = "m_jidAgent.node()">
+            </PersistentString>
+            <PersistentString
+               value = "m_jidConference.node ()">
+            </PersistentString>
+         </PersistentStrings>
+      </ContextState>
+      <ContextState
+         contextName = "-[LoginViewCtrl InitConfig]:LoginViewCtrl.m">
+      </ContextState>
+      <ContextState
+         contextName = "-[BaseViewController sendTaskBook:]:BaseViewController.m">
+         <PersistentStrings>
+            <PersistentString
+               value = "*stepResponseDic">
+            </PersistentString>
+         </PersistentStrings>
+      </ContextState>
+      <ContextState
+         contextName = "-[CustomIntroductionView scrollViewDidScroll:]:CustomIntroductionView.m">
+         <PersistentStrings>
+            <PersistentString
+               value = "contentScrollView.contentOffset">
+            </PersistentString>
+         </PersistentStrings>
+      </ContextState>
+      <ContextState
+         contextName = "-[VideoWitnessViewCtrl dispatchInstallProfileVC:]:VideoWitnessViewCtrl.mm">
+         <PersistentStrings>
+            <PersistentString
+               value = "[SJKHEngine Instance]-&gt;zsgl_step_Dic">
+            </PersistentString>
+         </PersistentStrings>
+      </ContextState>
+      <ContextState
+         contextName = "-[LoginViewCtrl viewDidLayoutSubviews]:LoginViewCtrl.mm">
+      </ContextState>
+      <ContextState
+         contextName = "-[CustomAlertView searchBar:textDidChange:]:CustomAlertView.mm">
+      </ContextState>
+      <ContextState
+         contextName = "-[SecretSetViewCtrl tableView:cellForRowAtIndexPath:]:SecretSetViewCtrl.m">
+         <PersistentStrings>
+            <PersistentString
+               value = "row">
+            </PersistentString>
+         </PersistentStrings>
+      </ContextState>
+      <ContextState
+         contextName = "-[ReturnVisitViewCtrl httpFinished:]:ReturnVisitViewCtrl.m">
+         <PersistentStrings>
+            <PersistentString
+               value = "lookVC-&gt;khbdInfo">
+            </PersistentString>
+         </PersistentStrings>
+      </ContextState>
+      <ContextState
+         contextName = "-[UploadImageViewCtrl InitWidgets]:UploadImageViewCtrl.m">
+         <PersistentStrings>
+            <PersistentString
+               value = "[SJKHEngine Instance]-&gt;yxData">
+            </PersistentString>
+         </PersistentStrings>
+      </ContextState>
+      <ContextState
+         contextName = "-[ReturnVisitViewCtrl onSelectClick:]:ReturnVisitViewCtrl.m">
+         <PersistentStrings>
+            <PersistentString
+               value = "[markButton isUserInteractionEnabled]">
+            </PersistentString>
+            <PersistentString
+               value = "markButton.userInteractionEnabled">
+            </PersistentString>
+            <PersistentString
+               value = "cellConditioins">
+            </PersistentString>
+         </PersistentStrings>
+      </ContextState>
+      <ContextState
+         contextName = "-[SJKHEngine JBZLCustomAlertViewXYZRS:htmlString:]:SJKHEngine.m">
+      </ContextState>
+      <ContextState
+         contextName = "-[CustomAlertView tableView:cellForRowAtIndexPath:]:CustomAlertView.m">
+      </ContextState>
+      <ContextState
+         contextName = "-[AccountTypeViewCtrl onSelectButtonGesture:]:AccountTypeViewCtrl.m">
+         <PersistentStrings>
+            <PersistentString
+               value = "[gesture view].tag">
+            </PersistentString>
+         </PersistentStrings>
+      </ContextState>
+      <ContextState
+         contextName = "-[PECropViewController done:]:PECropViewController.m">
+      </ContextState>
+      <ContextState
+         contextName = "-[DepositBankViewCtrl viewWillDisappear:]:DepositBankViewCtrl.m">
+         <PersistentStrings>
+            <PersistentString
+               value = "self.navigationController.navigationBar.gestureRecognizers">
+            </PersistentString>
+         </PersistentStrings>
+      </ContextState>
+      <ContextState
+         contextName = "-[ClientInfoViewCtrl viewWillAppear:]:ClientInfoViewCtrl.m">
+         <PersistentStrings>
+            <PersistentString
+               value = "self.navigationItem.backBarButtonItem">
+            </PersistentString>
+            <PersistentString
+               value = "self.navigationItem">
+            </PersistentString>
+         </PersistentStrings>
+      </ContextState>
+      <ContextState
+         contextName = "-[DepositBankViewCtrl reposControl]:DepositBankViewCtrl.m">
+      </ContextState>
+      <ContextState
+         contextName = "-[RootModelViewCtrl vcOperation:]:RootModelViewCtrl.m">
+         <PersistentStrings>
+            <PersistentString
+               value = "[self childViewControllers]">
+            </PersistentString>
+            <PersistentString
+               value = "[[SJKHEngine Instance]-&gt;rootVC childViewControllers]">
+            </PersistentString>
+            <PersistentString
+               value = "[[SJKHEngine Instance]-&gt;rootVC childViewControllers">
+            </PersistentString>
+            <PersistentString
+               value = "uploadVC">
+            </PersistentString>
+         </PersistentStrings>
+      </ContextState>
+      <ContextState
+         contextName = "-[KHRequestOrSearchViewCtrl ServerAuthenticate:]:KHRequestOrSearchViewCtrl.m">
+      </ContextState>
+      <ContextState
+         contextName = "-[InstallProfileViewCtrl getPKCS:]:InstallProfileViewCtrl.m">
+         <PersistentStrings>
+            <PersistentString
+               value = "dic">
+            </PersistentString>
+            <PersistentString
+               value = "[dic valueForKey:KHXM_OCR]">
+            </PersistentString>
+         </PersistentStrings>
+      </ContextState>
+      <ContextState
+         contextName = "-[CertHandle vailCert]:CertHandle.m">
+         <PersistentStrings>
+            <PersistentString
+               value = "[SJKHEngine Instance]-&gt;sImportPassword">
+            </PersistentString>
+         </PersistentStrings>
+      </ContextState>
+      <ContextState
+         contextName = "-[InstallProfileViewCtrl InitWidgets]:InstallProfileViewCtrl.m">
+      </ContextState>
+      <ContextState
+         contextName = "-[SecretSetViewCtrl OnTouchDownResign:]:SecretSetViewCtrl.m">
+         <PersistentStrings>
+            <PersistentString
+               value = "bKeyBoardShow">
+            </PersistentString>
+         </PersistentStrings>
+      </ContextState>
+      <ContextState
+         contextName = "-[ASIFormDataRequest dealloc]:ASIFormDataRequest.m">
+      </ContextState>
+      <ContextState
+         contextName = "-[LoginViewCtrl sendLoginXWDPage:postValues:]:LoginViewCtrl.mm">
+         <PersistentStrings>
+            <PersistentString
+               value = "[SJKHEngine Instance]-&gt;doMain">
+            </PersistentString>
+         </PersistentStrings>
+      </ContextState>
+      <ContextState
+         contextName = "-[RiskEvaluateViewCtrl createResultView:]:RiskEvaluateViewCtrl.m">
+         <PersistentStrings>
+            <PersistentString
+               value = "label1Width">
+            </PersistentString>
+            <PersistentString
+               value = "label1Text">
+            </PersistentString>
+         </PersistentStrings>
+      </ContextState>
+      <ContextState
+         contextName = "-[KHRequestOrSearchViewCtrl InitWidgets]:KHRequestOrSearchViewCtrl.m">
+         <PersistentStrings>
+            <PersistentString
+               value = "[UIImage imageNamed:BTN_GRAY_NORMAL]">
+            </PersistentString>
+            <PersistentString
+               value = "self.navigationController">
+            </PersistentString>
+            <PersistentString
+               value = "self.view">
+            </PersistentString>
+            <PersistentString
+               value = "verifyButton.imageView.image">
+            </PersistentString>
+            <PersistentString
+               value = "phoneEditor.subviews">
+            </PersistentString>
+            <PersistentString
+               value = "[self.view viewWithTag:FigureButtonTag]">
+            </PersistentString>
+            <PersistentString
+               value = "self.navigationController.view">
+            </PersistentString>
+         </PersistentStrings>
+      </ContextState>
+      <ContextState
+         contextName = "-[DepositBankViewCtrl dispatchRiskEvaluateVC:]:DepositBankViewCtrl.m">
+         <PersistentStrings>
+            <PersistentString
+               value = "[SJKHEngine Instance]-&gt;fxpc_step_Dic">
+            </PersistentString>
+         </PersistentStrings>
+      </ContextState>
+      <ContextState
+         contextName = "-[KHRequestOrSearchViewCtrl viewDidLoad]:KHRequestOrSearchViewCtrl.m">
+         <PersistentStrings>
+            <PersistentString
+               value = "[UIApplication sharedApplication].statusBarStyle">
+            </PersistentString>
+         </PersistentStrings>
+      </ContextState>
+      <ContextState
+         contextName = "-[ReturnVisitViewCtrl updateUI]:ReturnVisitViewCtrl.m">
+         <PersistentStrings>
+            <PersistentString
+               value = "[SJKHEngine Instance]-&gt;hfwj_step_Dic">
+            </PersistentString>
+         </PersistentStrings>
+      </ContextState>
+      <ContextState
+         contextName = "-[PECropRectView initWithFrame:]:PECropRectView.m">
+         <PersistentStrings>
+            <PersistentString
+               value = "[imageView image]">
+            </PersistentString>
+         </PersistentStrings>
+      </ContextState>
+      <ContextState
+         contextName = "-[UploadImageViewCtrl ServerAuthenticate:]:UploadImageViewCtrl.m">
+         <PersistentStrings>
+            <PersistentString
+               value = "[SJKHEngine Instance]-&gt;yxData">
+            </PersistentString>
+            <PersistentString
+               value = "[SJKHEngine Instance]-&gt;jbzl_step_Dic">
+            </PersistentString>
+            <PersistentString
+               value = "postImageData.length / 1024.0">
+            </PersistentString>
+            <PersistentString
+               value = "[SJKHEngine Instance]-&gt;yxcj_step_Dic">
+            </PersistentString>
+         </PersistentStrings>
+      </ContextState>
+      <ContextState
+         contextName = "-[BaseViewController parseResponseData:dic:]:BaseViewController.mm">
+         <PersistentStrings>
+            <PersistentString
+               value = "theRequest.error">
+            </PersistentString>
+            <PersistentString
+               value = "*stepResponseDic">
+            </PersistentString>
+            <PersistentString
+               value = "theRequest">
+            </PersistentString>
+            <PersistentString
+               value = "note">
+            </PersistentString>
+            <PersistentString
+               value = "tip">
+            </PersistentString>
+            <PersistentString
+               value = "theRequest.responseData">
+            </PersistentString>
+         </PersistentStrings>
+      </ContextState>
+      <ContextState
+         contextName = "-[VideoWitnessViewCtrl onVideoClick:]:VideoWitnessViewCtrl.mm">
+         <PersistentStrings>
+            <PersistentString
+               value = "_aximApi-&gt;IsInWaiting()">
+            </PersistentString>
+            <PersistentString
+               value = " _aximApi-&gt;IsInService()">
+            </PersistentString>
+         </PersistentStrings>
+      </ContextState>
+      <ContextState
+         contextName = "-[PECropViewController viewDidLoad]:PECropViewController.m">
+         <PersistentStrings>
+            <PersistentString
+               value = "currentRotateLeftDegree += -90;&#10;    CGAffineTransform transform = CGAffineTransformRotate(_cropView.imageView.transform, currentRotateLeftDegree);&#10;    _cropView.imageView.transform = transform;">
+            </PersistentString>
+            <PersistentString
+               value = "self.navigationController.toolbar">
+            </PersistentString>
+         </PersistentStrings>
+      </ContextState>
+      <ContextState
+         contextName = "-[UploadImageViewCtrl goJBJLPage]:UploadImageViewCtrl.m">
+         <PersistentStrings>
+            <PersistentString
+               value = "[SJKHEngine Instance].jbzl_step_OCR_Dic">
+            </PersistentString>
+            <PersistentString
+               value = "[SJKHEngine Instance]-&gt;jbzl_step_Dic">
+            </PersistentString>
+         </PersistentStrings>
+      </ContextState>
+      <ContextState
+         contextName = "-[PECropViewController rotateLeft:]:PECropViewController.m">
+         <PersistentStrings>
+            <PersistentString
+               value = "_cropView.imageView.transform">
+            </PersistentString>
+         </PersistentStrings>
+      </ContextState>
+      <ContextState
+         contextName = "-[SJKHEngine JBZLCustomAlertViewSelect:]:SJKHEngine.m">
+      </ContextState>
+      <ContextState
+         contextName = "-[SJKHEngine JBZLCustomAlertViewSelect:DataType:]:SJKHEngine.m">
+      </ContextState>
+      <ContextState
+         contextName = "-[LookProcessViewCtrl kaitongchaxun]:LookProcessViewCtrl.m">
+         <PersistentStrings>
+            <PersistentString
+               value = "[SJKHEngine Instance]-&gt;khjd_Dic">
+            </PersistentString>
+            <PersistentString
+               value = "[SJKHEngine Instance]-&gt;khbd_info_Dic">
+            </PersistentString>
+         </PersistentStrings>
+      </ContextState>
+      <ContextState
+         contextName = "-[SJKHEngine createCustomAlertView]:SJKHEngine.mm">
+      </ContextState>
+      <ContextState
+         contextName = "-[VideoWitnessViewCtrl viewDidLayoutSubviews]:VideoWitnessViewCtrl.mm">
+      </ContextState>
+      <ContextState
+         contextName = "-[MenuViewCtrl InitConfig]:MenuViewCtrl.m">
+      </ContextState>
+      <ContextState
+         contextName = "-[SettingViewController viewDidLoad]:SettingViewController.m">
+         <PersistentStrings>
+            <PersistentString
+               value = "[SJKHEngine Instance].observeCtrls">
+            </PersistentString>
+         </PersistentStrings>
+      </ContextState>
+      <ContextState
+         contextName = "-[LoginViewCtrl onLoginHandle]:LoginViewCtrl.mm">
+         <PersistentStrings>
+            <PersistentString
+               value = "kaihuNumberField.subviews">
+            </PersistentString>
+         </PersistentStrings>
+      </ContextState>
+      <ContextState
+         contextName = "-[MBProgressHUD drawRect:]:MBProgressHUD.m">
+         <PersistentStrings>
+            <PersistentString
+               value = "self.userInteractionEnabled">
+            </PersistentString>
+         </PersistentStrings>
+      </ContextState>
+      <ContextState
+         contextName = "-[ASIHTTPRequest appendPostData:]:ASIHTTPRequest.m">
+      </ContextState>
+      <ContextState
+         contextName = "-[DepositBankViewCtrl numberOfSectionsInTableView:]:DepositBankViewCtrl.m">
+      </ContextState>
+      <ContextState
+         contextName = "-[VideoWitnessViewCtrl InitWidgets]:VideoWitnessViewCtrl.mm">
+      </ContextState>
+      <ContextState
+         contextName = "-[BaseViewController indispensableInit]:BaseViewController.m">
+         <PersistentStrings>
+            <PersistentString
+               value = "[SJKHEngine Instance].observeCtrls">
+            </PersistentString>
+            <PersistentString
+               value = "bShowCancelButton">
+            </PersistentString>
+         </PersistentStrings>
+      </ContextState>
+      <ContextState
+         contextName = "-[KHRequestOrSearchViewCtrl httpFinished:]:KHRequestOrSearchViewCtrl.m">
+         <PersistentStrings>
+            <PersistentString
+               value = "[http responseData]">
+            </PersistentString>
+         </PersistentStrings>
+      </ContextState>
+      <ContextState
+         contextName = "-[RiskEvaluateViewCtrl tableView:didSelectRowAtIndexPath:]:RiskEvaluateViewCtrl.m">
+      </ContextState>
+      <ContextState
+         contextName = "-[CreditViewCtrl initConfig]:CreditViewCtrl.m">
+         <PersistentStrings>
+            <PersistentString
+               value = "[SJKHEngine Instance]-&gt;doMain">
+            </PersistentString>
+         </PersistentStrings>
+      </ContextState>
+      <ContextState
+         contextName = "-[LoginViewCtrl textFieldDidBeginEditing:]:LoginViewCtrl.m">
+      </ContextState>
+      <ContextState
+         contextName = "-[BaseViewController sendOCRInfo:]:BaseViewController.m">
+         <PersistentStrings>
+            <PersistentString
+               value = "[SJKHEngine Instance]-&gt;SJHM">
+            </PersistentString>
+         </PersistentStrings>
+      </ContextState>
+      <ContextState
+         contextName = "-[VideoWitnessViewCtrl HandleMessageOnMainThread:]:VideoWitnessViewCtrl.mm">
+         <PersistentStrings>
+            <PersistentString
+               value = "message.pParam2">
+            </PersistentString>
+            <PersistentString
+               value = "message.pMsg">
+            </PersistentString>
+         </PersistentStrings>
+      </ContextState>
+      <ContextState
+         contextName = "-[VideoWitnessViewCtrl InitConfig]:VideoWitnessViewCtrl.mm">
+      </ContextState>
+      <ContextState
+         contextName = "__65-[KHRequestOrSearchViewCtrl dispatchUploadImageViewCtrl:request:]_block_invoke:KHRequestOrSearchViewCtrl.m">
+         <PersistentStrings>
+            <PersistentString
+               value = "[SJKHEngine Instance]-&gt;jbzl_cache_dic">
+            </PersistentString>
+         </PersistentStrings>
+      </ContextState>
+      <ContextState
+         contextName = "nsspkcs5_HashBuf:lowpbe.c">
+         <PersistentStrings>
+            <PersistentString
+               value = "ctx">
+            </PersistentString>
+            <PersistentString
+               value = "">
+            </PersistentString>
+         </PersistentStrings>
+      </ContextState>
+      <ContextState
+         contextName = "-[BaseViewController httpFailed:]:BaseViewController.m">
+         <PersistentStrings>
+            <PersistentString
+               value = "http.responseData">
+            </PersistentString>
+         </PersistentStrings>
+      </ContextState>
+      <ContextState
+         contextName = "-[LoginViewCtrl viewDidAppear:]:LoginViewCtrl.m">
+         <PersistentStrings>
+            <PersistentString
+               value = "self.view">
+            </PersistentString>
+            <PersistentString
+               value = "self.view.bounds">
+            </PersistentString>
+         </PersistentStrings>
+      </ContextState>
+      <ContextState
+         contextName = "-[LoginViewCtrl viewWillAppear:]:LoginViewCtrl.m">
+      </ContextState>
+      <ContextState
+         contextName = "-[AccountTypeViewCtrl onItemTouch:]:AccountTypeViewCtrl.m">
+         <PersistentStrings>
+            <PersistentString
+               value = "[SJKHEngine Instance]-&gt;zqzh_step_Dic">
+            </PersistentString>
+            <PersistentString
+               value = "scrollView.contentSize">
+            </PersistentString>
+         </PersistentStrings>
+      </ContextState>
+      <ContextState
+         contextName = "-[DepositBankViewCtrl itemTouch:]:DepositBankViewCtrl.m">
+         <PersistentStrings>
+            <PersistentString
+               value = "nextStepBtn.isEnabled">
+            </PersistentString>
+            <PersistentString
+               value = "nextStepBtn.userInteractionEnabled">
+            </PersistentString>
+            <PersistentString
+               value = "nextStepBtn.isHidden">
+            </PersistentString>
+         </PersistentStrings>
+      </ContextState>
+      <ContextState
+         contextName = "-[KHRequestOrSearchViewCtrl reposControl]:KHRequestOrSearchViewCtrl.m">
+      </ContextState>
+      <ContextState
+         contextName = "-[ReturnVisitViewCtrl onButtonClick:]:ReturnVisitViewCtrl.m">
+         <PersistentStrings>
+            <PersistentString
+               value = "self.navigationController.childViewControllers">
+            </PersistentString>
+         </PersistentStrings>
+      </ContextState>
+      <ContextState
+         contextName = "-[UploadImageViewCtrl openEditor:]:UploadImageViewCtrl.m">
+         <PersistentStrings>
+            <PersistentString
+               value = "controller.cropView">
+            </PersistentString>
+         </PersistentStrings>
+      </ContextState>
+      <ContextState
+         contextName = "-[RiskEvaluateViewCtrl onButtonClick:]:RiskEvaluateViewCtrl.m">
+         <PersistentStrings>
+            <PersistentString
+               value = "[SJKHEngine Instance]-&gt;jbzl_step_Dic">
+            </PersistentString>
+            <PersistentString
+               value = "[table_view isUserInteractionEnabled]">
+            </PersistentString>
+            <PersistentString
+               value = "table_view.contentSize.width">
+            </PersistentString>
+            <PersistentString
+               value = "[table_view isScrollEnabled]">
+            </PersistentString>
+            <PersistentString
+               value = "table_view.bounds.size.width">
+            </PersistentString>
+            <PersistentString
+               value = "[tmdacNSString UTF8String]">
+            </PersistentString>
+         </PersistentStrings>
+      </ContextState>
+      <ContextState
+         contextName = "-[CertHandle certState]:CertHandle.m">
+      </ContextState>
+      <ContextState
+         contextName = "-[BaseViewController toSendLastCommit:dataDictionary:]:BaseViewController.m">
+         <PersistentStrings>
+            <PersistentString
+               value = "[SJKHEngine Instance]-&gt;SJHM">
+            </PersistentString>
+            <PersistentString
+               value = "khzd">
+            </PersistentString>
+         </PersistentStrings>
+      </ContextState>
+      <ContextState
+         contextName = "-[DepositBankViewCtrl loadXYS]:DepositBankViewCtrl.m">
+      </ContextState>
+      <ContextState
+         contextName = "-[AccountTypeViewCtrl viewDidAppear:]:AccountTypeViewCtrl.m">
+      </ContextState>
+      <ContextState
+         contextName = "-[LoanBaseViewCtrl webView:shouldStartLoadWithRequest:navigationType:]:LoanBaseViewCtrl.m">
+         <PersistentStrings>
+            <PersistentString
+               value = "[SJKHEngine Instance].observeCtrls">
+            </PersistentString>
+            <PersistentString
+               value = "[SJKHEngine Instance]-&gt;uuid">
+            </PersistentString>
+         </PersistentStrings>
+      </ContextState>
+      <ContextState
+         contextName = "-[LoginViewCtrl InitWidgets]:LoginViewCtrl.m">
+      </ContextState>
+      <ContextState
+         contextName = "-[PECropViewController viewWillAppear:]:PECropViewController.m">
+      </ContextState>
+      <ContextState
+         contextName = "-[KHRequestOrSearchViewCtrl InitNavigationViewHeader]:KHRequestOrSearchViewCtrl.m">
+         <PersistentStrings>
+            <PersistentString
+               value = "UpHeightInset">
+            </PersistentString>
+         </PersistentStrings>
+      </ContextState>
+      <ContextState
+         contextName = "-[DepositBankViewCtrl viewDidAppear:]:DepositBankViewCtrl.m">
+      </ContextState>
+      <ContextState
+         contextName = "-[BaseViewController alertView:clickedButtonAtIndex:]:BaseViewController.m">
+         <PersistentStrings>
+            <PersistentString
+               value = "[SJKHEngine Instance]-&gt;rootVC">
+            </PersistentString>
+         </PersistentStrings>
+      </ContextState>
+      <ContextState
+         contextName = "-[CustomAlertView initWidgets]:CustomAlertView.m">
+      </ContextState>
+      <ContextState
+         contextName = "-[VideoWitnessViewCtrl toStartAgent]:VideoWitnessViewCtrl.mm">
+         <PersistentStrings>
+            <PersistentString
+               value = "[SJKHEngine Instance]-&gt;khjbzl">
+            </PersistentString>
+            <PersistentString
+               value = "htmlCustom_info">
+            </PersistentString>
+         </PersistentStrings>
+      </ContextState>
+      <ContextState
+         contextName = "-[VideoWitnessViewCtrl changeUIStatus:]:VideoWitnessViewCtrl.mm">
+      </ContextState>
+      <ContextState
+         contextName = "-[MenuViewCtrl viewWillLayoutSubviews]:MenuViewCtrl.m">
+         <PersistentStrings>
+            <PersistentString
+               value = "self.navigationController.view">
+            </PersistentString>
+         </PersistentStrings>
+      </ContextState>
+      <ContextState
+         contextName = "-[AccountTypeViewCtrl InitWidgets]:AccountTypeViewCtrl.m">
+      </ContextState>
+      <ContextState
+         contextName = "-[LoginViewCtrl onShowIntroductionView]:LoginViewCtrl.m">
+         <PersistentStrings>
+            <PersistentString
+               value = "[UIImage imageNamed:@&quot;guild_1&quot;]">
+            </PersistentString>
+         </PersistentStrings>
+      </ContextState>
+      <ContextState
+         contextName = "-[UploadImageViewCtrl httpFailed:]:UploadImageViewCtrl.m">
+         <PersistentStrings>
+            <PersistentString
+               value = "http.error">
+            </PersistentString>
+            <PersistentString
+               value = "[responseDictionary objectForKey:NOTE]">
+            </PersistentString>
+         </PersistentStrings>
+      </ContextState>
+      <ContextState
+         contextName = "-[BaseViewController httpFinished:]:BaseViewController.m">
+         <PersistentStrings>
+            <PersistentString
+               value = "http.responseData">
+            </PersistentString>
+         </PersistentStrings>
+      </ContextState>
+      <ContextState
+         contextName = "-[SecretSetViewCtrl onButtonClick:]:SecretSetViewCtrl.m">
+         <PersistentStrings>
+            <PersistentString
+               value = "btn.selected">
+            </PersistentString>
+            <PersistentString
+               value = "btn.isSelected">
+            </PersistentString>
+            <PersistentString
+               value = "self.navigationController.viewControllers">
+            </PersistentString>
+         </PersistentStrings>
+      </ContextState>
+      <ContextState
+         contextName = "AxIMApiImpl::StartAgent(std::string const&amp;, std::string const&amp;, std::string const&amp;, std::string const&amp;, std::string const&amp;, std::string const&amp;, std::string const&amp;):axim_api_impl.mm">
+         <PersistentStrings>
+            <PersistentString
+               value = "[NSString stringWithUTF8String:username.c_str()]">
+            </PersistentString>
+            <PersistentString
+               value = "[NSString stringWithUTF8String:username.c_str()];">
+            </PersistentString>
+            <PersistentString
+               value = "Username">
+            </PersistentString>
+         </PersistentStrings>
+      </ContextState>
+      <ContextState
+         contextName = "-[RiskEvaluateViewCtrl updateUI]:RiskEvaluateViewCtrl.m">
+         <PersistentStrings>
+            <PersistentString
+               value = "[[SJKHEngine Instance]-&gt;fxpc_step_Dic objectForKey:TMRECORDS_FXPC]">
+            </PersistentString>
+            <PersistentString
+               value = "[SJKHEngine Instance]-&gt;fxpc_step_Dic">
+            </PersistentString>
+            <PersistentString
+               value = "tmRecords">
+            </PersistentString>
+         </PersistentStrings>
+      </ContextState>
+      <ContextState
+         contextName = "axim::CTAgentMgr::RequestAgentService(buzz::Jid const&amp;, std::string const&amp;, std::string const&amp;, std::string const&amp;):tagentmgr.cc">
+      </ContextState>
+      <ContextState
+         contextName = "-[BaseViewController activityIndicate:tipContent:MBProgressHUD:]:BaseViewController.m">
+      </ContextState>
+      <ContextState
+         contextName = "-[VideoWitnessViewCtrl onButtonClick:]:VideoWitnessViewCtrl.mm">
+      </ContextState>
+      <ContextState
+         contextName = "-[LookProcessViewCtrl parseResponseData:]:LookProcessViewCtrl.m">
+         <PersistentStrings>
+            <PersistentString
+               value = "[SJKHEngine Instance]-&gt; zhidingstate">
+            </PersistentString>
+            <PersistentString
+               value = "[SJKHEngine Instance]-&gt;khjd_Dic">
+            </PersistentString>
+         </PersistentStrings>
+      </ContextState>
+      <ContextState
+         contextName = "-[CustomAlertView updateUIThread:]:CustomAlertView.mm">
+         <PersistentStrings>
+            <PersistentString
+               value = "closeButton.userInteractionEnabled">
+            </PersistentString>
+         </PersistentStrings>
+      </ContextState>
+      <ContextState
+         contextName = "-[CertHandle createHandleData]:CertHandle.m">
+         <PersistentStrings>
+            <PersistentString
+               value = "[SJKHEngine Instance]-&gt;isKaiHuOVER">
+            </PersistentString>
+            <PersistentString
+               value = "[SJKHEngine Instance]-&gt;khsq_info_Dic">
+            </PersistentString>
+         </PersistentStrings>
+      </ContextState>
+      <ContextState
+         contextName = "-[KKNavigationController capture]:KKNavigationController.m">
+         <PersistentStrings>
+            <PersistentString
+               value = "self.view.layer">
+            </PersistentString>
+            <PersistentString
+               value = "self.view">
+            </PersistentString>
+            <PersistentString
+               value = "UIGraphicsGetCurrentContext()">
+            </PersistentString>
+         </PersistentStrings>
+      </ContextState>
+      <ContextState
+         contextName = "-[RootModelViewCtrl buttonClick:]:RootModelViewCtrl.m">
+         <PersistentStrings>
+            <PersistentString
+               value = "navi.view">
+            </PersistentString>
+            <PersistentString
+               value = "khRequestOrSearchVC.view">
+            </PersistentString>
+         </PersistentStrings>
+      </ContextState>
+      <ContextState
+         contextName = "AxIMApiImpl::getTAgentRequestFieldInfos(std::string const&amp;) const:axim_api_impl.mm">
+         <PersistentStrings>
+            <PersistentString
+               value = "custom_info.c_str()">
+            </PersistentString>
+         </PersistentStrings>
+      </ContextState>
+      <ContextState
+         contextName = "-[KHRequestOrSearchViewCtrl loadDataAndPushVC:dataSource:pushVC:]:KHRequestOrSearchViewCtrl.m">
+         <PersistentStrings>
+            <PersistentString
+               value = "((ClientInfoViewCtrl*)vc)-&gt;jbzl_step_OCR_Dic ">
+            </PersistentString>
+            <PersistentString
+               value = "((DepositBankViewCtrl *)vc)-&gt;filterArray">
+            </PersistentString>
+         </PersistentStrings>
+      </ContextState>
+      <ContextState
+         contextName = "genCSR:func_def.m">
+         <PersistentStrings>
+            <PersistentString
+               value = "RV">
+            </PersistentString>
+            <PersistentString
+               value = "rv">
+            </PersistentString>
+         </PersistentStrings>
+      </ContextState>
+      <ContextState
+         contextName = "-[ReturnVisitViewCtrl popToLastPage]:ReturnVisitViewCtrl.m">
+         <PersistentStrings>
+            <PersistentString
+               value = "[SJKHEngine Instance]-&gt;fxpc_step_Dic">
+            </PersistentString>
+         </PersistentStrings>
+      </ContextState>
+      <ContextState
+         contextName = "-[SJKHEngine JBZLCustomAlertViewSelect:DataType:]:SJKHEngine.mm">
+         <PersistentStrings>
+            <PersistentString
+               value = "_customAlertView-&gt;selectView">
+            </PersistentString>
+            <PersistentString
+               value = "_customAlertView-&gt;filterArray">
+            </PersistentString>
+         </PersistentStrings>
+      </ContextState>
+      <ContextState
+         contextName = "-[BaseViewController dealloc]:BaseViewController.m">
+         <PersistentStrings>
+            <PersistentString
+               value = "scrollView.subviews">
+            </PersistentString>
+         </PersistentStrings>
+      </ContextState>
+      <ContextState
+         contextName = "-[MenuViewCtrl viewDidAppear:]:MenuViewCtrl.m">
+      </ContextState>
+      <ContextState
+         contextName = "-[DepositBankViewCtrl textFieldDidBeginEditing:]:DepositBankViewCtrl.m">
+         <PersistentStrings>
+            <PersistentString
+               value = "scrollView.contentOffset.y ">
+            </PersistentString>
+         </PersistentStrings>
+      </ContextState>
+      <ContextState
+         contextName = "-[DepositBankViewCtrl popToLastPage]:DepositBankViewCtrl.m">
+         <PersistentStrings>
+            <PersistentString
+               value = "[SJKHEngine Instance]-&gt;mmsz_step_Dic">
+            </PersistentString>
+            <PersistentString
+               value = "self.navigationController.viewControllers">
+            </PersistentString>
+            <PersistentString
+               value = "self.navigationController">
+            </PersistentString>
+         </PersistentStrings>
+      </ContextState>
+      <ContextState
+         contextName = "-[AccountTypeViewCtrl viewDidLayoutSubviews]:AccountTypeViewCtrl.m">
+         <PersistentStrings>
+            <PersistentString
+               value = "scrollView.contentSize">
+            </PersistentString>
+         </PersistentStrings>
+      </ContextState>
+      <ContextState
+         contextName = "SHA1_End:sha_fast.c">
+      </ContextState>
+      <ContextState
+         contextName = "-[DepositBankViewCtrl tableView:cellForRowAtIndexPath:]:DepositBankViewCtrl.m">
+      </ContextState>
+      <ContextState
+         contextName = "-[LoanBaseViewCtrl toLoadWebPage:]:LoanBaseViewCtrl.m">
+      </ContextState>
+      <ContextState
+         contextName = "-[MenuViewCtrl viewDidLayoutSubviews]:MenuViewCtrl.m">
+         <PersistentStrings>
+            <PersistentString
+               value = "self.navigationController.view">
+            </PersistentString>
+         </PersistentStrings>
+      </ContextState>
+      <ContextState
+         contextName = "-[LoginViewCtrl viewDidLoad]:LoginViewCtrl.m">
+      </ContextState>
+      <ContextState
+         contextName = "-[AccountTypeViewCtrl onButtonClick:]:AccountTypeViewCtrl.m">
+         <PersistentStrings>
+            <PersistentString
+               value = "[SJKHEngine Instance]-&gt;zqzh_step_Dic">
+            </PersistentString>
+            <PersistentString
+               value = "SHButton.isSelected">
+            </PersistentString>
+            <PersistentString
+               value = "[PublicMethod getNSStringFromCstring:[[dic objectForKey:NOTE] UTF8String]]">
+            </PersistentString>
+            <PersistentString
+               value = "SZButton.isSelected">
+            </PersistentString>
+         </PersistentStrings>
+      </ContextState>
+      <ContextState
+         contextName = "-[UploadImageViewCtrl cropViewController:didFinishCroppingImage:]:UploadImageViewCtrl.m">
+         <PersistentStrings>
+            <PersistentString
+               value = "croppedImage.size.Width">
+            </PersistentString>
+            <PersistentString
+               value = "croppedImage.size.width">
+            </PersistentString>
+         </PersistentStrings>
+      </ContextState>
+      <ContextState
+         contextName = "-[LookProcessViewCtrl InitConfig]:LookProcessViewCtrl.m">
+         <PersistentStrings>
+            <PersistentString
+               value = "[SJKHEngine Instance]-&gt;khbd_info_Dic">
+            </PersistentString>
+            <PersistentString
+               value = "[SJKHEngine Instance]-&gt;khjd_Dic ">
+            </PersistentString>
+         </PersistentStrings>
+      </ContextState>
+      <ContextState
+         contextName = "-[DepositBankViewCtrl updateUI]:DepositBankViewCtrl.m">
+         <PersistentStrings>
+            <PersistentString
+               value = "[SJKHEngine Instance]-&gt;cgzd_step_Dic">
+            </PersistentString>
+            <PersistentString
+               value = "((DepositBankViewCtrl *)vc)-&gt;filterArray">
+            </PersistentString>
+         </PersistentStrings>
+      </ContextState>
+      <ContextState
+         contextName = "-[DepositBankViewCtrl itemSetView:]:DepositBankViewCtrl.m">
+         <PersistentStrings>
+            <PersistentString
+               value = "itemSetNumber">
+            </PersistentString>
+            <PersistentString
+               value = "setNumber">
+            </PersistentString>
+         </PersistentStrings>
+      </ContextState>
+      <ContextState
+         contextName = "-[BaseViewController sendGetStepInfo:dataDictionary:]:BaseViewController.m">
+         <PersistentStrings>
+            <PersistentString
+               value = "*stepResponseDic">
+            </PersistentString>
+            <PersistentString
+               value = "[PublicMethod getNSStringFromCstring:[*stepResponseDic objectForKey:NOTE].UTF8String]">
+            </PersistentString>
+         </PersistentStrings>
+      </ContextState>
+      <ContextState
+         contextName = "-[AccountTypeViewCtrl viewWillAppear:]:AccountTypeViewCtrl.m">
+      </ContextState>
+      <ContextState
+         contextName = "-[LoginViewCtrl reposControl]:LoginViewCtrl.m">
+      </ContextState>
+      <ContextState
+         contextName = "-[DepositBankViewCtrl onButtonClick:]:DepositBankViewCtrl.m">
+         <PersistentStrings>
+            <PersistentString
+               value = "[SJKHEngine Instance]-&gt;cgzd_step_Dic">
+            </PersistentString>
+         </PersistentStrings>
+      </ContextState>
+      <ContextState
+         contextName = "-[UINavigationBar(customNav) sizeThatFits:]:UINavigationBar+Frame.m">
+         <PersistentStrings>
+            <PersistentString
+               value = "[SJKHEngine Instance]-&gt;initNavigationBar">
+            </PersistentString>
+         </PersistentStrings>
+      </ContextState>
+      <ContextState
+         contextName = "-[LoginViewCtrl onLoginHandle]:LoginViewCtrl.m">
+      </ContextState>
+      <ContextState
+         contextName = "-[CertHandle toSaveProfileStepData]:CertHandle.m">
+         <PersistentStrings>
+            <PersistentString
+               value = "[SJKHEngine Instance]-&gt;zsgl_upload_dic">
+            </PersistentString>
+         </PersistentStrings>
+      </ContextState>
+      <ContextState
+         contextName = "-[LoginViewCtrl onAccountSetButtonClick:]:LoginViewCtrl.mm">
+         <PersistentStrings>
+            <PersistentString
+               value = "[SJKHEngine Instance]-&gt;userConfigDic">
+            </PersistentString>
+         </PersistentStrings>
+      </ContextState>
+      <ContextState
+         contextName = "-[KHRequestOrSearchViewCtrl onButtonClick:]:KHRequestOrSearchViewCtrl.m">
+         <PersistentStrings>
+            <PersistentString
+               value = "[SJKHEngine Instance]-&gt;doMain">
+            </PersistentString>
+            <PersistentString
+               value = "self.navigationController">
+            </PersistentString>
+            <PersistentString
+               value = "[SJKHEngine Instance]-&gt;port">
+            </PersistentString>
+            <PersistentString
+               value = "[SJKHEngine Instance]-&gt;bLastCommitSuccess">
+            </PersistentString>
+         </PersistentStrings>
+      </ContextState>
+   </ContextStates>
+</VariablesViewState>

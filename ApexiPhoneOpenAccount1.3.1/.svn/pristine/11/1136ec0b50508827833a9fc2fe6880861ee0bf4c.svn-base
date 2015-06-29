@@ -1,0 +1,537 @@
+//
+//  ReturnVisitViewCtrl.m
+//  ApexiPhoneOpenAccount
+//
+//  Created by mac  on 14-3-13.
+//  Copyright (c) 2014年 mac . All rights reserved.
+//
+
+#import "ReturnVisitViewCtrl.h"
+#import "RootModelViewCtrl.h"
+#import "LookProcessViewCtrl.h"
+
+
+typedef struct
+{
+    int        hfwjid;                     // 回访问卷id
+    const char *     hftmdac;              // 回访题目答案串
+    int        hfjg;                       // 回访结果
+} Hfwj_Form_Data;
+
+
+@interface ReturnVisitViewCtrl (){
+    Hfwj_Form_Data hfwjFormData;;
+    UILabel * tipLabel;
+    LookProcessViewCtrl * lookVC;
+}
+
+@end
+
+@implementation ReturnVisitViewCtrl
+
+- (id)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil
+{
+    self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil];
+    if (self) {
+        
+    }
+    return self;
+}
+
+- (void)viewDidLoad
+{
+    [self InitConfig];
+    [self InitWidgets];
+    [super viewDidLoad];
+}
+
+- (void)viewWillAppear:(BOOL)animated{
+    [self updateUI];
+    [super viewWillAppear:animated];
+}
+
+- (void) InitConfig{
+    [super InitConfig];
+}
+
+- (void) InitWidgets{
+    [super InitWidgets];
+    tipLabel = ((UILabel *)[self.view viewWithTag:TipLabelTag]);
+    [tipLabel removeFromSuperview];
+    tipLabel = nil;
+//    [tipLabel setText:@""];
+//    [tipLabel setText:@"请您完成以下回访问卷,马上就要完成了哦"];
+//    [tipLabel setNeedsDisplay];
+    
+    int labelHeight = 40;
+    tableHeight = screenHeight - UpHeight - 2 * verticalHeight - 44 - 2*verticalHeight - verticalHeight;
+    tipLabel = [PublicMethod initLabelWithFrame:CGRectMake(levelSpace, 0, screenWidth - levelSpace, labelHeight)
+                                                      title:@"请您完成以下回访问卷,马上就要完成了哦"
+                                                     target:self.view];
+    
+//    [rootView setFrame: CGRectMake(levelSpace,
+//                                                            0 ,
+//                                                            screenWidth - levelSpace*2,
+//                                                            tableHeight)];
+//    [rootView setAlpha:1];
+    
+//    [rootView setBackgroundColor:[UIColor redColor]];
+    
+    [table_view setFrame:CGRectMake(0, 0 , screenWidth - levelSpace*2, tableHeight - verticalHeight)];
+    [rootImageView setUserInteractionEnabled:YES];
+    [rootImageView bringSubviewToFront:table_view];
+    
+    [nextStepBtn setTitle:@"提交" forState:UIControlStateNormal];
+}
+
+- (void)createResultView:(float)resultHeight{
+    resultView = [[UIView alloc]initWithFrame:CGRectMake(0 ,
+                                                         0 ,
+                                                         screenWidth ,
+                                                         resultHeight)];
+    [resultView setBackgroundColor:[UIColor colorWithWhite:1 alpha:1]];
+    [resultView setAlpha:0];
+    
+    NSString * title = @"恭喜,您的申请已提交";
+    UIFont * font = [UIFont boldSystemFontOfSize:20];
+    float titleWidth = [PublicMethod getStringWidth:title font:font] + 50;
+    float space = (screenWidth - 2*levelSpace - titleWidth)/2.0;
+    UIButton * selectButton = [PublicMethod InitSelectTitle:title
+                                                  withFrame:
+                                                CGRectMake(space,
+                                                        verticalHeight,
+                                                        titleWidth,
+                                                        50)
+                                                        tag:0
+                                                     target:resultView];
+    UIButton *markButton = ((UIButton *)[selectButton viewWithTag:SelectBtnTag]);
+    [markButton setBackgroundImage:[UIImage imageNamed:@"icon_success"] forState:UIControlStateNormal];
+    [markButton setFrame:CGRectMake(0, 0 , 50, 50)];
+    [selectButton setTitleEdgeInsets:UIEdgeInsetsMake(0, 50, 0, 0)];
+    selectButton.titleLabel.font = font;
+    [resultView addSubview:selectButton];
+    
+    title = @"我们将在一个交易日内短信通知您结果";
+    titleWidth = [PublicMethod getStringWidth:title font:TipFont];
+    space = (screenWidth - 2*levelSpace - titleWidth)/2.0;
+    [PublicMethod initLabelWithFrame:CGRectMake(space  ,
+                                                verticalHeight + 50 + 2* verticalHeight,
+                                                titleWidth,
+                                                35)
+                               title:title target:resultView];
+    
+    title = @"感谢您的使用";
+    titleWidth = [PublicMethod getStringWidth:title font:TipFont];
+    space = (screenWidth - 2*levelSpace - titleWidth)/2.0;
+    [PublicMethod initLabelWithFrame:CGRectMake(space  ,
+                                                verticalHeight + 50 + 2* verticalHeight + 35,
+                                                titleWidth,
+                                                35)
+                               title:title
+                              target:resultView];
+    
+    [self.view addSubview:resultView];
+}
+
+- (void) onButtonClick:(UIButton *)btn{
+    if(resultView.alpha == 0){
+        int section = [self caculateVC];
+        if (section == -1) {
+            [self createResultView:nextStepBtn.frame.origin.y];
+        }
+        else{
+            NSString * titles =[NSString stringWithFormat:@"请答完第%i题",section + 1];
+            UIAlertView * alertview = [[UIAlertView alloc] initWithTitle:@"提示" message:titles delegate:self cancelButtonTitle:nil otherButtonTitles:@"确定", nil];
+            [alertview show];
+            
+            return ;
+        }
+        
+        NSDictionary * dic = nil;
+        
+        if([self saveHFWJData]){
+            [self activityIndicate:YES tipContent:@"提交申请..." MBProgressHUD:nil target:self.navigationController.view];
+            //先暂时注释
+            [self toSendLastCommit:[[SJKHEngine Instance] getKhzdString] dataDictionary:&dic];
+//            [self performSelector:@selector(tipRequestAccountSuccess) withObject:nil afterDelay:4];
+        }
+        
+        return ;
+    }
+    
+    [self toSendQueryKHXX];
+}
+
+- (void) tipRequestAccountSuccess{
+    [self activityIndicate:NO tipContent:@"提交申请成功" MBProgressHUD:nil target:nil];
+    
+    [nextStepBtn setTitle:@"开户进度跟踪" forState:UIControlStateNormal];
+    
+    [UIView animateWithDuration:.2f
+                          delay:0
+                        options:UIViewAnimationOptionCurveEaseOut
+                     animations:^{
+                         resultView.alpha = 1;
+                     }
+                     completion:^(BOOL bl){
+                         
+                     }];
+}
+
+- (BOOL) saveHFWJData{
+    NSDictionary * dic =nil;
+    
+    NSDictionary * hfwjStr = [NSDictionary dictionaryWithObjectsAndKeys:
+                              [NSString stringWithFormat:@"%i",hfwjFormData.hfwjid],
+                              HFWJID_HFWJ,
+                              tmdacNSString,
+                              HFTMDAC_HFWJ,
+                              [NSString stringWithFormat:@"%i",1],
+                              HFJG_HFWJ,
+                              nil];
+//    NSMutableDictionary * saveDic = [NSMutableDictionary dictionaryWithObjectsAndKeys:
+//                                     hfwjStr,HFWJKEY_HFWJ,nil];
+//    hfwj:{HFWJID"":""?"",""HFTMDAC"":""182|A;184|A;185|C;186|A;187|D;188|A"",""HFJG"":""1""}
+    [self sendSaveStepInfo:HFWJ_STEP dataDictionary:&dic arrar:[NSMutableDictionary dictionaryWithDictionary:hfwjStr]];
+    
+    while (!bSaveStepFinish) {
+        [[NSRunLoop currentRunLoop] runMode:NSDefaultRunLoopMode beforeDate:[NSDate distantFuture]];
+    }
+    
+    if(bSaveStepSuccess){
+        [self activityIndicate:NO tipContent:nil MBProgressHUD:nil target:nil];
+        
+        return YES;
+    }
+    else{
+        [self activityIndicate:NO tipContent:@"保存失败" MBProgressHUD:nil target:nil];
+        
+        return NO;
+    }
+}
+
+- (void) dispatchLookProcessVC:(LookProcessViewCtrl *)lookVC{
+    
+}
+
+- (int)caculateVC{
+    int point = 0;
+    NSString * totalTmdac = nil;
+    NSMutableArray * tmdacAr = [NSMutableArray array];
+    
+    for (int section =0 ; section < tmRecords.count; section++) {
+        NSMutableArray * ar = [cellConditioins objectAtIndex:section];
+        BOOL isSelected = NO;
+        NSString * subTmdac = nil;
+        int sectionPoint = 0;
+        
+        for (int row = 0; row < ar.count; row++) {
+            if([[ar objectAtIndex:row] intValue] == 1){
+                sectionPoint = [self pointForCell:section row:row tmdac:&subTmdac];
+                isSelected = YES;
+            }
+        }
+        
+        if(!isSelected){
+            return section;
+        }
+        
+        point += sectionPoint;
+        [tmdacAr addObject:subTmdac];
+        
+        NSLog(@"sectionPoint =%i,%i",sectionPoint,point);
+    }
+    
+    tmdacNSString = [tmdacAr firstObject];
+    for(int i=1;i<tmdacAr.count; i++){
+        tmdacNSString = [tmdacNSString stringByAppendingFormat:@";%@",[tmdacAr objectAtIndex:i]];
+    }
+    
+    hfwjFormData.hftmdac = [tmdacNSString UTF8String];
+    
+    NSDictionary * hfwjJson = [[SJKHEngine Instance]->hfwj_step_Dic objectForKey:HFWJJSON_HFWJ ];
+    if(hfwjJson){
+        bzRecords = [hfwjJson objectForKey:BZRECORDS_FXPC];
+        for (NSDictionary * dic in bzRecords) {
+            NSLog(@"sz xx =%i,%i",[[dic objectForKey:PFXX_FXPC] intValue] , [[dic objectForKey:PFSX_FXPC] intValue]);
+            if([[dic objectForKey:PFXX_FXPC] intValue] <= point &&
+               [[dic objectForKey:PFSX_FXPC] intValue] > point )
+            {
+                hfwjFormData.hfwjid = [[dic objectForKey:WJID_FXPC] intValue];
+                break ;
+            }
+        }
+    }
+    
+    return -1;
+}
+
+#pragma tableview delegate
+- (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView
+{
+	return tmRecords.count;
+}
+
+- (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section
+{
+    if ([[tipMark objectAtIndex:section] intValue] == 0) {
+        return 0;
+    }
+    return ((NSMutableArray *)[cellConditioins objectAtIndex:section]).count;
+}
+
+- (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath
+{
+    NSString * title = [[cellTexts objectAtIndex:indexPath.section] objectAtIndex:indexPath.row];
+	return [super getHeightForHeaderString:title size:CGSizeMake(table_view.frame.size.width, CGFLOAT_MAX)];
+}
+
+- (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath{
+    static NSString *CellIdentifier = @"tableViewCellIdentify";
+	UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:CellIdentifier];
+    
+	if (cell == nil)
+	{
+        cell = [[UITableViewCell alloc]initWithStyle:UITableViewCellStyleDefault reuseIdentifier:CellIdentifier];
+	}
+    
+    for (UIView * vi in cell.contentView.subviews) {
+        [vi removeFromSuperview];
+    }
+    
+    int row = indexPath.row;
+    int section = indexPath.section;
+    
+    NSDictionary * sectionDataSource = [tmRecords objectAtIndex:section];
+    NSString * title = [[cellTexts objectAtIndex:section] objectAtIndex:row];
+    UIButton * cellButton ;
+    
+    cellButton = [PublicMethod InitSelectTitle:title
+                                     withFrame:CGRectMake(0 ,
+                                                          0 ,
+                                                          screenWidth - 2*levelSpace ,
+                                                          [super getHeightForHeaderString:title size:CGSizeMake(table_view.frame.size.width, CGFLOAT_MAX)])
+                                           tag:0
+                                        target:self];
+    cellButton.titleLabel.numberOfLines = 2;
+    cellButton.titleLabel.lineBreakMode = NSLineBreakByWordWrapping;
+    [cellButton addTarget:self action:@selector(onSelectClick:) forControlEvents:UIControlEventTouchDown];
+    cellButton.tag = [[NSString stringWithFormat:@"%i%i",section,row] intValue];
+    [cellButton setUserInteractionEnabled:YES];
+    UIButton * markButton = (UIButton *)[cellButton viewWithTag:SelectBtnTag];
+    if([[[cellConditioins objectAtIndex:section] objectAtIndex:row] intValue] == 1){
+        [markButton setImage:[UIImage imageNamed:@"radio_checked"] forState:UIControlStateNormal];
+    }
+    [cellButton setUserInteractionEnabled:NO];
+    [cell.contentView addSubview:cellButton];
+    [cell setSelectionStyle:UITableViewCellSelectionStyleNone];
+    
+    return cell;
+}
+
+-(void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath{
+    int indexrow = indexPath.row;
+    int section = indexPath.section;
+    
+    NSDictionary * sectionDataSource = [tmRecords objectAtIndex:section];
+    NSMutableArray * ar = [cellConditioins objectAtIndex:section];
+    
+    if([[ar objectAtIndex:indexrow] intValue] == 0){
+        for (int r = 0; r < ar.count; r++) {
+            [ar replaceObjectAtIndex:r withObject:[NSNumber numberWithInt:0]];
+        }
+        [ar replaceObjectAtIndex:indexrow withObject:[NSNumber numberWithInt:1]];
+    }
+    else{
+        [ar replaceObjectAtIndex:indexrow withObject:[NSNumber numberWithInt:0]];
+    }
+    [table_view reloadData];
+    
+    if([[tipMark objectAtIndex:section] intValue] == 1){
+        [tipMark replaceObjectAtIndex:section withObject:[NSNumber numberWithInt:0]];
+        [table_view reloadSections:[NSIndexSet indexSetWithIndex:section] withRowAnimation:UITableViewRowAnimationTop];
+    }
+    
+}
+
+- (CGFloat)tableView:(UITableView *)tableView heightForHeaderInSection:(NSInteger)section{
+//    NSString * title = [NSString stringWithFormat:@"%i.%@",section + 1, [[tmRecords objectAtIndex:section] objectForKey:QDESCRIBE_FXPC]];
+//    [PublicMethod trimSpecialCharacters:&title];
+//    CGSize size = [PublicMethod getStringSize:title font:TipFont];
+//    int numberLines = size.width / table_view.frame.size.width;
+//    return 40 * (numberLines + 1);
+    
+    return [super getHeightForHeaderString:
+            [NSString stringWithFormat:@"%i.%@",section + 1, [[tmRecords objectAtIndex:section] objectForKey:QDESCRIBE_FXPC]]
+                                     size:
+            CGSizeMake(table_view.frame.size.width , CGFLOAT_MAX)];
+    
+}
+
+- (UIView *)tableView:(UITableView *)tableView viewForHeaderInSection:(NSInteger)section
+{
+    UIButton * headerButton = [UIButton buttonWithType:UIButtonTypeCustom];
+    [headerButton setBackgroundColor:LikeWhiteColor];
+    headerButton.tag = section + HEADERBUTTONTAG;
+    [headerButton addTarget:self action:@selector(onClickHeaderButton:) forControlEvents:UIControlEventTouchUpInside];
+    NSString * title = [NSString stringWithFormat:@"%i.%@",section + 1, [[tmRecords objectAtIndex:section] objectForKey:QDESCRIBE_FXPC]];
+    [PublicMethod trimSpecialCharacters:&title];
+    CGSize size = [PublicMethod getStringSize:title font:PublicBoldFont];
+    int numberLines = size.width / table_view.frame.size.width;
+    [headerButton setFrame:CGRectMake(0, 0, table_view.frame.size.width, [super getHeightForHeaderString:title size:CGSizeMake(table_view.frame.size.width , CGFLOAT_MAX)])];
+    [headerButton setContentHorizontalAlignment:UIControlContentHorizontalAlignmentLeft];
+    headerButton.titleLabel.numberOfLines = numberLines + 1;
+    headerButton.titleLabel.font = PublicBoldFont;
+    headerButton.titleLabel.lineBreakMode = NSLineBreakByWordWrapping;
+    [headerButton setTitleColor:[UIColor blackColor] forState:UIControlStateNormal];
+    [headerButton setTitle:title forState:UIControlStateNormal];
+    [headerButton addSubview:[PublicMethod getSepratorLine:CGRectMake(0, headerButton.frame.size.height-0.5,table_view.frame.size.width , 0.5) alpha:1]];
+	return headerButton;
+}
+
+- (void)onSelectClick:(UIButton *)btn{
+    int section = -1;
+    int index = -1;
+    switch (btn.tag) {
+        case 0:
+            section = 0;
+            index =0;
+            break;
+        case 1:
+            section = 0;
+            index = 1;
+            break;
+        default:{
+            NSString * indexPath = [NSString stringWithFormat:@"%i",btn.tag];
+            section = [[indexPath substringToIndex:indexPath.length - 1] intValue];
+            index = [[indexPath substringFromIndex:indexPath.length - 1] intValue];
+        }
+            break;
+    }
+    NSMutableArray * ar = [cellConditioins objectAtIndex:section];
+    
+    if([[ar objectAtIndex:index] intValue] == 0){
+        [ar replaceObjectAtIndex:1 - index withObject:[NSNumber numberWithInt:0]];
+        [ar replaceObjectAtIndex:index withObject:[NSNumber numberWithInt:1]];
+    }
+    else{
+        [ar replaceObjectAtIndex:index withObject:[NSNumber numberWithInt:0]];
+    }
+    
+    [table_view reloadData];
+}
+
+- (void)onClickHeaderButton:(UIButton *)btn{
+    if([[tipMark objectAtIndex:btn.tag - HEADERBUTTONTAG]intValue] == 1){
+        [tipMark replaceObjectAtIndex:btn.tag - HEADERBUTTONTAG withObject:[NSNumber numberWithInt:0]];
+    }
+    else{
+        [tipMark replaceObjectAtIndex:btn.tag - HEADERBUTTONTAG withObject:[NSNumber numberWithInt:1]];
+    }
+    
+    [table_view reloadData];
+}
+
+- (void) updateUI{
+    [super updateUI];
+#ifdef SelectTest
+    [SJKHEngine Instance]->hfwj_step_Dic = [[NSMutableDictionary alloc]initWithContentsOfFile:[PublicMethod getFilePath:DOCUMENT_CACHE fileName:HFWJ_KEY]];
+#endif
+    
+    NSDictionary * fxpcJson = [[SJKHEngine Instance]->hfwj_step_Dic objectForKey:HFWJJSON_HFWJ];
+    if(fxpcJson){
+        tmRecords = [fxpcJson objectForKey:TMRECORDS_FXPC];
+        for (int i = 0; i < tmRecords.count; i++) {
+            [tipMark addObject:[NSNumber numberWithInt:1]];
+        }
+        
+        for (int section = 0; section < tmRecords.count; section++) {
+            NSMutableArray * sectionData = [NSMutableArray array];
+            NSString * sAnswer = [[tmRecords objectAtIndex:section] objectForKey:SANSWER_FXPC];
+            int rowCount = [sAnswer componentsSeparatedByString:@"|"].count - 1;
+            for (int row =0; row < rowCount; row++) {
+                [sectionData addObject:[NSNumber numberWithInt:0]];
+            }
+            [cellConditioins addObject:sectionData];
+        }
+        
+        for (NSDictionary * dic in tmRecords) {
+            NSMutableArray * sectionArray = [NSMutableArray array];
+            
+            NSString * sanswer = [dic objectForKey:SANSWER_FXPC];
+            NSMutableArray * cellContent = [NSMutableArray arrayWithArray:[sanswer componentsSeparatedByString:@"|"]];
+            [cellContent removeObjectAtIndex:0];
+            
+            for (int i = 0;i<cellContent.count;i++) {
+                NSString * content = [cellContent objectAtIndex:i];
+                if(i == cellContent.count - 1){
+                    [sectionArray addObject:content];
+                }
+                else{
+                    [sectionArray addObject:[content substringWithRange:NSMakeRange(0, content.length - 2)]];
+                }
+            }
+            
+            [cellTexts addObject:sectionArray];
+        }
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [table_view reloadData];
+        });
+    }
+}
+
+- (void)didReceiveMemoryWarning
+{
+    [super didReceiveMemoryWarning];
+}
+
+- (void)popToLastPage{
+    
+}
+
+- (void)httpFinished:(ASIHTTPRequest *)http{
+    [super httpFinished:http];
+    
+    NSString * tip = nil;
+    if(http.request_type == KHQRTJ_REQUEST){
+        if([[responseDictionary objectForKey:SUCCESS] intValue] == 1){
+            tip = @"提交申请成功";
+            [self tipRequestAccountSuccess];
+        }
+        else{
+            tip = @"提交开户申请失败";
+        }
+        [self activityIndicate:NO tipContent:tip MBProgressHUD:hud target:self.navigationController.view];
+    }
+    if(http.request_type == CXKHXX_REQUEST){
+        if([[responseDictionary objectForKey:SUCCESS] intValue]==1){
+            //更新LookProcess的ui
+            lookVC = [[LookProcessViewCtrl alloc]init];
+            lookVC->khbdInfo = [responseDictionary objectForKey:@"khbdInfo"];
+            [self activityIndicate:NO tipContent:nil MBProgressHUD:hud target:self.navigationController.view];
+            [self.navigationController pushViewController:lookVC animated:YES];
+            [lookVC updateUI];
+        }
+        else{
+            tip = @"查询开户进度失败";
+            [self activityIndicate:NO tipContent:tip MBProgressHUD:hud target:self.navigationController.view];
+        }
+    }
+}
+
+- (void)httpFailed:(ASIHTTPRequest *)http{
+    [super httpFailed:http];
+    
+    if(http.request_type == KHQRTJ_REQUEST){
+        [self activityIndicate:NO tipContent:@"提交开户申请失败" MBProgressHUD:hud target:self.navigationController.view];
+    }
+    if(http.request_type == CXKHXX_REQUEST){
+        [self activityIndicate:NO tipContent:@"查询开户信息失败" MBProgressHUD:hud target:self.navigationController.view];
+    }
+}
+
+- (void)dealloc{
+    NSLog(@"回访问卷回收");
+}
+
+@end

@@ -1,0 +1,61 @@
+//
+//  Prefix header
+//
+//  The contents of this file are implicitly included at the beginning of every source file.
+//
+
+#import <Availability.h>
+
+#ifndef __IPHONE_5_0
+#warning "This project uses features only available in iOS SDK 5.0 and later."
+#endif
+
+#ifdef __OBJC__
+    #import <UIKit/UIKit.h>
+    #import <Foundation/Foundation.h>
+    #import <QuartzCore/QuartzCore.h>
+#endif
+
+#define YEorNO int
+#define yep 1
+#define nop 0
+
+
+// UI defination
+
+#define COLOR_WITH_RGB(r,g,b) [UIColor colorWithRed:r/255.0 green:g/255.0 blue:b/255.0 alpha:1]
+
+#define COLOR_WITH_RGB_AND_ALPHA(r,g,b,a) [UIColor colorWithRed:r/255.0 green:g/255.0 blue:b/255.0 alpha:a]
+
+#define NAV_BG_COLOR COLOR_WITH_RGB(50,50,50)
+
+#define PAGE_BG_COLOR COLOR_WITH_RGB(247,247,247)
+
+#define TEXTFEILD_BOLD_DEFAULT_COLOR COLOR_WITH_RGB(170,170,170)
+
+#define TEXTFEILD_BOLD_HIGHLIGHT_COLOR COLOR_WITH_RGB(255,71,96)
+
+#define BTN_DEFAULT_REDBG_COLOR COLOR_WITH_RGB(239,65,86)
+
+#define TITLE_WHITE_COLOR COLOR_WITH_RGB(255,255,255)
+
+#define TITLE_RED_COLOR COLOR_WITH_RGB(208,0,0)
+
+#define TABLE_LEFT_TITLE_COLOR COLOR_WITH_RGB(81,81,81)
+
+#define WARNCTRL_TITLE_COLOR COLOR_WITH_RGB(242,108,0)
+
+#define WARNCTRL_BG_COLOR COLOR_WITH_RGB(255,248,166)
+
+#define WARN_TITLE_COLOR COLOR_WITH_RGB(121,121,121)
+
+
+#define BOUNDS_GLOBLE 0
+
+// UI frame
+
+
+#define IOS7_SYS  [[[[UIDevice currentDevice] systemVersion] substringToIndex:1] isEqualToString:@"7"]
+
+#define NAV_HEIGHT IOS7_SYS?64:44
+

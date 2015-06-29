@@ -1,0 +1,55 @@
+//
+//  CustomAlertView.h
+//  ApexiPhoneOpenAccount
+//
+//  Created by mac  on 14-3-9.
+//  Copyright (c) 2014年 mac . All rights reserved.
+//
+
+#import <UIKit/UIKit.h>
+#import "Data_Structure.h"
+#import "MBProgressHUD.h"
+
+
+@interface CustomAlertView : UIView<UITableViewDataSource,UITableViewDelegate,UIWebViewDelegate>{
+    @private
+    int selfTipIndex;
+    
+    
+    @public
+//    UIView * textView;
+    UITableView * selectView;
+    UIWebView * webView;
+    UIButton * okButton;
+    
+    id target;
+    SEL disMissCustomAlertViewSEL;
+    NSMutableArray * filterArray;
+    NSMutableArray * selectData;
+//    NSString * httpString;
+    
+    SELECT_DATA_TYPE data_type;
+    MBProgressHUD * alertHUD;
+    NSString * htmlKey ;
+}
+
+- (void) setTarget:(id)_target withSEL:(SEL)_select;
+
+- (void) setSelfTipIndex;
+
+- (void) updateUIThread:(BOOL)isFirst;
+
+- (void) createMBProgress;
+
+- (void) dismissHUD;
+
+- (void) setOKHidden:(BOOL)isShow;
+
+@end
+
+
+
+
+
+
+

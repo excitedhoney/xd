@@ -1,0 +1,349 @@
+//
+//  LoginViewCtrl.m
+//  ApexiPhoneOpenAccount
+//
+//  Created by mac  on 14-5-21.
+//  Copyright (c) 2014年 mac . All rights reserved.
+//
+
+#import "LoginViewCtrl.h"
+#import "LoanMainViewCtrl.h"
+#import "RootModelViewCtrl.h"
+
+@interface LoginViewCtrl (){
+    
+}
+
+@end
+
+@implementation LoginViewCtrl
+
+- (id)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil
+{
+    self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil];
+    if (self) {
+        
+    }
+    return self;
+}
+
+- (void)viewDidLoad
+{
+    [self InitConfig];
+    [self InitWidgets];
+    [super viewDidLoad];
+}
+
+- (void)InitConfig{
+    [self.navigationController setNavigationBarHidden:YES animated:NO];
+    [self addGesture:self.view];
+    
+    kaihuNumberField.delegate = self;
+    kaihuPasswordField.delegate = self;
+    [loginButton addTarget:self action:@selector(onLoginHandle) forControlEvents:UIControlEventTouchUpInside];
+    [kaihuButton addTarget:self action:@selector(onToKaihuHandle) forControlEvents:UIControlEventTouchUpInside];
+
+    [super InitConfig];
+    [self.view setBackgroundColor:[UIColor colorWithRed:247.0/255 green:247.0/255 blue:247.0/255 alpha:1]];
+}
+
+- (void)onLoginHandle{
+    [self beginEdit:NO textFieldArrar:[NSMutableArray arrayWithObjects:kaihuNumberField,kaihuPasswordField, nil]];
+    
+    NSString * kaihuNumberText = [kaihuNumberField.text stringByReplacingOccurrencesOfString:@" " withString:@""];
+    NSString * kaihuPassText = [kaihuPasswordField.text stringByReplacingOccurrencesOfString:@" " withString:@""];
+    
+    if(kaihuNumberText.length == 0 || kaihuNumberText == nil){
+        UIAlertView * alertview = [[UIAlertView alloc] initWithTitle:nil message:@"请先输入客户号" delegate:self cancelButtonTitle:nil otherButtonTitles:@"确定", nil];
+        [alertview show];
+        return ;
+    }
+    if(kaihuPassText.length == 0 || kaihuPassText == nil){
+        UIAlertView * alertview = [[UIAlertView alloc] initWithTitle:nil message:@"请先输入密码" delegate:self cancelButtonTitle:nil otherButtonTitles:@"确定", nil];
+        [alertview show];
+        return ;
+    }
+    
+    [self activityIndicate:YES tipContent:@"正在登录..." MBProgressHUD:nil target:self.navigationController.view];
+    [self dispatchXWDPage:[NSMutableArray arrayWithObjects:kaihuNumberText,kaihuPassText,nil]];
+}
+
+//跳到我要开户的起始界面
+- (void)onToKaihuHandle{
+    RootModelViewCtrl * rootVC = [[RootModelViewCtrl alloc]init];
+    [self.navigationController pushViewController:rootVC animated:YES];
+}
+
+//进入小微贷页面所作操作
+- (void)dispatchXWDPage:(NSMutableArray *)postValues{
+    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+        NSDictionary * dic = nil;
+        BOOL bLoadSuccess = NO;
+        [self sendGetRSAPublicKey:nil dataDictionary:&dic];
+        NSLog(@"diccccc =%@",dic);
+        
+        //加入aes加密版块
+        
+        /*
+         modules = 9a7dae708933ee3b805abbfac9e0bd0e427632045a354ab284b8abfa18aa32567d8a62edce42cd3fb8b74b9e7d3e3c61362359bd59e8d147f44eaf624a464582dcfb3ad219e02ff2389b3bcef02f028e19a3430bb25d4ffe2438c26b8132e51035cce09a7640ff429ef588ed3a36fc7f3c0b10c7a31c11ebf663f80f78dea161;
+         publicExponent = 10001;
+         success = 1;
+         */
+        if (dic && dic.count > 0) {
+            dic = nil;
+            bLoadSuccess = [self sendLoginXWDPage:&dic postValues:postValues];
+            NSLog(@"dic =%@,%i,%@",dic,bLoadSuccess,[dic objectForKey:NOTE]);
+            
+            if(bLoadSuccess && dic){
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    LoanMainViewCtrl *loadMainVC = nil;
+                    UIStoryboard *storyBoard = [UIStoryboard storyboardWithName:@"LoanMainStoryBoard" bundle:nil];
+                    loadMainVC = [storyBoard instantiateInitialViewController];
+                    [SJKHEngine Instance]->uuid = [[dic objectForKey:UUID] mutableCopy];
+                    [self.navigationController pushViewController:loadMainVC animated:YES];
+                    
+                    [self activityIndicate:NO tipContent:nil MBProgressHUD:hud target:nil];
+                });
+            }
+            else{
+                [self activityIndicate:NO tipContent:@"登陆失败" MBProgressHUD:hud target:nil];
+            }
+        }
+        else{
+            [self activityIndicate:NO tipContent:@"加载加密数据失败" MBProgressHUD:hud target:nil];
+        }
+    });
+}
+
+- (void)changeFieldBorderColor:(BOOL)isChange targetView:(UIView *)vi bJustChangeLayer:(BOOL)bJustChangeLayer{
+    if(bJustChangeLayer){
+        vi.layer.cornerRadius = 4;
+        vi.layer.masksToBounds = YES;
+        vi.layer.borderWidth = 1;
+    }
+    else{
+        UIColor * color = nil;
+        if(isChange){
+            color = [UIColor colorWithRed:255.0/255 green:71.0/255 blue:96.0/255 alpha:1];
+        }
+        else{
+            color = [UIColor colorWithRed:170.0/255 green:170.0/255 blue:170.0/255 alpha:1];
+        }
+        
+        vi.layer.borderColor = color.CGColor;
+        vi.layer.cornerRadius = 4;
+        vi.layer.masksToBounds = YES;
+        vi.layer.borderWidth = 1;
+    }
+}
+
+- (void)InitWidgets{
+    [headerImageView setImage:[UIImage imageNamed:@"SmallLoanBundle.bundle/images/icon_user_photo"]];
+    
+    UIImage * headerImage = [UIImage imageNamed:@"SmallLoanBundle.bundle/images/txt_login_number"];
+    [kaihuNumberHeaderImageView setImage:headerImage];
+    headerImage = nil;
+    headerImage = [UIImage imageNamed:@"SmallLoanBundle.bundle/images/txt_login_password"];
+    [kaihuPassHeaderImageView setImage: headerImage];
+    
+    [self changeFieldBorderColor:NO targetView:kaihuNumberView bJustChangeLayer:NO];
+    [self changeFieldBorderColor:NO targetView:kaihuPasswordView bJustChangeLayer:NO];
+    [self changeFieldBorderColor:NO targetView:loginButton bJustChangeLayer:YES];
+    
+    [kaihuNumberView setUserInteractionEnabled:NO];
+    [kaihuPasswordView setUserInteractionEnabled:NO];
+    
+    [kaihuNumberField setPlaceholder:@"客 户 号"];
+    [kaihuPasswordField setPlaceholder:@"密 码"];
+    [kaihuNumberField setBackgroundColor:[UIColor whiteColor]];
+    [kaihuPasswordField setBackgroundColor:[UIColor whiteColor]];
+    kaihuNumberField.layer.sublayerTransform = CATransform3DMakeTranslation(5, 0, 0);
+    kaihuPasswordField.layer.sublayerTransform = CATransform3DMakeTranslation(5, 0, 0);
+    
+    UIColor * loginButtonColor = [UIColor colorWithRed:239.0/255 green:65.0/255 blue:86.0/255 alpha:1];
+    [loginButton setBackgroundColor:loginButtonColor];
+    loginButton.layer.borderColor = loginButtonColor.CGColor;
+    [loginButton setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
+    loginButton.titleLabel.font = [UIFont boldSystemFontOfSize:16];
+    
+    UIImage * kaihuImage = [UIImage imageNamed: [NSString stringWithFormat:@"SmallLoanBundle.bundle/images/button_gray_default"]];
+    kaihuImage = [kaihuImage stretchableImageWithLeftCapWidth: 9 topCapHeight: 9];
+//    kaihuImage = [kaihuImage imageByResizingToSize:loginButton.frame.size];
+    [kaihuButton setBackgroundImage:kaihuImage forState:UIControlStateNormal];
+    
+    [kaihuButton setTitleColor:[UIColor blackColor] forState:UIControlStateNormal];
+    kaihuButton.titleLabel.font = [UIFont boldSystemFontOfSize:16];
+    
+//    [kaihuButton setContentMode:UIViewContentModeScaleAspectFit];
+    
+    [super InitWidgets];
+}
+
+- (void)viewDidLayoutSubviews{
+    kaihuNumberField.frame = CGRectMake(kaihuNumberField.frame.origin.x - 5,
+                                        kaihuNumberField.frame.origin.y,
+                                        kaihuNumberField.frame.size.width,
+                                        kaihuNumberField.frame.size.height);
+    kaihuPasswordField.frame = CGRectMake(kaihuPasswordField.frame.origin.x - 5,
+                                        kaihuPasswordField.frame.origin.y,
+                                        kaihuPasswordField.frame.size.width,
+                                        kaihuPasswordField.frame.size.height);
+//    [self changeFieldCursorPosition:[NSMutableArray arrayWithObjects:kaihuNumberField,kaihuPasswordField,nil]];
+    
+//    [kaihuNumberField setSelectedTextRange:[kaihuNumberField textRangeFromPosition:0 toPosition:uitext]];
+    
+    if([SJKHEngine Instance]->systemVersion < 7){
+        CGRect rect = kaihuNumberView.frame;
+        headerImageView.frame = CGRectMake(screenWidth/2 - 75/2.0,
+                                           kaihuNumberView.frame.origin.y / 2 - 75/2.0,
+                                           75,
+                                           75);
+    }
+    
+    [super viewDidLayoutSubviews];
+}
+
+- (void)changeFieldCursorPosition:(NSMutableArray *)ar{
+    for(UITextField * field in ar){
+        NSLog(@"input =%@,%@",field.inputView,field.inputAccessoryView);
+        
+//        [field.inputView setBackgroundColor:[UIColor redColor]];
+        
+        for (UIView * vi in field.subviews) {
+            if([vi isKindOfClass:[UILabel class]]){
+                vi.frame = CGRectMake(vi.frame.origin.x + 10,
+                                      vi.frame.origin.y,
+                                      vi.frame.size.width,
+                                      vi.frame.size.height);
+                
+            }
+        }
+    }
+}
+
+- (void)viewDidAppear:(BOOL)animated{
+    [super viewDidAppear:animated];
+}
+
+- (void)OnTouchDownResign:(UIControl *)control{
+    if(bKeyBoardShow ){
+        [self beginEdit:NO textFieldArrar:[NSMutableArray arrayWithObjects:kaihuNumberField,kaihuPasswordField, nil]];
+    }
+}
+
+- (BOOL) textFieldShouldBeginEditing:(UITextField *)textField{
+    return YES;
+}
+
+-(void)textFieldDidBeginEditing:(UITextField *)textField{
+    bKeyBoardShow = YES;
+    
+    UITextPosition *beginning = [textField beginningOfDocument];
+    [textField setSelectedTextRange:[textField textRangeFromPosition:beginning
+                                                          toPosition:beginning]];
+    
+//    [self performSelector:@selector(changeFieldCursorPosition:) withObject:[NSMutableArray arrayWithObjects:kaihuNumberField,kaihuPasswordField,nil] afterDelay:0.1];
+    
+    keyboardOffset = textField.frame.origin.y + textField.frame.size.height - (screenHeight - KeyBoardHeight);
+//    textField.layer.borderColor = [UIColor colorWithRed:255.0/255 green:71.0/255 blue:96.0/255 alpha:1].CGColor;
+    if(textField == kaihuNumberField){
+        [self changeFieldBorderColor:YES targetView:kaihuNumberView bJustChangeLayer:NO];
+    }
+    if(textField == kaihuPasswordField){
+        [self changeFieldBorderColor:YES targetView:kaihuPasswordView bJustChangeLayer:NO];
+    }
+    
+    if(keyboardOffset > 0){
+        [self beginEdit:YES textFieldArrar:nil];
+    }
+}
+
+- (void)textFieldDidEndEditing:(UITextField *)textField{
+    if(textField == kaihuNumberField){
+        [self changeFieldBorderColor:NO targetView:kaihuNumberView bJustChangeLayer:NO];
+    }
+    if(textField == kaihuPasswordField){
+        [self changeFieldBorderColor:NO targetView:kaihuPasswordView bJustChangeLayer:NO];
+    }
+}
+
+- (BOOL) textField:(UITextField *)textField shouldChangeCharactersInRange:(NSRange)range replacementString:(NSString *)string{
+    NSString * fieldText = [NSString stringWithFormat:@"%@%@", textField.text , string];
+    
+    //移动光标位置的尝试
+//    UITextPosition *start = [textField positionFromPosition:[textField beginningOfDocument]
+//                                                 offset:range.location];
+//    UITextPosition *end = [textField positionFromPosition:start
+//                                               offset:range.length];
+//    [textField setSelectedTextRange:[textField textRangeFromPosition:start toPosition:end]];
+    
+//    UITextRange *selRange = textField.selectedTextRange;
+//    UITextPosition *selStartPos = selRange.start;
+//    NSInteger idx = [textField offsetFromPosition:textField.beginningOfDocument toPosition:selStartPos];
+//    [textField setSelectedTextRange:[textField textRangeFromPosition:0 toPosition:idx]];
+    
+    if(fieldText.length>18 && textField == kaihuNumberField){
+        return NO;
+    }
+    if(fieldText.length>6 && textField == kaihuPasswordField){
+        return NO;
+    }
+    return  YES;
+}
+
+- (void)reposControl{
+    int offset = 0;
+    
+	if (bKeyBoardShow)
+	{
+        [UIView animateWithDuration:0.2 animations:^{
+            self.view.frame = CGRectMake(0, offset-(keyboardOffset + verticalHeight), screenWidth, screenHeight );
+        }completion:^(BOOL finish){
+            
+        }];
+	}
+	else
+	{
+        [UIView animateWithDuration:0.2 animations:^{
+            self.view.frame = CGRectMake(0, offset, screenWidth, screenHeight );
+        }completion:^(BOOL finish){
+            
+        }];
+	}
+}
+
+- (BOOL)sendGetRSAPublicKey:(NSString *)stepName dataDictionary:(NSDictionary **)stepResponseDic{
+    NSString * urlComponent= [NSString stringWithFormat:@"%@://%@:%d%@", [SJKHEngine Instance]->isHttps?@"https":@"http",[SJKHEngine Instance]->doMain,[SJKHEngine Instance]->port,@"/xwd/mobile/user/getRSAPublic"];
+    
+    NSURL * URL = [NSURL URLWithString:urlComponent];
+    ASIFormDataRequest * theRequest = [ASIFormDataRequest requestWithURL:URL];
+    [theRequest setValidatesSecureCertificate:NO];
+    [theRequest setClientCertificateIdentity:[SJKHEngine Instance]->identify];
+    [theRequest setAllowCompressedResponse:NO];
+    [theRequest setTimeOutSeconds:10];
+    [theRequest startSynchronous];
+    
+    return [self parseResponseData:theRequest dic:stepResponseDic];
+}
+
+- (BOOL)sendLoginXWDPage:(NSDictionary **)stepResponseDic postValues:(NSMutableArray *)postValues{
+    NSString * urlComponent= [NSString stringWithFormat:@"%@://%@:%d%@", [SJKHEngine Instance]->isHttps?@"https":@"http",[SJKHEngine Instance]->doMain,[SJKHEngine Instance]->port,@"/xwd/mobile/user/loginByMobile?khh&password"];
+    ASIFormDataRequest * theRequest = [self createASIRequest:urlComponent];
+    
+    NSArray *ar = [PublicMethod convertURLToArray:urlComponent];
+    [theRequest setPostValue:[postValues objectAtIndex:0]
+                      forKey:[ar firstObject]];
+    [theRequest setPostValue:[postValues objectAtIndex:1]
+                      forKey:[ar objectAtIndex:1]];
+    [theRequest startSynchronous];
+    
+    return [self parseResponseData:theRequest dic:stepResponseDic];
+}
+
+- (void)didReceiveMemoryWarning
+{
+    [super didReceiveMemoryWarning];
+}
+
+
+@end

@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="5056" systemVersion="13B42" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none">
+    <dependencies>
+        <deployment version="1280" defaultVersion="1280" identifier="iOS"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="3733"/>
+    </dependencies>
+    <objects>
+        <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner" customClass="LoginViewCtrl">
+            <connections>
+                <outlet property="forgetSecretButton" destination="oTG-eI-uZ2" id="xVq-10-tIE"/>
+                <outlet property="headerImageView" destination="lE8-Ls-5JP" id="es1-H5-8Vz"/>
+                <outlet property="kaihuButton" destination="jPR-Rg-b8W" id="hBf-TW-dHv"/>
+                <outlet property="kaihuNumberField" destination="Sxe-78-g0c" id="nxk-TK-T8l"/>
+                <outlet property="kaihuNumberHeaderImageView" destination="fwd-Of-Evr" id="TWw-gv-r8V"/>
+                <outlet property="kaihuNumberView" destination="ZiV-FU-FSf" id="q2p-Hk-BXu"/>
+                <outlet property="kaihuPassHeaderImageView" destination="fTv-gh-kge" id="jQW-uz-CGd"/>
+                <outlet property="kaihuPasswordField" destination="etm-rp-Z7d" id="gvP-T7-ZG5"/>
+                <outlet property="kaihuPasswordView" destination="7t7-y7-xoG" id="8ou-lD-C3c"/>
+                <outlet property="loginButton" destination="6q8-0F-ypd" id="L0p-vC-Ozu"/>
+                <outlet property="rememberAccountButton" destination="zWt-51-z7Z" id="XXN-x7-E8Q"/>
+                <outlet property="view" destination="iN0-l3-epB" id="EO5-Fp-SD5"/>
+            </connections>
+        </placeholder>
+        <placeholder placeholderIdentifier="IBFirstResponder" id="-2" customClass="UIResponder"/>
+        <view contentMode="scaleToFill" id="iN0-l3-epB">
+            <rect key="frame" x="0.0" y="0.0" width="320" height="568"/>
+            <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+            <subviews>
+                <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" id="lE8-Ls-5JP" userLabel="headerImageView">
+                    <rect key="frame" x="110" y="64" width="100" height="100"/>
+                    <autoresizingMask key="autoresizingMask" flexibleMaxY="YES"/>
+                    <inset key="insetFor6xAndEarlier" minX="0.0" minY="20" maxX="0.0" maxY="-20"/>
+                </imageView>
+                <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" id="6q8-0F-ypd">
+                    <rect key="frame" x="20" y="328" width="280" height="44"/>
+                    <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMaxY="YES"/>
+                    <inset key="insetFor6xAndEarlier" minX="0.0" minY="20" maxX="0.0" maxY="-20"/>
+                    <state key="normal" title="登  录">
+                        <color key="titleShadowColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>
+                    </state>
+                </button>
+                <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" id="jPR-Rg-b8W">
+                    <rect key="frame" x="20" y="498" width="280" height="44"/>
+                    <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMinY="YES" flexibleMaxY="YES"/>
+                    <inset key="insetFor6xAndEarlier" minX="0.0" minY="20" maxX="0.0" maxY="-20"/>
+                    <state key="normal" title="我要开户">
+                        <color key="titleShadowColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>
+                    </state>
+                </button>
+                <navigationBar hidden="YES" contentMode="scaleToFill" id="ndT-TX-O6s">
+                    <rect key="frame" x="0.0" y="0.0" width="320" height="44"/>
+                    <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMaxY="YES"/>
+                    <inset key="insetFor6xAndEarlier" minX="0.0" minY="20" maxX="0.0" maxY="-20"/>
+                    <items>
+                        <navigationItem title="好贷劲" id="k4T-cz-eQL"/>
+                    </items>
+                </navigationBar>
+                <view contentMode="scaleToFill" id="ZiV-FU-FSf" userLabel="kaihuNumberView">
+                    <rect key="frame" x="20" y="179" width="280" height="44"/>
+                    <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMaxY="YES"/>
+                    <subviews>
+                        <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" id="fwd-Of-Evr" userLabel="kaihuNumberHeaderImageView">
+                            <rect key="frame" x="0.0" y="0.0" width="50" height="44"/>
+                            <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMaxY="YES"/>
+                        </imageView>
+                        <textField opaque="NO" clipsSubviews="YES" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" minimumFontSize="17" id="Sxe-78-g0c" userLabel="kaihuNumberField">
+                            <rect key="frame" x="50" y="0.0" width="230" height="44"/>
+                            <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMaxY="YES"/>
+                            <fontDescription key="fontDescription" type="system" pointSize="14"/>
+                            <textInputTraits key="textInputTraits"/>
+                        </textField>
+                    </subviews>
+                    <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="calibratedWhite"/>
+                    <inset key="insetFor6xAndEarlier" minX="0.0" minY="20" maxX="0.0" maxY="-20"/>
+                </view>
+                <view contentMode="scaleToFill" id="7t7-y7-xoG" userLabel="kaihuPasswordView">
+                    <rect key="frame" x="20" y="239" width="280" height="44"/>
+                    <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMaxY="YES"/>
+                    <subviews>
+                        <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" id="fTv-gh-kge" userLabel="kaihuPassHeaderImageView">
+                            <rect key="frame" x="0.0" y="0.0" width="50" height="44"/>
+                            <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMaxY="YES"/>
+                        </imageView>
+                        <textField opaque="NO" clipsSubviews="YES" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" minimumFontSize="17" id="etm-rp-Z7d" userLabel="kaihuPasswordField">
+                            <rect key="frame" x="50" y="0.0" width="220" height="44"/>
+                            <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMaxY="YES"/>
+                            <fontDescription key="fontDescription" type="system" pointSize="14"/>
+                            <textInputTraits key="textInputTraits"/>
+                        </textField>
+                    </subviews>
+                    <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="calibratedWhite"/>
+                    <inset key="insetFor6xAndEarlier" minX="0.0" minY="20" maxX="0.0" maxY="-20"/>
+                </view>
+                <view contentMode="scaleToFill" id="mDg-tm-ogj">
+                    <rect key="frame" x="20" y="283" width="280" height="30"/>
+                    <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMaxY="YES"/>
+                    <subviews>
+                        <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" id="zWt-51-z7Z" userLabel="rememberAccountButton">
+                            <rect key="frame" x="0.0" y="5" width="140" height="25"/>
+                            <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMaxY="YES"/>
+                            <state key="normal" title="记住帐号">
+                                <color key="titleShadowColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>
+                            </state>
+                        </button>
+                        <button hidden="YES" opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" id="oTG-eI-uZ2" userLabel="forgetSecretButton">
+                            <rect key="frame" x="140" y="5" width="140" height="25"/>
+                            <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMaxY="YES"/>
+                            <state key="normal" title="忘记密码?">
+                                <color key="titleShadowColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>
+                            </state>
+                        </button>
+                    </subviews>
+                    <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
+                    <inset key="insetFor6xAndEarlier" minX="0.0" minY="20" maxX="0.0" maxY="-20"/>
+                </view>
+            </subviews>
+            <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="calibratedWhite"/>
+            <simulatedStatusBarMetrics key="simulatedStatusBarMetrics"/>
+            <simulatedScreenMetrics key="simulatedDestinationMetrics" type="retina4"/>
+        </view>
+    </objects>
+</document>

@@ -1,0 +1,439 @@
+//
+//  LookProcessViewCtrl.m
+//  ApexiPhoneOpenAccount
+//
+//  Created by mac  on 14-3-22.
+//  Copyright (c) 2014年 mac . All rights reserved.
+//
+
+#import "LookProcessViewCtrl.h"
+
+@interface LookProcessViewCtrl (){
+    UITableView * processTable;
+    NSArray * cellNames;
+    NSArray * sectionNames;
+    NSArray * cellKeys;
+    float labelLength ;
+    float secSessionLabLen;
+}
+
+@end
+
+@implementation LookProcessViewCtrl
+
+- (id)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil
+{
+    self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil];
+    if (self) {
+        
+    }
+    return self;
+}
+
+- (void)viewDidLoad
+{
+    [self InitConfig];
+    [self InitWidgets];
+    
+    [super viewDidLoad];
+}
+
+- (void)InitConfig{
+    [self kaitongchaxun];
+    
+    [self.navigationItem setHidesBackButton:YES];
+    self.navigationController.navigationBar.translucent = NO;
+    bKeyBoardShow = NO;
+    labelLength = [PublicMethod getStringWidth:@"存管银行指定:" font:[UIFont systemFontOfSize:12]]+NormalSpace;
+    secSessionLabLen = [PublicMethod getStringWidth:@"深开放式基金帐户:" font:[UIFont systemFontOfSize:12]]+NormalSpace;
+    
+    [self.view setBackgroundColor:PAGE_BG_COLOR];
+    cellNames = [NSArray arrayWithObjects:
+                 [NSArray arrayWithObjects:
+                  @"姓名",
+                  @"身份证号",
+                  @"开户进度",
+                  @"客户号",
+                  @"资金帐号",
+                  @"存管银行指定", nil],
+                 [NSArray arrayWithObjects:
+                  @"上海A股帐户",
+                  @"深圳A股帐户",
+                  @"沪开放式基金帐户",
+                  @"深开放式基金帐户",
+                  nil], nil];
+    cellKeys = [NSArray arrayWithObjects:
+               [NSArray arrayWithObjects:
+                 @"khxm",
+                 @"zjbh",
+                 @"statename",
+                 @"gtkhh",
+                 @"zjzh",
+                 @"cgyhzdztsm", nil],
+               [NSArray arrayWithObjects:
+                @"GDDJ_SH",
+                @"GDDJ_SZ",
+                GDKH_HJ_KHBD,
+                GDKH_SJ_KHBD,
+                 nil], nil];
+    
+//    khbdInfo = [SJKHEngine Instance]->jbzl_Process_Dic;
+    
+    NSString * imageName = @"newkhjd_1";
+    NSString * headerStr = @"    您的开户申请正在审核中,审核结果将以短信的结果通知您.若审核通过,您也可通过马上开户的手机号登录,查询相关开通的帐户";
+    if([[khbdInfo objectForKey:GTKHH_KHBD]intValue] == 0){
+        imageName = @"newkhjd_1";
+        headerStr = @"    您的开户申请正在审核中,审核结果将以短信的结果通知您.若审核通过,您也可通过马上开户的手机号登录,查询相关开通的帐户";
+    }
+    else{
+        imageName = @"newkhjd_2";
+        headerStr = @"    恭喜,您已经开户成功";
+    }
+//    UIButton * backButton = (UIButton *)[self.navigationController.navigationBar viewWithTag:FigureButtonTag + 1];
+//    [backButton setImage:[UIImage imageNamed:imageName] forState:UIControlStateNormal];
+    
+    sectionNames = [NSArray arrayWithObjects:headerStr, @"股东帐户",nil];
+}
+
+
+- (void)kaitongchaxun{
+    [self activityIndicate:YES tipContent:@"正在查询进度..." MBProgressHUD:nil target:self.navigationController.view];
+    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+        NSString * urlComponent= [NSString stringWithFormat:@"%@://%@:%d%@", [SJKHEngine Instance]->isHttps?@"https":@"http",[SJKHEngine Instance]->doMain,[SJKHEngine Instance]->port,KHZTCX];
+        ASIFormDataRequest * theRequest = [self createASIRequest:urlComponent];
+        
+        NSArray *ar = [PublicMethod convertURLToArray:urlComponent];
+        [theRequest setPostValue:[SJKHEngine Instance]->SJHM
+                          forKey:@"sj"];
+        [theRequest startSynchronous];
+        if([self parseResponseData:theRequest]){
+            [self activityIndicate:NO tipContent:@"查询成功" MBProgressHUD:nil target:self.navigationController.view];
+        }else{
+            [self activityIndicate:NO tipContent:@"查询失败" MBProgressHUD:nil target:self.navigationController.view];
+        }
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [processTable reloadData];
+        });
+    });
+}
+
+- (void)InitWidgets{
+    processTable = [[UITableView alloc]initWithFrame:CGRectMake(0, 0 , screenWidth , screenHeight - UpHeight) style:UITableViewStyleGrouped];
+    processTable.delegate = self;
+    processTable.dataSource = self;
+    UIView * vi = [[UIView alloc]init];
+    [vi setBackgroundColor:[UIColor whiteColor]];
+    processTable.backgroundView = vi;
+    
+    UIBarButtonItem *refreshBtn = [[UIBarButtonItem alloc] initWithTitle:@"刷新" style:UIBarButtonSystemItemRefresh target:self action:@selector(refreshBtnClicked:)];
+    self.navigationItem.rightBarButtonItem = refreshBtn;
+    
+    
+    [self.view addSubview:processTable];
+//    [processTable setSeparatorStyle:UITableViewCellSeparatorStyleNone];
+//    [PublicMethod publicCornerBorderStyle:processTable];
+}
+
+
+- (void)refreshBtnClicked:(UIBarButtonItem *)btn{
+    [self InitConfig];
+}
+
+- (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView
+{
+	return 2;
+}
+
+- (YEorNO *)parseResponseData:(ASIFormDataRequest *)theRequest{
+    if(theRequest.responseData){
+        NSDictionary *dic = nil;
+        dic = [NSJSONSerialization JSONObjectWithData:theRequest.responseData options:NSJSONReadingMutableContainers error:Nil];
+        NSString * tip = nil;
+        NSString *testSTR = [dic objectForKey:NOTE];
+        if([dic objectForKey:NOTE]){
+            tip = [PublicMethod getNSStringFromCstring:[[dic objectForKey:NOTE] UTF8String]];
+        }
+        if(dic && [[dic objectForKey:SUCCESS] intValue] == 1){
+            [SJKHEngine Instance]->khjd_Dic = [dic mutableCopy];
+            if (((NSString *)[dic objectForKey:@"cgyhzdzt"]).intValue < 0) {
+                zhidingstate = yep;
+            }else{
+                zhidingstate = nop;
+            }
+            if ([[dic objectForKey:@"ZDSX_SH"] isEqualToString:@"1"] || [[dic objectForKey:@"ZDSX_SH"] isEqualToString:@"2"]) {
+                shstate = yep;
+            }else{
+                shstate = nop;
+            }
+            NSLog(@" zhidingstate = %d, shstate = %d",zhidingstate,shstate);
+            NSLog(@"%@",[SJKHEngine Instance]->khjd_Dic);
+            
+            return yep;
+        }
+        else{
+            return nop;
+        }
+    }
+    return nop;
+}
+
+- (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section
+{
+    NSUInteger count = ((NSArray *)[cellNames objectAtIndex:section]).count;
+    NSLog(@"%d,%d",section,count);
+    return count;
+}
+
+- (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath{
+    float labelWidth = indexPath.section ? secSessionLabLen : labelLength;
+    
+    static NSString *CellIdentifier = @"tableViewCellIdentify";
+	UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:CellIdentifier];
+    
+	if (cell == nil)
+	{
+        cell = [[UITableViewCell alloc]initWithStyle:UITableViewCellStyleDefault reuseIdentifier:CellIdentifier];
+	}
+    
+    for (UIView * vi in cell.contentView.subviews) {
+        [vi removeFromSuperview];
+    }
+    
+    int row = indexPath.row;
+    int section = indexPath.section;
+    
+    NSString * cellName = [NSString stringWithFormat:@"%@",[[cellNames objectAtIndex:section] objectAtIndex:row]];
+    UILabel *leftLabel = [PublicMethod initLabelWithFrame:CGRectMake(2*NormalSpace, 0, labelWidth, ButtonHeight) title:cellName target:cell.contentView];
+    leftLabel.font = [UIFont boldSystemFontOfSize:12];
+    [leftLabel setTextAlignment:UITextAlignmentRight];
+    leftLabel.textColor = TABLE_LEFT_TITLE_COLOR;
+    cellName = [NSString stringWithFormat:@"%@", [[SJKHEngine Instance]->khjd_Dic objectForKey:[[cellKeys objectAtIndex:section] objectAtIndex:row]]];
+    if ([cellName isEqualToString:@"(null)"] || [cellName isEqualToString:@"0"]) {
+        cellName = @"";
+    }
+    
+   
+    
+    leftLabel = [PublicMethod initLabelWithFrame:CGRectMake(labelWidth, 0 , cell.frame.size.width - labelWidth - 4*NormalSpace, ButtonHeight)
+                                           title:cellName
+                                          target:cell.contentView];
+    [leftLabel setTextAlignment:UITextAlignmentRight];
+    leftLabel.font = [UIFont systemFontOfSize:12];
+    leftLabel.textColor = [UIColor blackColor];
+    if (indexPath.section == 0 && indexPath.row == 5) {
+        if (zhidingstate) {
+            UIButton *btn = [UIButton buttonWithType:UIButtonTypeCustom];
+            btn.tag = 1011;
+            CGRect frame = leftLabel.frame;
+            btn.frame = CGRectMake(frame.origin.x, frame.origin.y + frame.size.height, frame.size.width, ButtonHeight);
+            [btn addTarget:self action:@selector(btnClicked:) forControlEvents:UIControlEventTouchUpInside];
+            [btn setTitle:@"重新指定 ->" forState:UIControlStateNormal];
+            UIEdgeInsets btnEdge = btn.titleEdgeInsets;
+            btnEdge.left = 150;
+            btnEdge.right = 0;
+            btn.titleEdgeInsets = btnEdge;
+            btn.font = [UIFont systemFontOfSize:12];
+            btn.backgroundColor = [UIColor clearColor];
+            [btn setTitleColor:[UIColor redColor] forState:UIControlStateNormal];
+            [cell.contentView addSubview:btn];
+            
+        }
+    }
+    if (indexPath.section && indexPath.row == 0) {
+        if (shstate) {   // 调试后恢复
+            UIButton *btn = [UIButton buttonWithType:UIButtonTypeCustom];
+            btn.tag = 1012;
+            CGRect frame = leftLabel.frame;
+            btn.frame = CGRectMake(frame.origin.x, frame.origin.y + frame.size.height, frame.size.width, ButtonHeight);
+            [btn addTarget:self action:@selector(btnClicked:) forControlEvents:UIControlEventTouchUpInside];
+            [btn setTitle:@"重新指定 ->" forState:UIControlStateNormal];
+            UIEdgeInsets btnEdge = btn.titleEdgeInsets;
+            btnEdge.left = 130;
+            btnEdge.right = 0;
+            
+            btn.titleEdgeInsets = btnEdge;
+            btn.font = [UIFont systemFontOfSize:12];
+            btn.backgroundColor = [UIColor clearColor];
+            [btn setTitleColor:[UIColor redColor] forState:UIControlStateNormal];
+            [cell.contentView addSubview:btn];
+        }
+    }
+    
+    
+    [cell setSelectionStyle:UITableViewCellSelectionStyleNone];
+    
+    return cell;
+}
+
+- (void)btnClicked:(UIButton *)btn{
+    if (btn.tag == 1011) {
+        RepointBankViewCtrl *bankVC= [[RepointBankViewCtrl alloc] init];
+        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+            [self dispatchBankVC:bankVC];
+        });
+    }else if (btn.tag == 1012){
+        [self activityIndicate:YES tipContent:@"正在重新指定股东帐号" MBProgressHUD:nil target:self.navigationController.view];
+        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+            [self pointToCount];
+        });
+    }
+}
+
+- (void)pointToCount{
+    YEorNO resault = nop;
+    NSString * urlComponent= [NSString stringWithFormat:@"%@://%@:%d%@", [SJKHEngine Instance]->isHttps?@"https":@"http",[SJKHEngine Instance]->doMain,[SJKHEngine Instance]->port,REPOINTCOUNT];
+    NSURL * URL = [NSURL URLWithString:urlComponent];
+    ASIFormDataRequest * theRequest = [ASIFormDataRequest requestWithURL:URL];
+    [theRequest setValidatesSecureCertificate:NO];
+    [theRequest setClientCertificateIdentity:[SJKHEngine Instance]->identify];
+    [theRequest setAllowCompressedResponse:NO];
+    [theRequest setTimeOutSeconds:10];
+    NSLog(@"%@,%@",[[SJKHEngine Instance]->khbd_info_Dic objectForKey:@"KHH"],[[SJKHEngine Instance]->khbd_info_Dic objectForKey:@"GDH"] );
+    [theRequest setPostValue:[[SJKHEngine Instance]->khbd_info_Dic objectForKey:@"KHH"] forKey:@"khh"];
+#ifndef SelectTest
+    [theRequest setPostValue:@"1111111" forKey:@"gdh"];
+#else
+    [theRequest setPostValue:[[SJKHEngine Instance]->khbd_info_Dic objectForKey:@"GDH"] forKey:@"gdh"];
+#endif
+    [theRequest startSynchronous];
+    NSDictionary *responseDic;
+    resault = [self parseResponseData:theRequest dic:&responseDic];
+    if (resault) {
+        [self activityIndicate:NO tipContent:@"重新指定股东帐号成功" MBProgressHUD:nil target:nil];
+    }else{
+        [self activityIndicate:NO tipContent:@"新指定股东帐号失败" MBProgressHUD:nil target:nil];
+    }
+}
+
+- (void)dispatchBankVC:(RepointBankViewCtrl *)bankVC{
+    NSDictionary * stepDictionary = nil;
+    if([self sendSaveCurrentStepKey:CGZD_STEP dataDictionary:&stepDictionary]){
+        BOOL ok = [self sendGoToStep:CGZD_STEP dataDictionary:&stepDictionary];
+        if(ok){
+            [SJKHEngine Instance]->cgzd_step_Dic = [stepDictionary mutableCopy];
+            bankVC->filterArray = [NSMutableArray array];
+            for (NSDictionary * yhDic in [[SJKHEngine Instance]->cgzd_step_Dic objectForKey:CGYHARR_CGYH]) {
+                [bankVC->filterArray addObject:[yhDic objectForKey:YHMC_CGYH]];
+            }
+            
+            dispatch_async(dispatch_get_main_queue(), ^{
+                [self activityIndicate:NO tipContent:nil MBProgressHUD:nil target:nil];
+                [self.navigationController pushViewController:bankVC animated:YES];
+                [bankVC updateUI];
+            });
+        }
+        else {
+            [self activityIndicate:NO tipContent:@"加载存管银行页面失败" MBProgressHUD:nil target:nil];
+            [[SJKHEngine Instance] dispatchMessage:POP_MESSAGE];
+        }
+    }
+}
+
+-(void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath{
+    
+}
+
+- (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath{
+    if (indexPath.section == 0 && indexPath.row == 5) {
+        if (zhidingstate) {
+            return 2 * ButtonHeight;
+        }
+    }
+    if(indexPath.section == 1 && indexPath.row == 0) {
+        if(shstate){   // 调试后恢复
+            return 2 *ButtonHeight;
+        }
+    }
+    return ButtonHeight;
+}
+
+- (CGFloat)tableView:(UITableView *)tableView heightForHeaderInSection:(NSInteger)section{
+//    NSString * title = [NSString stringWithFormat:@"%@",[sectionNames objectAtIndex:section]];
+//    [PublicMethod trimSpecialCharacters:&title];
+//    CGSize size = [PublicMethod getStringSize:title font:TipFont];
+//    int numberLines = size.width / processTable.frame.size.width;
+//    NSLog(@"section 0=%i,%@,%i",section,title,numberLines);
+//    return 60 * (numberLines + 1);
+    
+    return [super getHeightForHeaderString:[sectionNames objectAtIndex:section] size:CGSizeMake(processTable.frame.size.width , CGFLOAT_MAX)];
+}
+
+- (UIView *)tableView:(UITableView *)tableView viewForHeaderInSection:(NSInteger)section
+{
+    UIButton * headerButton = [UIButton buttonWithType:UIButtonTypeCustom];
+//    [headerButton setBackgroundColor:LikeWhiteColor];
+    NSString * title = [sectionNames objectAtIndex:section];
+    [PublicMethod trimSpecialCharacters:&title];
+    CGSize size = [PublicMethod getStringSize:title font:PublicBoldFont];
+    int numberLines = size.width / processTable.frame.size.width;
+    
+    [headerButton setFrame:CGRectMake(0, levelSpace, processTable.frame.size.width,[super getHeightForHeaderString:[sectionNames objectAtIndex:section] size:CGSizeMake(processTable.frame.size.width , CGFLOAT_MAX)])];
+    [headerButton setContentHorizontalAlignment:UIControlContentHorizontalAlignmentLeft];
+    headerButton.titleLabel.numberOfLines = numberLines + 1;
+    headerButton.titleLabel.font = PublicBoldFont;
+    headerButton.titleLabel.lineBreakMode = NSLineBreakByWordWrapping;
+    [headerButton setTitle:title forState:UIControlStateNormal];
+    [headerButton setTitleEdgeInsets:UIEdgeInsetsMake(0, NormalSpace, 0, NormalSpace)];
+    [headerButton setTitleColor:WARN_TITLE_COLOR forState:UIControlStateNormal];
+//      [headerButton addSubview:[PublicMethod getSepratorLine:CGRectMake(0, headerButton.frame.size.height-0.5,table_view.frame.size.width , 0.5) alpha:1]];
+    return headerButton;
+}
+
+- (NSString *)tableView:(UITableView *)tableView titleForHeaderInSection:(NSInteger)section{
+    return [sectionNames objectAtIndex:section];
+}
+
+- (void)updateUI{
+    [super updateUI];
+    
+    dispatch_async(dispatch_get_main_queue(), ^{
+        if(processTable.superview == nil){
+            [self.view addSubview:processTable];
+        }
+        else {
+            [processTable reloadData];
+        }
+    });
+    
+//    NSIndexSet *set = [[NSIndexSet alloc]initWithIndex:0];
+//    NSArray *ar = [NSArray arrayWithObjects:set, nil];
+//    [processTable insertSections:set withRowAnimation:UITableViewRowAnimationTop];
+    
+//    if(isInsert){
+//        [filterArray addObject:@"交易密码"];
+//        [table_view insertRowsAtIndexPaths:ar withRowAnimation:UITableViewRowAnimationTop];
+//    }
+//    else{
+//        [filterArray removeObjectAtIndex:1];
+//        [table_view deleteRowsAtIndexPaths:ar withRowAnimation:UITableViewRowAnimationBottom];
+//    }
+    
+//    UIButton * headerButton = [UIButton buttonWithType:UIButtonTypeCustom];
+//    [headerButton setBackgroundColor:LikeWhiteColor];
+//    NSString * title = [sectionNames objectAtIndex:0];
+//    [PublicMethod trimSpecialCharacters:&title];
+//    CGSize size = [PublicMethod getStringSize:title font:PublicBoldFont];
+//    int numberLines = size.width / processTable.frame.size.width;
+//
+//    [headerButton setFrame:CGRectMake(0, levelSpace, processTable.frame.size.width, 50 *(numberLines + 1))];
+//    [headerButton setContentHorizontalAlignment:UIControlContentHorizontalAlignmentLeft];
+//    headerButton.titleLabel.numberOfLines = numberLines + 1;
+//    headerButton.titleLabel.font = PublicBoldFont;
+//    headerButton.titleLabel.lineBreakMode = NSLineBreakByWordWrapping;
+//    [headerButton setTitle:title forState:UIControlStateNormal];
+//    [headerButton setTitleColor:[UIColor blackColor] forState:UIControlStateNormal];
+//    processTable.tableHeaderView = headerButton;
+    
+    
+}
+
+- (void)dealloc{
+    NSLog(@"进度页面回收");
+}
+
+- (void)didReceiveMemoryWarning
+{
+    [super didReceiveMemoryWarning];
+}
+
+@end

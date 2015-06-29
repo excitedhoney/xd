@@ -1,0 +1,386 @@
+//
+//  AccountTypeViewCtrl.m
+//  ApexiPhoneOpenAccount
+//
+//  Created by mac  on 14-3-11.
+//  Copyright (c) 2014年 mac . All rights reserved.
+//
+
+#import "AccountTypeViewCtrl.h"
+#import "SecretSetViewCtrl.h"
+#import "CertHandle.h"
+
+#define SelectTag 817
+
+@interface AccountTypeViewCtrl (){
+    UIView * centerView;
+    NSArray * selectNames;
+    UIButton * readZRS ;
+}
+
+@end
+
+@implementation AccountTypeViewCtrl
+@synthesize infosec = _infosec;
+
+- (id)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil
+{
+    self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil];
+    if (self) {
+        
+    }
+    return self;
+}
+
+- (void)viewDidLoad
+{
+    [self InitConfig];
+    [self InitWidgets];
+    [super viewDidLoad];
+}
+
+- (void)InitConfig{
+    /*
+     NSMutableArray *stepDic= [NSMutableArray arrayWithCapacity:0];
+     stepDic = [SJKHEngine Instance]->zqzh_step_Dic;
+     if (stepDic && stepDic.count) {
+     
+     }
+*/
+    NSMutableArray *stepDic= [NSMutableArray arrayWithCapacity:0];
+    stepDic = [SJKHEngine Instance]->zqzh_step_Dic;
+    if (stepDic && stepDic.count) {
+        NSLog(@"%@",stepDic);
+    }
+    
+    [self.view setBackgroundColor:PAGE_BG_COLOR];
+    self.view.bounds = CGRectMake(0, 0, screenWidth, self.view.bounds.size.height);
+//    UIButton * backButton = (UIButton *)[self.navigationController.navigationBar viewWithTag:FigureButtonTag + 1];
+//    [backButton setImage:[UIImage imageNamed:@"step_2"] forState:UIControlStateNormal];
+    
+    [self.navigationItem setHidesBackButton:YES];
+}
+
+- (void)InitWidgets{
+    [self InitScrollView];
+    scrollView.delegate=self;
+    [scrollView setContentSize:CGSizeMake(screenWidth, screenHeight - UpHeight)];
+    
+    int labelHeight = 40;
+    CGSize centerViewSize = CGSizeMake(screenWidth - 2* levelSpace, 100);
+//    CGSize installButtonSize = CGSizeMake(150, 44);
+    int itemLevelSpace = 25;
+    int itemWidth = centerViewSize.width / 2 - itemLevelSpace ;
+    int itemHeight = 40;
+    
+    UILabel *la=[[UILabel alloc]initWithFrame: CGRectMake(levelSpace, 0, screenWidth, labelHeight)];
+	la.backgroundColor = [UIColor clearColor];
+    [la setText:@"请您选择欲开通的帐户"];
+	[la setFont: TipFont];
+    la.textAlignment = NSTextAlignmentLeft;
+	[la setTextColor: GrayTipColor_Wu];
+    la.lineBreakMode = NSLineBreakByTruncatingTail;
+    [scrollView addSubview:la];
+    
+    centerView = [[UIView alloc]initWithFrame:CGRectMake(levelSpace,
+                                                         labelHeight,
+                                                         centerViewSize.width,
+                                                         centerViewSize.height*1.5)];
+    [centerView setBackgroundColor:LikeWhiteColor];
+    [PublicMethod publicCornerBorderStyle:centerView];
+    centerView.userInteractionEnabled = YES;
+    [scrollView addSubview:centerView];
+    
+    NSString * attributeTitle = @"我已阅读并完全理解";
+    for(NSDictionary * xyDic in [SJKHEngine Instance]->zqzh_step_Dic){
+        attributeTitle =[attributeTitle stringByAppendingFormat:@"\r\n<<%@>>",[xyDic objectForKey:XYBT_ZQZH]];
+    }
+    selectNames = [NSArray arrayWithObjects:@"上海A股",@"深圳A股",@"沪开放式基金帐户",@"深开放式基金帐户",attributeTitle, nil];
+    
+    int i = 0;
+    int markWidth = 25;
+    for(; i<4;i++){
+        CGRect frame =CGRectMake
+        (itemLevelSpace + itemWidth*(i<2 ? i : i-2),
+         centerViewSize.height/2 - 50/2 + i/2 * 60,
+         itemWidth,
+         itemHeight);
+        UIButton * selectImageButton = [self createSelectImageButton:SelectTag + i withFrame:CGRectMake (frame.origin.x,
+                                                              frame.origin.y + itemHeight/2 - markWidth/2,
+                                                              markWidth,
+                                                              markWidth)
+                                                   ];
+        [selectImageButton setUserInteractionEnabled:YES];
+        [selectImageButton addTarget:self action:@selector(onSelectButton:) forControlEvents:UIControlEventTouchUpInside];
+        [centerView addSubview:selectImageButton];
+        UIButton * selectTitleButton = [self createSelectTitleButton:SelectTag - 4 + i
+                                                           withFrame:CGRectMake
+                                        (frame.origin.x + markWidth,
+                                         frame.origin.y + itemHeight/2 - 40/2,
+                                         frame.size.width - markWidth,
+                                         40)
+                                                               title:[selectNames objectAtIndex:i]];
+        [selectTitleButton addTarget:self action:@selector(onSelectTitleButton:) forControlEvents:UIControlEventTouchUpInside];
+        [selectTitleButton setUserInteractionEnabled:YES];
+        [centerView addSubview:selectTitleButton];
+        
+    }
+
+    //最后一个options不能被点击。待调试。
+    NSMutableArray * options = [NSMutableArray array];
+    for(NSDictionary * xyDic in [SJKHEngine Instance]->zqzh_step_Dic){
+        [options addObject:[xyDic objectForKey:ID]];
+    }
+    
+    float readZRSHeight = [super getHeightForHeaderString:attributeTitle size:CGSizeMake(centerViewSize.width - ButtonHeight , CGFLOAT_MAX)];
+//    readZRSHeight = readZRSHeight + 30;
+    
+    readZRS = [PublicMethod InitReadXYWithAttributeLabel:attributeTitle
+                                               withFrame:CGRectMake(levelSpace,
+                                                                    labelHeight + centerViewSize.height * 1.5 + verticalHeight,
+                                                                    centerViewSize.width ,
+                                                                    readZRSHeight)
+                                                     tag:i + SelectTag
+                                                  target:self
+                                                 options:options
+                                               superView:scrollView];
+//    NSLog(@"options =%@",options);
+    
+    [self InitNextStepButton:CGRectMake(levelSpace,
+                                        readZRS.frame.origin.y + readZRS.frame.size.height + verticalHeight,
+                                        screenWidth - 2 * levelSpace ,
+                                        44)
+                         tag:0
+                       title:@"下一步"];
+    [self chageNextStepButtonStype:NO];
+    [scrollView addSubview:nextStepBtn];
+    
+    if([attributeTitle isEqualToString:@"我已阅读并完全理解"]){
+        [readZRS setHidden:YES];
+        [readZRS setSelected:YES];
+        [self chageNextStepButtonStype:YES];
+    }
+    
+    [self.view addSubview:scrollView];
+    
+    [scrollView setContentSize:CGSizeMake(screenWidth, nextStepBtn.frame.origin.y + 44 + 2 * verticalHeight)];
+    
+    [super InitWidgets];
+}
+
+//- (void)onSelectButtonGesture:(UIGestureRecognizer *)gesture{
+//    NSLog(@"gestuer view =%@",[gesture view]);
+//}
+
+- (void)onSelectButton:(UIButton *)btn{
+    int tagTemp = SelectTag + 1;
+    [self buttonHandle:btn];
+}
+
+- (void)buttonHandle:(UIButton *)btn{
+    int tagTemp = SelectTag + 1;
+    if (btn.selected && btn.tag <= tagTemp) {
+        UIButton * btnRev = (UIButton *)[centerView viewWithTag:btn.tag + 2];
+        btn.selected = !btn.selected;
+        btnRev.selected = btn.selected;
+    }else if(btn.tag > tagTemp && !btn.selected){
+        UIButton * btnRev = (UIButton *)[centerView viewWithTag:btn.tag - 2];
+        btn.selected = !btn.selected;
+        btnRev.selected = btn.selected;
+    }else{
+        btn.selected = !btn.selected;
+    }
+}
+
+- (void)onSelectTitleButton:(UIButton *)btn{
+    UIButton *targetBtn = (UIButton *)[centerView viewWithTag:btn.tag + 4];
+    [self buttonHandle:targetBtn];
+}
+
+
+
+- (void)onButtonClick:(UIButton *)btn{
+    if(btn.tag == MarkBtnTag){
+        if(!readZRS.isSelected){
+            [btn setBackgroundImage:[UIImage imageNamed:@"checkBox_checked"] forState:UIControlStateNormal];
+            [readZRS  setSelected:YES];
+            [self chageNextStepButtonStype:YES];
+        }
+        else{
+            [btn setBackgroundImage:[UIImage imageNamed:@"checkBox_default"] forState:UIControlStateNormal];
+            [readZRS setSelected:NO];
+            [self chageNextStepButtonStype:NO];
+        }
+        return ;
+    }
+    
+    UIButton * SHButton = (UIButton *)[centerView viewWithTag:SelectTag];
+    UIButton * SZButton = (UIButton *)[centerView viewWithTag:SelectTag + 1];
+    UIButton * SHOButton = (UIButton *)[centerView viewWithTag:SelectTag + 2];
+    UIButton * SZOButton = (UIButton *)[centerView viewWithTag:SelectTag + 3];
+    
+    if(SHButton.selected==NO && SZButton.selected==NO && SHOButton.selected==NO && SZOButton.selected==NO){
+        UIAlertView * alertview = [[UIAlertView alloc] initWithTitle:Nil message:@"请选择欲开通的帐户" delegate:self cancelButtonTitle:nil otherButtonTitles:@"确定", nil];
+        [alertview show];
+        return ;
+    }
+    if(readZRS.selected == NO ){
+        UIAlertView * alertview = [[UIAlertView alloc] initWithTitle:Nil message:@"请阅读协议书" delegate:self cancelButtonTitle:nil otherButtonTitles:@"确定", nil];
+        [alertview show];
+        return ;
+    }
+    
+    NSDictionary * dic =nil;
+    
+    NSString * mark = 0;
+    if(SHButton.selected && SZButton.selected){
+        mark = @"3";
+    }
+    else if(SZButton.selected){
+        mark = @"2";
+    }
+    else if(SHButton.selected){
+        mark = @"1";
+    }
+    else{
+        mark = @"0";
+    }
+    
+    NSString *mark2 = nil;
+    if (SHOButton.selected && SZOButton.selected) {
+        mark2 = @"498;499";
+    }else if(SHOButton.selected){
+        mark2 = @"498";
+    }else if(SZOButton.selected){
+        mark2 = @"499";
+    }
+    
+    CertHandle *certClass = [CertHandle defaultCertHandle];
+    
+    if(![certClass vailCert]){
+        return;
+    }
+    
+    NSMutableDictionary * saveDic = [NSMutableDictionary dictionaryWithObjectsAndKeys:
+                                     mark,IBY1_ZQZH,
+                                     [NSArray arrayWithObjects:
+                                      [NSDictionary dictionaryWithObjectsAndKeys:
+                                       [[[SJKHEngine Instance]->zqzh_step_Dic objectAtIndex:0] objectForKey:@"ID"],HTXY_CGYH,
+                                       @"",XYBH_OCR,
+                                       [SJKHEngine Instance]->qmlsh,QMLSH_CGYH,nil],
+                                      [NSDictionary dictionaryWithObjectsAndKeys:
+                                       [[[SJKHEngine Instance]->zqzh_step_Dic objectAtIndex:1] objectForKey:@"ID"],HTXY_CGYH,
+                                       @"",XYBH_OCR,
+                                      [SJKHEngine Instance]->qmlsh,QMLSH_CGYH,nil]
+                                      , nil],XYSTR_OCR,
+                                     mark2,SQJJZH_ZQZH,
+                                     nil];
+
+    /*
+     ""zqzh"":{""IBY1"":3,""XYSTR"":[{""HTXY"":""1"",""XYBH"":"""",""QMLSH"":""2012""},{""HTXY"":""2"",""XYBH"":"""",""QMLSH"":""2012""},{""HTXY"":""5"",""XYBH"":"""",""QMLSH"":""2012""}]}
+     */
+    [self sendSaveStepInfo:ZQZH_STEP dataDictionary:&dic arrar:saveDic];
+
+    while (!bSaveStepFinish) {
+        [[NSRunLoop currentRunLoop] runMode:NSDefaultRunLoopMode beforeDate:[NSDate distantFuture]];
+    }
+    
+    if(bSaveStepSuccess){
+        [self activityIndicate:YES tipContent:@"加载密码设置信息..." MBProgressHUD:nil target:self.navigationController.view];
+
+        SecretSetViewCtrl * secretVC = [[SecretSetViewCtrl alloc]init];
+        
+        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+            [self dispatchSecretVC:secretVC];
+        });
+    }
+    else {
+        [self activityIndicate:NO tipContent:@"保存失败" MBProgressHUD:nil target:nil];
+    }
+}
+
+- (void)dispatchSecretVC:(SecretSetViewCtrl *)secretVC{
+    NSDictionary * stepDictionary = nil;
+    if([self sendSaveCurrentStepKey:MMSZ_STEP dataDictionary:&stepDictionary]){
+        BOOL ok = [self sendGoToStep:MMSZ_STEP dataDictionary:&stepDictionary];
+        if(ok){
+            [SJKHEngine Instance]->mmsz_step_Dic = [stepDictionary mutableCopy];
+            NSMutableArray * ar = [[SJKHEngine Instance]->mmsz_step_Dic objectForKey:RMMARR_MMSZ];
+            secretVC->rmmArray = [NSMutableArray array];
+            for (NSDictionary * rmm in ar) {
+                [secretVC->rmmArray addObject:[rmm objectForKey:@"MM"]];
+            }
+            dispatch_async(dispatch_get_main_queue(), ^{
+                [self activityIndicate:NO tipContent:nil MBProgressHUD:nil target:nil];
+                [self.navigationController pushViewController:secretVC animated:YES];
+                if ([SJKHEngine Instance]->mmsz_step_Dic &&
+                    [SJKHEngine Instance]->mmsz_step_Dic.count > 0)
+                {
+                    [secretVC updateUI];
+                }
+                else {
+                    [self activityIndicate:NO tipContent:@"加载密码设置页面失败" MBProgressHUD:nil target:nil];
+                }
+            });
+        }
+        else {
+            [self activityIndicate:NO tipContent:@"加载密码设置页面失败" MBProgressHUD:nil target:nil];
+            [[SJKHEngine Instance] dispatchMessage:POP_MESSAGE];
+        }
+    }
+}
+
+- (void)updateUI{
+    [super updateUI];
+    dispatch_async(dispatch_get_main_queue(), ^{
+        
+    });
+}
+
+- (void)attributedLabel:(TTTAttributedLabel *)label didSelectLinkWithURL:(NSURL *)url {
+    if([label.text componentsSeparatedByString:@"<<"].count == 2){
+        UIButton * markBtn = (UIButton *)[readZRS viewWithTag:MarkBtnTag];
+        if(!readZRS.isSelected){
+            [markBtn setBackgroundImage:[UIImage imageNamed:@"checkBox_checked"] forState:UIControlStateNormal];
+            [readZRS setSelected:YES];
+            [self chageNextStepButtonStype:YES];
+        }
+    }
+    
+    NSString * contentText = Nil;
+    for(NSDictionary * xyDic in [SJKHEngine Instance]->zqzh_step_Dic){
+        if([[xyDic objectForKey:ID] isEqualToString:[url absoluteString]]){
+            contentText = [xyDic objectForKey:XYNR_ZQZH];
+        }
+    }
+    if(contentText){
+        [self showCustomAlertViewContent:YES htmlString:contentText];
+    }
+    else{
+        [self activityIndicate:NO tipContent:@"没有协议文本" MBProgressHUD:nil target:self.navigationController.view];
+    }
+}
+
+- (void) showCustomAlertViewContent:(BOOL)isShow htmlString:(NSString *)htmlString{
+    if(isShow){
+        [[SJKHEngine Instance] createCustomAlertView];
+        [SJKHEngine Instance]->_customAlertView->htmlKey = XYZRS_NAME;
+        [[SJKHEngine Instance]->_customAlertView setTarget:self withSEL:@selector(showCustomAlertViewContent:htmlString:)];
+        [[SJKHEngine Instance] JBZLCustomAlertViewXYZRS:YES htmlString:htmlString];
+    }
+    else{
+        [[SJKHEngine Instance] JBZLCustomAlertViewXYZRS:NO htmlString:nil];
+        [SJKHEngine Instance]->_customAlertView = nil;
+    }
+}
+
+- (void)didReceiveMemoryWarning
+{
+    [super didReceiveMemoryWarning];
+}
+
+- (void)dealloc{
+    NSLog(@"帐户类型回收");
+}
+
+@end

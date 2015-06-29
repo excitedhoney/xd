@@ -1,0 +1,706 @@
+//
+//  ClientInfoViewCtrl.m
+//  ApexiPhoneOpenAccount
+//
+//  Created by mac  on 14-3-8.
+//  Copyright (c) 2014年 mac . All rights reserved.
+//
+
+#import "ClientInfoViewCtrl.h"
+#import "VideoWitnessViewCtrl.h"
+#import <QuartzCore/QuartzCore.h>
+
+#define JBZL_VIEW_TAG 2098
+#define JBZL_BUTTON_TAG 16
+
+@interface ClientInfoViewCtrl (){
+    NSArray * fieldNames;
+    NSMutableArray * fieldTexts;
+    int scrollSpace ;
+    CGSize normalSize ;
+    UITextField * tipField;
+    NSArray * fieldKeys;
+    int localVericalSpace;
+    UIButton * requestZRS;
+    NSMutableDictionary * tipIDs;
+    UITextField *ocusView;
+    NSArray *characterLimtedWarnArr;
+    NSArray *nullCharacterWarnArr;
+}
+
+@end
+
+@implementation ClientInfoViewCtrl
+
+int characterLimitedArr[5] = {8,30,50,50,6};
+
+- (id)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil
+{
+    self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil];
+    if (self) {
+        
+    }
+    return self;
+}
+
+- (void)viewDidLoad
+{
+    [self InitConfig];
+	[self InitWidgets];
+    [super viewDidLoad];
+}
+
+- (void)viewDidAppear:(BOOL)animated{
+#ifndef SelectTest
+    if(!jbzl_step_OCR_Dic || jbzl_step_OCR_Dic.count == 0){
+        [self activityIndicate:YES tipContent:@"照片识别中..." MBProgressHUD:nil target:self.navigationController.view];
+        [self performSelector:@selector(stopHUDOCRTip) withObject:Nil afterDelay:15];
+    }
+#endif
+    
+    [super viewDidAppear:animated];
+//    [self addGesture:self.navigationController.navigationBar];
+}
+
+- (void)viewWillDisappear:(BOOL)animated{
+    [super viewWillDisappear:animated];
+//    [self.navigationController.navigationBar removeGestureRecognizer:singleTapRecognizer];
+    
+    [self resignAllResponse];
+    [super viewWillDisappear:animated];
+}
+
+- (void)didReceiveMemoryWarning
+{
+    [super didReceiveMemoryWarning];
+}
+
+- (void) InitConfig{
+    //    [super InitConfig];
+    [self.view setBackgroundColor:PAGE_BG_COLOR];
+    self.view.bounds = CGRectMake(0, 0, screenWidth, self.view.bounds.size.height);
+    bKeyBoardShow = NO;
+    scrollSpace = 0;
+    tipField = nil;
+    localVericalSpace = 5;
+    tipIDs = [[NSMutableDictionary alloc]init];
+    characterLimtedWarnArr = [NSArray arrayWithObjects:
+                              @"姓名必须少于8个字",
+                              @"身份证号码必须30个字符",
+                              @"证件地址必须少于50个字",
+                              @"联系地址必须少于50个字",
+                              @"邮编必须是6位数字",
+                              nil];
+    nullCharacterWarnArr = [NSArray arrayWithObjects:
+                            @"请输入姓名",
+                            @"请输入身份证号码",
+                            @"请输入证件地址",
+                            @"请输入联系地址",
+                            @"请输入邮编",
+                            @"请选择职业",
+                            @"请选择学历",
+                            nil];
+    
+    [self.navigationItem setHidesBackButton:YES];
+}
+
+- (void) InitWidgets{
+    [super InitWidgets];
+    [self InitScrollView];
+    self.view.backgroundColor = PAGE_BG_COLOR;
+    scrollView.delegate=self;
+    
+    int viewHeight = screenHeight - UpHeight;
+    int labelHeight = 40;
+    int fieldHeight = 44;
+    
+    UILabel *la=[[UILabel alloc]initWithFrame: CGRectMake(0, 0, screenWidth, labelHeight)];
+	la.backgroundColor = [UIColor clearColor];
+    [la setText:@"请填写以下信息"];
+	[la setFont: TipFont];
+    la.textAlignment = NSTextAlignmentCenter;
+	[la setTextColor: GrayTipColor_Wu];
+    la.lineBreakMode = NSLineBreakByTruncatingTail;
+    [scrollView addSubview:la];
+    
+    fieldNames = [NSArray arrayWithObjects:@"姓   名",@"身份证号码",@"证件地址",@"联系地址",@"邮   编",@"职   业",@"学   历",nil];
+    fieldTexts = [NSMutableArray array];
+    fieldKeys = [NSArray arrayWithObjects:
+                 KHXM_OCR,
+                 ZJBH_OCR,
+                 ZJDZ_OCR,
+                 LXDZ_OCR,
+                 YZBM_OCR,
+                 ZY_UPLOAD_JBZL,
+                 XL_UPLOAD_JBZL ,
+                 nil];
+    
+    if([SJKHEngine Instance]->jbzl_user_datas.count == 0){
+        for (int i=0; i<fieldNames.count;i++) {
+            [[SJKHEngine Instance]->jbzl_user_datas addObject:@""];
+        }
+    }
+    
+    int i = 0;
+    for (; i < fieldNames.count; i++) {
+        UITextField * editEditor = [[UITextField alloc] initWithFrame: CGRectMake(levelSpace , labelHeight + (localVericalSpace + fieldHeight) * i, screenWidth - levelSpace * 2, fieldHeight)];
+        editEditor.backgroundColor = [UIColor clearColor];
+        editEditor.delegate=self;
+        editEditor.tag = JBZL_VIEW_TAG + i;
+        editEditor.borderStyle = UITextBorderStyleNone;
+        editEditor.keyboardType = UIKeyboardTypeDefault;
+        editEditor.clearButtonMode = UITextFieldViewModeWhileEditing;
+        editEditor.contentVerticalAlignment = UIControlContentVerticalAlignmentCenter;
+        [editEditor setTextAlignment:NSTextAlignmentLeft];
+        [editEditor setFont: FieldFont];
+        editEditor.layer.borderColor = FieldNormalColor.CGColor;
+        editEditor.layer.cornerRadius = 2;
+        editEditor.layer.masksToBounds = YES;
+        editEditor.layer.borderWidth = 0.5;
+        [editEditor positSpace:yep];
+        if (i == fieldNames.count - 3) {
+            editEditor.keyboardType = UIKeyboardTypeNumberPad;
+        }
+        
+        NSString * fieldText = nil;
+        if(i < fieldNames.count - 2){
+            fieldText = [jbzl_step_OCR_Dic objectForKey:[fieldKeys objectAtIndex:i]];
+            if(fieldText && fieldText.length > 0){
+                [editEditor setText:fieldText];
+            }
+            else{
+                [editEditor setPlaceholder:fieldNames[i]];
+            }
+        }
+        else {
+            [editEditor setPlaceholder:fieldNames[i]];
+        }
+        
+        //写代码没有小心，原来是这个里的index:0出了问题。
+        if([SJKHEngine Instance]->jbzl_user_datas.count > i){
+            NSString * editorText = [[SJKHEngine Instance]->jbzl_user_datas objectAtIndex:i];
+            if(editorText && editorText.length > 0){
+                [editEditor setText:editorText];
+            }
+        }
+        
+        [editEditor setTextColor: FieldFontColor];
+        
+        if(i > fieldNames.count - 3){
+            UIButton * btn = [[UIButton alloc]initWithFrame:CGRectMake (0, 0 , editEditor.frame.size.width, 44)];
+            btn.tag = JBZL_BUTTON_TAG + i;
+            [btn setBackgroundImage:[UIImage imageNamed:@"select_default"] forState:UIControlStateNormal];
+            [btn setBackgroundImage:[UIImage imageNamed:@"select_hot"] forState:UIControlStateHighlighted];
+            [btn addTarget: self action: @selector(onButtonClick:) forControlEvents: UIControlEventTouchUpInside];
+            
+            [editEditor addSubview:btn];
+        }
+        [scrollView addSubview:editEditor];
+    }
+    
+    [self InitNextStepButton:CGRectMake(levelSpace,
+                                        360 + fieldHeight + localVericalSpace  - 3,
+                                        screenWidth - 2*levelSpace ,
+                                        fieldHeight + 3)
+                         tag:JBZL_VIEW_TAG + i + 1
+                       title:@"下一步"];
+    [self chageNextStepButtonStype:NO];
+    [scrollView addSubview:nextStepBtn];
+    normalSize = CGSizeMake(screenWidth, nextStepBtn.frame.origin.y + fieldHeight + 3 * localVericalSpace);
+    [scrollView setContentSize:normalSize];
+    
+    [self.view addSubview:scrollView];
+    
+    [self addGesture:scrollView];
+    
+}
+
+- (void) showCustomAlertViewContent:(BOOL)isShow htmlString:(NSString *)htmlString{
+    if(isShow){
+        [[SJKHEngine Instance] createCustomAlertView];
+        [SJKHEngine Instance]->_customAlertView->htmlKey = XYZRS_NAME;
+        [[SJKHEngine Instance]->_customAlertView setTarget:self withSEL:@selector(showCustomAlertViewContent:htmlString:)];
+        [[SJKHEngine Instance] JBZLCustomAlertViewXYZRS:YES htmlString:htmlString];
+        
+    }
+    else{
+        [[SJKHEngine Instance] JBZLCustomAlertViewXYZRS:NO htmlString:nil];
+        [SJKHEngine Instance]->_customAlertView = nil;
+    }
+}
+
+//职业下拉框
+- (void) showCustomAlertViewSelectItem:(BOOL)isShow param:(NSString *)param{
+    if(isShow){
+        if([SJKHEngine Instance]->jbzl_step_Dic == nil ||
+           [SJKHEngine Instance]->jbzl_step_Dic.count == 0)
+        {
+            //待调试
+            [self activityIndicate:YES tipContent:@"正在加载数据，请稍候" MBProgressHUD:hud target:self.navigationController.view];
+            [self performSelector:@selector(stopHUDTip) withObject:nil afterDelay:10];
+            return ;
+        }
+        
+        [[SJKHEngine Instance] createCustomAlertView];
+        [[SJKHEngine Instance]->_customAlertView setTarget:self withSEL:@selector(showCustomAlertViewSelectItem:param:)];
+        [[SJKHEngine Instance] JBZLCustomAlertViewSelect:YES DataType:ZHIYE_DATA_TYPE];
+    }
+    else{
+        int location =[param rangeOfString:@"&"].location;
+        NSString * itemString = [param substringToIndex:location];
+        [tipIDs setObject:[param substringFromIndex:location+1] forKey:itemString];
+        [((UITextField *)[scrollView viewWithTag:(JBZL_VIEW_TAG + fieldNames.count - 2)]) setText:itemString];
+        [[SJKHEngine Instance] JBZLCustomAlertViewSelect:NO DataType:ZHIYE_DATA_TYPE];
+        [SJKHEngine Instance]->_customAlertView = nil;
+    }
+}
+
+//学历下拉框
+- (void) showCustomAlertViewSelectXL:(BOOL)isShow param:(NSString *)param{
+    if(isShow){
+        if([SJKHEngine Instance]->jbzl_step_Dic == nil ||
+           [SJKHEngine Instance]->jbzl_step_Dic.count == 0)
+        {
+//            [self activityIndicate:YES tipContent:@"正在加载数据，请稍候" MBProgressHUD:hud];
+            [self performSelector:@selector(stopHUDTip) withObject:nil afterDelay:10];
+            return ;
+        }
+        
+        [[SJKHEngine Instance] createCustomAlertView];
+        [[SJKHEngine Instance]->_customAlertView setTarget:self withSEL:@selector(showCustomAlertViewSelectXL:param:)];
+        [[SJKHEngine Instance] JBZLCustomAlertViewSelect:YES DataType:XUELI_DATA_TYPE];
+    }
+    else{
+        int location =[param rangeOfString:@"&"].location;
+        NSString * itemString = [param substringToIndex:location];
+        [tipIDs setObject:[param substringFromIndex:location+1] forKey:itemString];
+        [((UITextField *)[scrollView viewWithTag:(JBZL_VIEW_TAG + fieldNames.count - 1)]) setText:itemString];
+        [[SJKHEngine Instance] JBZLCustomAlertViewSelect:NO DataType:XUELI_DATA_TYPE];
+        [SJKHEngine Instance]->_customAlertView = nil;
+    }
+}
+
+- (void)stopHUDTip{
+    if([SJKHEngine Instance]->jbzl_step_Dic == nil ||
+       [SJKHEngine Instance]->jbzl_step_Dic.count == 0)
+    {
+        hud.mode = MBProgressHUDModeText;
+        hud.labelText = @"加载失败";
+        [hud hide:YES afterDelay:1];
+        hud = nil;
+    }
+}
+
+- (void)stopHUDOCRTip{
+    if(jbzl_step_OCR_Dic == nil ||
+       jbzl_step_OCR_Dic.count == 0)
+    {
+        hud.labelText = @"照片识别失败";
+        [hud hide:YES afterDelay:1];
+        hud = nil;
+    }
+}
+
+- (void) onButtonClick:(UIButton *)btn{
+    [self resignAllResponse];
+    
+//    if(btn.tag == MarkBtnTag){
+//        if(!btn.isSelected){
+//            [btn setBackgroundImage:[UIImage imageNamed:@"checkBox_checked"] forState:UIControlStateNormal];
+//            [btn setSelected:YES];
+//            [self chageNextStepButtonStype:YES];
+//        }
+//        else{
+//            [btn setBackgroundImage:[UIImage imageNamed:@"checkBox_default"] forState:UIControlStateNormal];
+//            [btn setSelected:NO];
+//            [self chageNextStepButtonStype:NO];
+//        }
+//    }
+    //职业下拉框
+    if(btn.tag == JBZL_BUTTON_TAG + fieldNames.count - 2){
+//        [CATransaction begin];
+//        [CATransaction setAnimationDuration:0.2];
+//        btn.layer.transform = CATransform3DMakeRotation(M_PI/2, 0,0, 1);
+//        [CATransaction commit];
+        [self showCustomAlertViewSelectItem:YES param:nil];
+    }
+    //学历下拉框
+    else if(btn.tag == JBZL_BUTTON_TAG + fieldNames.count - 1){
+        [self showCustomAlertViewSelectXL:YES param:nil];
+    }
+    //下一步
+    else if(btn.tag == JBZL_VIEW_TAG + fieldNames.count + 1){
+//        if(((UIButton *)[requestZRS viewWithTag:MarkBtnTag]).isSelected){
+            UITextField * sfzField = ((UITextField *)[scrollView viewWithTag:JBZL_VIEW_TAG + 1]);
+//            NSLog(@"sfzfield =%@,%@",sfzField.text,sfzField);
+            #ifndef SelectTest
+            if(![PublicMethod validateIdentityCard:sfzField.text]){
+                UIAlertView * alertview = [[UIAlertView alloc] initWithTitle:nil message:@"请输入正确的身份证号" delegate:self cancelButtonTitle:nil otherButtonTitles:@"确定", nil];
+                [alertview show];
+                return ;
+            }
+            #endif
+            [self gotoVideoWitness];
+//        }
+//        else{
+//            UIAlertView * alertview = [[UIAlertView alloc] initWithTitle:nil message:@"请阅读申请责任书" delegate:self cancelButtonTitle:nil otherButtonTitles:@"确定", nil];
+//            [alertview show];
+//        }
+    }
+    else if(btn.tag == JBZL_VIEW_TAG + fieldNames.count + 2){
+        [self.navigationController popViewControllerAnimated:YES];
+        BaseViewController * baseVC = [[SJKHEngine Instance].observeCtrls lastObject];
+        [[SJKHEngine Instance].observeCtrls removeLastObject];
+        baseVC = nil;
+    }
+}
+
+- (void)dealloc{
+    NSLog(@"回收客户信息");
+}
+
+//进入视频见证时所做的操作
+- (void) gotoVideoWitness{
+    NSDictionary * dic = nil;
+    NSString *warnStr = nil;
+    BOOL all_write = YES;
+    for (int i = 0 ;i<scrollView.subviews.count ; i++) {
+        NSLog(@"%d",i);
+        UIView * vi = [scrollView.subviews objectAtIndex:i];
+        if([vi isMemberOfClass:[UITextField class]]){
+            UITextField * field = (UITextField *)vi;
+            NSLog(@"lala::::%d\n%@", i - 1,field.text);
+            int flag = field.tag - JBZL_VIEW_TAG;
+            if(field.text.length == 0 || field.text == nil){
+                NSLog(@"%d,%d",vi.tag, flag);
+                all_write = NO;
+                warnStr = [nullCharacterWarnArr objectAtIndex:flag];
+                break;
+            }else if (flag < 5 && field.text.length > characterLimitedArr[flag]){
+                NSLog(@"%@",field.text);
+                NSLog(@"%d,%d",vi.tag, flag);
+                all_write = NO;
+                warnStr = [characterLimtedWarnArr objectAtIndex:flag];
+                
+                break;
+            }else if (flag == 4 && ![field.text isMailAddress]){
+                
+                NSLog(@"%d,%d",vi.tag, flag);
+                all_write = NO;
+                warnStr = @"邮编必须是6位数字";
+                break;
+            }
+//            else if (i == 1){
+//                warnStr = @"身份证号码只有数字和字母";
+//                break;
+//            }
+        }
+    }
+    
+    if(all_write){
+        NSMutableDictionary * jsonDic = [NSMutableDictionary dictionary];
+        NSString * fieldContent ;
+        for(int i = 0; i < fieldNames.count ;i++){
+            fieldContent = ((UITextField *)[scrollView viewWithTag:JBZL_VIEW_TAG + i]).text;
+            //暂时为检查而写的
+            if (i == 0){
+                [[SJKHEngine Instance]->jbzl_Process_Dic setObject:fieldContent forKey:KHXM_OCR];
+            }
+            if (i == 1){
+                [[SJKHEngine Instance]->jbzl_Process_Dic setObject:fieldContent forKey:ZJBH_OCR];
+            }
+            if(i != 3 && i < fieldNames.count -2){
+                [jsonDic setObject:fieldContent forKey:[fieldKeys objectAtIndex:i]];
+            }
+            if(i == fieldNames.count - 2){
+                [jsonDic setObject:[tipIDs objectForKey:fieldContent] forKey:ZY_UPLOAD_JBZL];
+            }
+            if(i == fieldNames.count - 1){
+                [jsonDic setObject:[tipIDs objectForKey:fieldContent] forKey:XL_UPLOAD_JBZL];
+            }
+        }
+        
+        // 证件类别先传0
+        [jsonDic setObject:@"0" forKey:ZJLB_OCR];
+//        [jsonDic setObject:[NSDictionary dictionaryWithObjectsAndKeys:@"",XYBH_OCR,@"",QMLSH_CGYH,HTXYID,HTXY_CGYH,nil] forKey:XYSTR_OCR];
+        [jsonDic setObject:@"156" forKey:GJ_OCR];
+        [jsonDic setObject:((UITextField *)[scrollView viewWithTag:JBZL_VIEW_TAG + 2]).text forKey:DZ_UPLOAD_JBZL];
+        
+        if (jbzl_step_OCR_Dic) {
+            [jsonDic setObject:[jbzl_step_OCR_Dic objectForKey:ZJYXQ_OCR] forKey:ZJYXQ_OCR];
+            [jsonDic setObject:[jbzl_step_OCR_Dic objectForKey:XB_OCR] forKey:XB_OCR];
+            [jsonDic setObject:[jbzl_step_OCR_Dic objectForKey:ZJFZJG_OCR] forKey:ZJFZJG_OCR];
+            NSString * csrqOCR = [jbzl_step_OCR_Dic objectForKey:CSRQ_OCR];
+            [PublicMethod filterNumber:&csrqOCR];
+            [jsonDic setObject:csrqOCR forKey:CSRQ_OCR];
+            NSLog(@"[jbzl_step_OCR_Dic objectForKey:CSRQ_OCR] =%@",csrqOCR);
+            [jsonDic setObject:[jbzl_step_OCR_Dic objectForKey:MZDM_OCR] forKey:MZDM_OCR];
+        }
+        
+//        NSLog(@"jsonDic =%@",jsonDic);
+        
+//        [self activityIndicate:YES tipContent:LOADINGDATA MBProgressHUD:hud];
+        
+        [SJKHEngine Instance]->khjbzl = [jsonDic mutableCopy];
+        [self activityIndicate:YES tipContent:@"保存数据..." MBProgressHUD:nil target:self.navigationController.view];
+        [self sendSaveStepInfo:JBZL_STEP dataDictionary:&dic arrar:jsonDic];
+        
+        while (!bSaveStepFinish) {
+            [[NSRunLoop currentRunLoop] runMode:NSDefaultRunLoopMode beforeDate:[NSDate distantFuture]];
+        }
+        
+        if(bSaveStepSuccess){
+            VideoWitnessViewCtrl * videoWitnessVC = [[VideoWitnessViewCtrl alloc]init];
+            [self activityIndicate:YES tipContent:@"加载视频信息..." MBProgressHUD:nil target:self.navigationController.view];
+            
+            dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+                [self dispatchViewWitnessData:videoWitnessVC];
+            });
+        }
+        else{
+            NSLog(@"保存失败 =%@",dic);
+            [self activityIndicate:NO tipContent:@"保存失败" MBProgressHUD:nil target:nil];
+        }
+    }
+    else{
+        UIAlertView * alertview = [[UIAlertView alloc] initWithTitle:@"提示" message:warnStr delegate:self cancelButtonTitle:nil otherButtonTitles:@"确定", nil];
+        [alertview show];
+    }
+}
+
+//如果失败，要不要作重连处理；加上saveCurrentStep的排错处理
+- (void) dispatchViewWitnessData:(VideoWitnessViewCtrl *)videoWitnessVC{
+    NSDictionary * stepDictionary = nil;
+    if([self sendSaveCurrentStepKey:SPJZ_STEP dataDictionary:&stepDictionary]){
+        BOOL ok = [self sendGoToStep:SPJZ_STEP dataDictionary:&stepDictionary];
+        if(ok){
+            [SJKHEngine Instance]->spzj_step_Dic = [stepDictionary mutableCopy];
+            [[SJKHEngine Instance]->spzj_step_Dic writeToFile:[PublicMethod getFilePath:DOCUMENT_CACHE fileName:SPJZ_KEY] atomically:YES];
+        }
+        BOOL uuidOK = [self sendGetUUID:&stepDictionary];
+        if(uuidOK){
+            videoWitnessVC->uuid = [stepDictionary objectForKey:UUID];
+        }
+        else {
+            [[SJKHEngine Instance] dispatchMessage:POP_MESSAGE];
+        }
+        dispatch_async(dispatch_get_main_queue(), ^{
+            if(ok && uuidOK){
+                [self activityIndicate:NO tipContent:nil MBProgressHUD:nil target:nil];
+                [self.navigationController pushViewController:videoWitnessVC animated:YES];
+                if ([SJKHEngine Instance]->spzj_step_Dic &&
+                    [SJKHEngine Instance]->spzj_step_Dic.count > 0)
+                {
+                    [videoWitnessVC updateUI];
+                }
+                else{
+                    [self activityIndicate:NO tipContent:@"加载视频信息失败" MBProgressHUD:nil target:nil];
+                }
+            }
+            else{
+                [self activityIndicate:NO tipContent:@"加载视频信息失败" MBProgressHUD:nil target:nil];
+            }
+        });
+    }
+}
+
+//异步加载责任书数据
+- (void) loadTaskBook{
+    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+        NSDictionary * taskBook = nil;
+        BOOL ok= [self sendTaskBook:&taskBook];
+        if (taskBook && taskBook.count > 0 && ok)
+        {
+            [[taskBook objectForKey:XYNR] writeToFile:[PublicMethod getFilePath:DOCUMENT_CACHE fileName:XYZRS_NAME] atomically:YES encoding:NSUTF8StringEncoding error:nil];
+            dispatch_async(dispatch_get_main_queue(), ^{
+                [[SJKHEngine Instance] updateAlertViewUI:YES];
+            });
+        }
+        else{
+            dispatch_async(dispatch_get_main_queue(), ^{
+                [[SJKHEngine Instance] updateAlertViewUI:NO];
+            });
+        }
+    });
+}
+
+- (void) ServerAuthenticate:(REQUEST_TYPE)request_type{
+    
+}
+
+- (void)updateUI{
+    [super updateUI];
+    
+    //这里的正在加载数据，还要待调试。
+    [self activityIndicate:NO tipContent:nil MBProgressHUD:nil target:nil];
+    NSArray * arr = [[SJKHEngine Instance]->jbzl_step_Dic objectForKey:SZZRSARR];
+    if (arr.count > 0) {
+        NSDictionary * dic = [arr objectAtIndex:0];
+        HTXYID= [dic objectForKey:ID];
+    }
+    
+    dispatch_async(dispatch_get_main_queue(), ^{
+        for (UIView * vi in scrollView.subviews) {
+            if([vi isMemberOfClass:[UITextField class]]){
+                int i = vi.tag - JBZL_VIEW_TAG;
+                if(i < fieldNames.count - 2){
+                    NSString * fieldText = [jbzl_step_OCR_Dic objectForKey:[fieldKeys objectAtIndex:i]];
+                    if(fieldText && fieldText.length > 0 && ((UITextField *)vi).text.length == 0){
+                        [((UITextField *)vi) setText:fieldText];
+                    }
+                    
+                    if(i == 3){
+                        [((UITextField *)vi) setText:[jbzl_step_OCR_Dic objectForKey:[fieldKeys objectAtIndex:i-1]]];;
+                    }
+                }
+            }
+        }
+    });
+    
+    
+}
+
+#pragma textfield Delegate
+
+- (BOOL)textFieldShouldEndEditing:(UITextField *)textField{
+    NSLog(@"End1:%d,%d",ocusView.tag,textField.tag);
+    if (ocusView.tag == textField.tag) {
+        [self beginEdit:NO textFieldArrar:[NSMutableArray arrayWithArray: scrollView.subviews]];
+        ocusView = nil;
+    }
+    NSLog(@"End2:%d,%d/n/n/n/n/n/n/n/n/n/n/n",ocusView.tag, textField.tag);
+    return YES;
+}
+
+-(void)textFieldDidBeginEditing:(UITextField *)textField{
+    //    [textField becomeFirstResponder];
+    bKeyBoardShow = YES;
+    keyboardOffset = textField.frame.origin.y + ButtonHeight - (screenHeight - UpHeight - KeyBoardHeight);
+    textField.layer.borderColor = TEXTFEILD_BOLD_HIGHLIGHT_COLOR.CGColor;
+}
+
+- (BOOL)textFieldShouldBeginEditing:(UITextField *)textField{
+    if(textField.tag == JBZL_VIEW_TAG + fieldNames.count - 2||
+       textField.tag == JBZL_VIEW_TAG + fieldNames.count - 1)
+    {
+        return NO;
+    }
+    if (ocusView) {
+        NSLog(@"Begain1:%d",ocusView.tag);
+    }else{
+        NSLog(@"Begain1:null");
+    }
+    
+    ocusView = textField;
+    NSLog(@"Begain2:%d",ocusView.tag);
+    if (textField.tag > 2100 && self.view.frame.origin.y > 0) {
+        [self beginEdit:YES textFieldArrar:[NSMutableArray arrayWithArray: scrollView.subviews]];
+    }
+    return YES;
+}
+
+- (void)textFieldDidEndEditing:(UITextField *)textField{
+    textField.layer.borderColor = FieldNormalColor.CGColor;
+}
+
+- (void)scrollViewWillBeginDragging: (UIScrollView *)_scrollView
+{
+    [self resignAllResponse];
+}
+
+- (void)OnTouchDownResign:(UIControl *)control{
+    [self resignAllResponse];
+}
+
+//- (void)reposControl{
+//    UIView * headerView = [((UIWindow *)[[UIApplication sharedApplication].windows firstObject]) viewWithTag:FigureButtonTag];
+//	if (bKeyBoardShow)
+//	{
+//        BOOL overNormalScrollHeight = NO;
+//        int scrollOffset = KeyBoardHeight + localVericalSpace - scrollSpace;
+//        int scrollContentOffset = 0;
+//        if(scrollOffset > UpHeight - 20){
+//            //            [scrollView setContentSize:CGSizeMake(screenWidth, normalSize.height + KeyBoardHeight)];
+//            //            [scrollView setFrame:CGRectMake(0, 0, screenWidth, normalSize.height + KeyBoardHeight)];
+//            overNormalScrollHeight = YES;
+//            scrollContentOffset = scrollOffset - (UpHeight - 20);
+//            scrollOffset = UpHeight - 20;
+//        }
+//        
+//        [UIView animateWithDuration:0.2 animations:^{
+//            self.navigationController.view.frame = CGRectMake(0, UpHeight - scrollOffset, screenWidth, screenHeight - UpHeight);
+//            headerView.frame = CGRectMake(0, - scrollOffset, screenWidth, UpHeight);
+//        }completion:^(BOOL finish){
+//            if (overNormalScrollHeight) {
+//                [scrollView setContentOffset:CGPointMake(0, scrollContentOffset) animated:YES];
+//            }
+//        }];
+//	}
+//	else
+//	{
+//        if(scrollView.contentOffset.y != 0){
+//            [scrollView setContentOffset:CGPointZero];
+//        }
+//        [UIView animateWithDuration:0.2 animations:^{
+//            self.navigationController.view.frame = CGRectMake(0, UpHeight, screenWidth, screenHeight - UpHeight);
+//            headerView.frame = CGRectMake(0, 0 , screenWidth, UpHeight);
+//        }completion:^(BOOL finish){
+//            
+//        }];
+//	}
+//}
+
+#pragma DataEngineOberver protocol
+//当加载失败时，自动保存用户输入的数据，并加入内存中。
+- (void)popToLastPage{
+    dispatch_async(dispatch_get_main_queue(), ^{
+//        [self activityIndicate:YES tipContent:@"加载失败" MBProgressHUD:nil];
+        hud.mode = MBProgressHUDModeText;
+        sleep(2);
+        [hud hide:YES];
+        [self.navigationController popViewControllerAnimated:YES];
+    });
+    
+    for (int i =0 ;i<scrollView.subviews.count ; i++) {
+        UIView * vi = [scrollView.subviews objectAtIndex:i];
+        if([vi isMemberOfClass:[UITextField class]]){
+            [[SJKHEngine Instance]->jbzl_user_datas replaceObjectAtIndex:vi.tag - JBZL_VIEW_TAG withObject:((UITextField *)vi).text];
+//            NSLog(@"datas after = %@",[SJKHEngine Instance]->jbzl_user_datas);
+        }
+    }
+}
+
+- (void)failGetOcrData{
+    dispatch_async(dispatch_get_main_queue(), ^{
+        [hud hide:YES];
+        [self activityIndicate:NO tipContent:Nil MBProgressHUD:Nil target:Nil];
+        UIAlertView * alertview = [[UIAlertView alloc] initWithTitle:@"提示" message:@"照片识别失败,您需要重新上传照片进行识别么?" delegate:self cancelButtonTitle:@"取消" otherButtonTitles:@"确定", nil];
+        alertview.delegate = self;
+        [alertview show];
+    });
+}
+
+- (void)resignAllResponse{
+    for(int i = 0; i < fieldNames.count ;i++){
+        [((UITextField *)[scrollView viewWithTag:JBZL_VIEW_TAG + i]) resignFirstResponder];
+    }
+}
+
+- (void)alertView:(UIAlertView *)alertView clickedButtonAtIndex:(NSInteger)buttonIndex{
+    if(buttonIndex == 1){
+        if([SJKHEngine Instance]->rootVC){
+            [self.navigationController popViewControllerAnimated:YES];
+        }
+    }
+}
+
+- (void)httpFinished:(ASIHTTPRequest *)http{
+    [super httpFailed:http];
+}
+
+- (void)httpFailed:(ASIHTTPRequest *)http{
+    [super httpFailed:http];
+}
+
+
+@end

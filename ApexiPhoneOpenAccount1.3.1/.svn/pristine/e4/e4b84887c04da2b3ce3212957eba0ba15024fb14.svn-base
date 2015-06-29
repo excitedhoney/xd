@@ -1,0 +1,757 @@
+//
+//  SqlDB.m
+//  EMT_TEST
+//
+//  Created by R&D on 12-3-1.
+//  Copyright (c) 2012年 __MyCompanyName__. All rights reserved.
+//
+
+#include "sqldb.h"
+
+extern char * GetSystemDBDir();
+
+#include "string.h"
+
+
+int functionOpenDB(sqlite3 ** database)
+{
+    int iRet = -1;
+    
+    char data[MAX_BUFFER_LEN] = {0};
+    
+    strcpy(data,GetSystemDBDir());
+    
+    strcat(data, "/itrusChina.db");
+    
+    if (sqlite3_open(data,database)== SQLITE_OK) {
+        iRet = 0;
+    }    
+    else
+    {
+        
+    }    
+    
+    /*
+    
+    sqlite3 * db = database;
+    
+    if (sqlite3_exec(db, "DROP TABLE list", 0, 0, &errorMsg) == SQLITE_OK) {
+        NSLog(@"DROP OK");
+    }
+    
+    
+    if(sqlite3_exec(db, "CREATE TABLE list (fliename text,fzip text);", 0, 0, &errorMsg) == SQLITE_OK)
+    {
+        NSLog(@"CREATE LIST OK");
+    }
+    
+    //由于mmmm.rar是一个二进制文件，所以要在使用insert语句时先用？号代替
+    
+    sqlite3_stmt * stat = 0;
+    
+    if(sqlite3_prepare(db, "insert into list values (?,?);", -1, &stat, 0) == SQLITE_OK)
+    {
+        NSLog(@"PREPARE OK");
+    }
+    
+    char * ffile;
+    int filesize;
+    
+    ffile = "\"\\\''''''\"";
+    filesize = 9;
+    
+    
+    if(sqlite3_bind_blob(stat, 1, ffile, filesize, NULL) == SQLITE_OK)
+    {
+        NSLog(@"BIND OK");
+    }
+    
+    if(sqlite3_bind_blob(stat, 2, ffile, filesize, NULL) == SQLITE_OK)
+    {
+        NSLog(@"BIND OK");
+    }    
+    //执行绑定之后的SQL语句
+    
+    sqlite3_step(stat);
+    
+    //这时数据库当中已经有了一条包含BLOB字段的数据。接下来我们要读取这条数据：
+
+    
+    //选取该条数据
+    
+    sqlite3_prepare(db, "select * from list;", -1, &stat, 0);
+
+    
+    while(sqlite3_step(stat) == SQLITE_ROW)
+    {
+        //得到纪录中的BLOB字段
+        
+        const void * buffer = sqlite3_column_text(stat, 1);
+        
+        //得到字段中数据的长度
+        
+        int size = sqlite3_column_bytes(stat, 1);
+
+        //拷贝该字段
+        char * buffer2 = malloc(size + 1);
+        
+        memset(buffer2, 0, size+1);
+        memcpy(buffer2, buffer, size);
+        
+        NSLog(@"%s\n", buffer);
+    }
+    */
+    return iRet;
+}
+
+int functionCloseDB(sqlite3 * database)
+{
+    int iRet = -1;
+    
+    if(sqlite3_close(database) == SQLITE_OK)
+    {
+        iRet = 0;
+    }
+    
+    return iRet;
+}
+
+
+int functionCreateTableUserInfo(sqlite3 * database)
+{
+    int iRet = -1;
+    
+    char *errorMsg; 
+    const char *createSql="create table if not exists UserInfo (id integer primary key,version_id text,build_id text,hardware_id text,password text);";
+    
+    if (sqlite3_exec(database, createSql, NULL, NULL, &errorMsg)==SQLITE_OK) {
+        iRet = 0;
+    }
+    else {
+        sqlite3_free(errorMsg); 
+    }    
+    return iRet;
+}
+
+
+int functionDropTableUserInfo(sqlite3 * database)
+{
+    int iRet = -1;
+    
+    char *errorMsg; 
+    const char *dropSql="drop table UserInfo";
+    
+    if (sqlite3_exec(database, dropSql, NULL, NULL, &errorMsg)==SQLITE_OK) {
+        iRet = 0;
+    }
+    else {
+        sqlite3_free(errorMsg); 
+    }    
+    return iRet;
+}
+
+int functionUserInfoInsert(sqlite3 * database,void * param)
+{
+    int iRet = -1;
+    SUserInfo * info = param;
+    
+    if (info == NULL) {
+        return -1;
+    }
+
+    sqlite3_stmt * stat = 0;
+    
+    if(sqlite3_prepare(database, "insert into UserInfo values (?,?,?,?,?);", -1, &stat, 0) == SQLITE_OK)
+    {
+        
+    }
+    
+    
+    if(sqlite3_bind_int(stat, 1, info->ID) == SQLITE_OK)
+    {
+        
+    }
+    
+    if(sqlite3_bind_blob(stat, 2, info->version_id, strlen(info->version_id),NULL) == SQLITE_OK)
+    {
+        
+    }
+    
+    if(sqlite3_bind_blob(stat, 3, info->build_id, strlen(info->build_id), NULL) == SQLITE_OK)
+    {
+        
+    }
+    
+    if(sqlite3_bind_blob(stat, 4, info->hardware_id, strlen(info->hardware_id), NULL) == SQLITE_OK)
+    {
+        
+    }
+    
+    if(sqlite3_bind_blob(stat, 5, info->password, strlen(info->password), NULL) == SQLITE_OK)
+    {
+        
+    }
+    
+    //执行绑定之后的SQL语句
+    if (sqlite3_step(stat) ==SQLITE_DONE)
+    {
+        iRet = 0;
+    }
+    else
+    {
+        
+    }
+    
+    sqlite3_finalize(stat);
+    
+    return iRet;    
+}
+
+int functionUserInfoDelete(sqlite3 * database,void * param)
+{
+    int iRet = -1;
+    SUserInfo * info = param;
+    
+    if (info == NULL) {
+        return -1;
+    }
+    
+    sqlite3_stmt * stat = 0;
+    
+    if(sqlite3_prepare(database, "delete from UserInfo where id=?;", -1, &stat, 0) == SQLITE_OK)
+    {
+        
+    }
+    
+    if(sqlite3_bind_int(stat, 1, info->ID) == SQLITE_OK)
+    {
+        
+    }
+    
+    
+    //执行绑定之后的SQL语句
+    if (sqlite3_step(stat) ==SQLITE_DONE)
+    {
+        iRet = 0;
+    }
+    else
+    {
+        
+    }
+    
+    sqlite3_finalize(stat);
+    
+    return iRet;
+}
+
+int functionUserInfoUpdate(sqlite3 * database,void *param)
+{
+    int iRet = -1;
+    
+    SUserInfo * info = param;
+    
+    if (info == NULL) {
+        return -1;
+    }
+    
+    sqlite3_stmt * stat = 0;
+    
+    if(sqlite3_prepare(database, "update UserInfo set id=?,version_id=?,build_id=?,hardware_id=?,password=?", -1, &stat, 0) == SQLITE_OK)
+    {
+        
+    }
+    
+    
+    if(sqlite3_bind_int(stat, 1, info->ID) == SQLITE_OK)
+    {
+        
+    }
+    
+    if(sqlite3_bind_blob(stat, 2, info->version_id, strlen(info->version_id),NULL) == SQLITE_OK)
+    {
+        
+    }
+    
+    if(sqlite3_bind_blob(stat, 3, info->build_id, strlen(info->build_id), NULL) == SQLITE_OK)
+    {
+        
+    }
+    
+    if(sqlite3_bind_blob(stat, 4, info->hardware_id, strlen(info->hardware_id), NULL) == SQLITE_OK)
+    {
+        
+    }
+    
+    if(sqlite3_bind_blob(stat, 5, info->password, strlen(info->password), NULL) == SQLITE_OK)
+    {
+        
+    }
+    
+    
+    //执行绑定之后的SQL语句
+    if (sqlite3_step(stat) ==SQLITE_DONE)
+    {
+        iRet = 0;
+    }
+    else
+    {
+        
+    }
+    
+    sqlite3_finalize(stat);
+    
+    return iRet;
+}
+
+
+int functionUserInfoSelect(sqlite3 * database,void * param)
+{
+    int iRet = -1;
+    SUserInfo * info = param;
+    
+    if (info == NULL) {
+        return -1;
+    }
+    
+    sqlite3_stmt * stat = 0;
+    
+    if(sqlite3_prepare(database, "select * from UserInfo;", -1, &stat, 0) == SQLITE_OK)
+    {
+
+    }
+    
+    
+    while (sqlite3_step(stat)==SQLITE_ROW) {
+        info->ID = sqlite3_column_int(stat, 0);
+        strcpy(info->version_id,(char *)sqlite3_column_text(stat, 1));
+        strcpy(info->build_id,(char *)sqlite3_column_text(stat, 2));
+        strcpy(info->hardware_id,(char *)sqlite3_column_text(stat, 3));
+        strcpy(info->password,(char *)sqlite3_column_text(stat, 4));
+        iRet = 0;
+    }    
+    
+    sqlite3_finalize(stat);
+    
+    return iRet;
+}
+
+
+
+int functionCreateTableDBInfo(sqlite3 * database)
+{
+    int iRet = -1;
+    
+    char *errorMsg;
+    const char *createSql="create table if not exists DBInfo (id integer primary key,version_id text,build_id text,hardware_id text,password text);";
+    
+    if (sqlite3_exec(database, createSql, NULL, NULL, &errorMsg)==SQLITE_OK) {
+        iRet = 0;
+    }
+    else {
+        sqlite3_free(errorMsg);
+    }
+    return iRet;
+}
+
+
+int functionDropTableDBInfo(sqlite3 * database)
+{
+    int iRet = -1;
+    
+    char *errorMsg;
+    const char *dropSql="drop table DBInfo";
+    
+    if (sqlite3_exec(database, dropSql, NULL, NULL, &errorMsg)==SQLITE_OK) {
+        iRet = 0;
+    }
+    else {
+        sqlite3_free(errorMsg);
+    }
+    return iRet;
+}
+
+
+
+int functionDBInfoInsert(sqlite3 * database,void * param)
+{
+    int iRet = -1;
+    SDBInfo * info = param;
+    
+    if (info == NULL) {
+        return -1;
+    }
+    
+    sqlite3_stmt * stat = 0;
+    
+    if(sqlite3_prepare(database, "insert into DBInfo values (?,?,?,?,?);", -1, &stat, 0) == SQLITE_OK)
+    {
+        
+    }
+    
+    
+    if(sqlite3_bind_int(stat, 1, info->ID) == SQLITE_OK)
+    {
+        
+    }
+    
+    if(sqlite3_bind_blob(stat, 2, info->version_id, strlen(info->version_id),NULL) == SQLITE_OK)
+    {
+        
+    }
+    
+    if(sqlite3_bind_blob(stat, 3, info->build_id, strlen(info->build_id), NULL) == SQLITE_OK)
+    {
+        
+    }
+    
+    if(sqlite3_bind_blob(stat, 4, info->hardware_id, strlen(info->hardware_id), NULL) == SQLITE_OK)
+    {
+        
+    }
+    
+    if(sqlite3_bind_blob(stat, 5, info->password, strlen(info->password), NULL) == SQLITE_OK)
+    {
+        
+    }
+    
+    //执行绑定之后的SQL语句
+    if (sqlite3_step(stat) ==SQLITE_DONE)
+    {
+        iRet = 0;
+    }
+    else
+    {
+        
+    }
+    
+    sqlite3_finalize(stat);
+    
+    return iRet;
+}
+
+int functionDBInfoDelete(sqlite3 * database,void * param)
+{
+    int iRet = -1;
+    SDBInfo * info = param;
+    
+    if (info == NULL) {
+        return -1;
+    }
+    
+    sqlite3_stmt * stat = 0;
+    
+    if(sqlite3_prepare(database, "delete from DBInfo where id=?;", -1, &stat, 0) == SQLITE_OK)
+    {
+        
+    }
+    
+    if(sqlite3_bind_int(stat, 1, info->ID) == SQLITE_OK)
+    {
+        
+    }
+    
+    
+    //执行绑定之后的SQL语句
+    if (sqlite3_step(stat) ==SQLITE_DONE)
+    {
+        iRet = 0;
+    }
+    else
+    {
+        
+    }
+    
+    sqlite3_finalize(stat);
+    
+    return iRet;
+}
+
+int functionDBInfoUpdate(sqlite3 * database,void *param)
+{
+    int iRet = -1;
+    
+    SDBInfo * info = param;
+    
+    if (info == NULL) {
+        return -1;
+    }
+    
+    sqlite3_stmt * stat = 0;
+    
+    if(sqlite3_prepare(database, "update DBInfo set id=?,version_id=?,build_id=?,hardware_id=?,password=?", -1, &stat, 0) == SQLITE_OK)
+    {
+        
+    }
+    
+    
+    if(sqlite3_bind_int(stat, 1, info->ID) == SQLITE_OK)
+    {
+        
+    }
+    
+    if(sqlite3_bind_blob(stat, 2, info->version_id, strlen(info->version_id),NULL) == SQLITE_OK)
+    {
+        
+    }
+    
+    if(sqlite3_bind_blob(stat, 3, info->build_id, strlen(info->build_id), NULL) == SQLITE_OK)
+    {
+        
+    }
+    
+    if(sqlite3_bind_blob(stat, 4, info->hardware_id, strlen(info->hardware_id), NULL) == SQLITE_OK)
+    {
+        
+    }
+    
+    if(sqlite3_bind_blob(stat, 5, info->password, strlen(info->password), NULL) == SQLITE_OK)
+    {
+        
+    }
+    
+    
+    //执行绑定之后的SQL语句
+    if (sqlite3_step(stat) ==SQLITE_DONE)
+    {
+        iRet = 0;
+    }
+    else
+    {
+        
+    }
+    
+    sqlite3_finalize(stat);
+    
+    return iRet;
+}
+
+
+int functionDBInfoSelect(sqlite3 * database,void * param)
+{
+    int iRet = -1;
+    SDBInfo * info = param;
+    
+    if (info == NULL) {
+        return -1;
+    }
+    
+    sqlite3_stmt * stat = 0;
+    
+    if(sqlite3_prepare(database, "select * from DBInfo;", -1, &stat, 0) == SQLITE_OK)
+    {
+        
+    }
+    
+    
+    while (sqlite3_step(stat)==SQLITE_ROW) {
+        info->ID = sqlite3_column_int(stat, 0);
+        strcpy(info->version_id,(char *)sqlite3_column_text(stat, 1));
+        strcpy(info->build_id,(char *)sqlite3_column_text(stat, 2));
+        strcpy(info->hardware_id,(char *)sqlite3_column_text(stat, 3));
+        strcpy(info->password,(char *)sqlite3_column_text(stat, 4));
+        iRet = 0;
+    }
+    
+    sqlite3_finalize(stat);
+    
+    return iRet;
+}
+
+
+int functionCreateTableLicenseInfo(sqlite3 * database)
+{
+    int iRet = -1;
+    
+    char *errorMsg;
+    const char *createSql="create table if not exists LicenseInfo (id integer primary key,license_name text,license_value text);";
+    
+    if (sqlite3_exec(database, createSql, NULL, NULL, &errorMsg)==SQLITE_OK) {
+        iRet = 0;
+    }
+    else {
+        sqlite3_free(errorMsg);
+    }
+    return iRet;
+}
+
+
+int functionDropTableLicenseInfo(sqlite3 * database)
+{
+    int iRet = -1;
+    
+    char *errorMsg;
+    const char *dropSql="drop table LicenseInfo";
+    
+    if (sqlite3_exec(database, dropSql, NULL, NULL, &errorMsg)==SQLITE_OK) {
+        iRet = 0;
+    }
+    else {
+        sqlite3_free(errorMsg);
+    }
+    return iRet;
+}
+
+int functionLicenseInfoInsert(sqlite3 * database,void * param)
+{
+    int iRet = -1;
+    SLicenseInfo * info = param;
+    
+    if (info == NULL) {
+        return -1;
+    }
+    
+    sqlite3_stmt * stat = 0;
+    
+    if(sqlite3_prepare(database, "insert into LicenseInfo values (?,?,?);", -1, &stat, 0) == SQLITE_OK)
+    {
+        
+    }
+    
+    
+    if(sqlite3_bind_int(stat, 1, info->ID) == SQLITE_OK)
+    {
+        
+    }
+    
+    if(sqlite3_bind_blob(stat, 2, info->license_name, strlen(info->license_name),NULL) == SQLITE_OK)
+    {
+        
+    }
+    
+    if(sqlite3_bind_blob(stat, 3, info->license_value, strlen(info->license_value), NULL) == SQLITE_OK)
+    {
+        
+    }
+    
+    //执行绑定之后的SQL语句
+    if (sqlite3_step(stat) ==SQLITE_DONE)
+    {
+        iRet = 0;
+    }
+    else
+    {
+        
+    }
+    
+    sqlite3_finalize(stat);
+    
+    return iRet;
+}
+
+int functionLicenseInfoDelete(sqlite3 * database,void * param)
+{
+    int iRet = -1;
+    SLicenseInfo * info = param;
+    
+    if (info == NULL) {
+        return -1;
+    }
+    
+    sqlite3_stmt * stat = 0;
+    
+    if(sqlite3_prepare(database, "delete from LicenseInfo where id=?;", -1, &stat, 0) == SQLITE_OK)
+    {
+        
+    }
+    
+    if(sqlite3_bind_int(stat, 1, info->ID) == SQLITE_OK)
+    {
+        
+    }
+    
+    
+    //执行绑定之后的SQL语句
+    if (sqlite3_step(stat) ==SQLITE_DONE)
+    {
+        iRet = 0;
+    }
+    else
+    {
+        
+    }
+    
+    sqlite3_finalize(stat);
+    
+    return iRet;
+}
+
+int functionLicenseInfoUpdate(sqlite3 * database,void *param)
+{
+    int iRet = -1;
+    
+    SLicenseInfo * info = param;
+    
+    if (info == NULL) {
+        return -1;
+    }
+    
+    sqlite3_stmt * stat = 0;
+    
+    if(sqlite3_prepare(database, "update LicenseInfo set id=?,license_name=?,license_value=?", -1, &stat, 0) == SQLITE_OK)
+    {
+        
+    }
+    
+    
+    if(sqlite3_bind_int(stat, 1, info->ID) == SQLITE_OK)
+    {
+        
+    }
+    
+    if(sqlite3_bind_blob(stat, 2, info->license_name, strlen(info->license_name),NULL) == SQLITE_OK)
+    {
+        
+    }
+    
+    if(sqlite3_bind_blob(stat, 3, info->license_value, strlen(info->license_value), NULL) == SQLITE_OK)
+    {
+        
+    }
+
+    //执行绑定之后的SQL语句
+    if (sqlite3_step(stat) ==SQLITE_DONE)
+    {
+        iRet = 0;
+    }
+    else
+    {
+        
+    }
+    
+    sqlite3_finalize(stat);
+    
+    return iRet;
+}
+
+
+int functionLicenseInfoSelect(sqlite3 * database,void * param)
+{
+    int iRet = -1;
+    SLicenseInfo * info = param;
+    
+    if (info == NULL) {
+        return -1;
+    }
+    
+    sqlite3_stmt * stat = 0;
+    
+    if(sqlite3_prepare(database, "select * from LicenseInfo;", -1, &stat, 0) == SQLITE_OK)
+    {
+        
+    }
+    
+    
+    while (sqlite3_step(stat)==SQLITE_ROW) {
+        info->ID = sqlite3_column_int(stat, 0);
+        strcpy(info->license_name,(char *)sqlite3_column_text(stat, 1));
+        strcpy(info->license_value,(char *)sqlite3_column_text(stat, 2));
+        iRet = 0;
+    }
+    
+    sqlite3_finalize(stat);
+    
+    return iRet;
+}
+
+
+

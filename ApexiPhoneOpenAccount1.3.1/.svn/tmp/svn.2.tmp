@@ -1,0 +1,290 @@
+//
+//  ViewController.m
+//  ApexiPhoneOpenAccount
+//
+//  Created by mac  on 14-3-2.
+//  Copyright (c) 2014年 mac . All rights reserved.
+//
+
+#import "RootModelViewCtrl.h"
+#import "KHRequestOrSearchViewCtrl.h"
+#import "UIImage+custom_.h"
+#import "UploadImageViewCtrl.h"
+#import "KKNavigationController.h"
+#import "ClientInfoViewCtrl.h"
+#import "InstallProfileViewCtrl.h"
+#import "SettingViewController.h"
+#import "LoanMainViewCtrl.h"
+#import "LoginViewCtrl.h"
+#import "VideoWitnessViewCtrl.h"
+
+#ifdef SelectTest
+#import "RiskEvaluateViewCtrl.h"
+
+#endif
+
+#define BUTTONTAG 2014
+
+@interface RootModelViewCtrl(){
+    UIButton * flowStep;
+    UIButton * centerButton;
+    NSString * trackURL;
+}
+
+@end
+
+
+@implementation RootModelViewCtrl
+
+
+- (void)viewDidLoad
+{
+    [self InitConfig];
+    [self InitWidgets];
+    [super viewDidLoad];
+}
+
+- (void)loadView{
+    //    CGRect rect = self.navigationController.navigationBar.frame;
+    //    [self.navigationController.navigationBar setBackgroundImage:[[UIImage imageNamed:@"flow_bg"] imageByResizingToSize:CGSizeMake(screenWidth, rect.size.height)] forBarMetrics:UIBarMetricsDefault];
+    //    [self.navigationController.navigationBar setBackgroundImage:[[UIImage imageNamed:@"flow_bg"] imageByResizingToSize:CGSizeMake(screenWidth, rect.size.height)] forBarPosition:UIBarPositionAny barMetrics:UIBarMetricsDefault];
+    
+    [super loadView];
+}
+
+- (void)viewWillAppear:(BOOL)animated{
+        [self changeNavigationBarStatus:YES];
+    [super viewWillAppear:animated];
+    
+    [self.view setBackgroundColor:PAGE_BG_COLOR];
+}
+
+static bool showSettingVC = YES;
+- (void)viewDidAppear:(BOOL)animated{
+#ifdef SwitchToSet
+    if(showSettingVC){
+//        SettingViewController * settingVC = [[SettingViewController alloc]init];
+//        UINavigationController * naviVC = [[UINavigationController alloc]initWithRootViewController:settingVC];
+//        [self presentModalViewController:naviVC animated:YES];
+        
+//        LoanMainViewCtrl *loadMainVC = nil;
+//        UIStoryboard *storyBoard = [UIStoryboard storyboardWithName:@"LoanMainStoryBoard" bundle:nil];
+//        loadMainVC = [storyBoard instantiateInitialViewController];
+//        UINavigationController * naviVC = [[UINavigationController alloc]initWithRootViewController:loadMainVC];
+//        [self presentModalViewController:naviVC animated:YES];
+        
+//        LoginViewCtrl * loginVC = [[LoginViewCtrl alloc]initWithNibName:@"LoginView" bundle:nil];
+//        UINavigationController * naviVC = [[UINavigationController alloc]initWithRootViewController:loginVC];
+//        [self presentModalViewController:naviVC animated:YES];
+        
+//        VideoWitnessViewCtrl *videoVC = [[VideoWitnessViewCtrl alloc]initWithNibName:@"VideoWitnessView" bundle:nil];
+//        [self.navigationController pushViewController:videoVC animated:YES];
+
+//        InstallProfileViewCtrl * installVC = [[InstallProfileViewCtrl alloc]init];
+//        [self.navigationController pushViewController:installVC animated:YES];
+        
+        showSettingVC = NO;
+    }
+#endif
+    
+    [super viewDidAppear:animated];
+    
+    [self.view setBackgroundColor:PAGE_BG_COLOR];
+}
+
+//初始化配置
+- (void) InitConfig{
+//    [self.navigationController setNavigationBarHidden:YES animated:NO];
+    [self.view setBackgroundColor:PAGE_BG_COLOR];
+    if([SJKHEngine Instance]->systemVersion >= 7){
+        self.view.bounds = CGRectMake(0, 0, screenWidth, screenHeight - UpHeight);
+    }
+    
+    [self checkSJKHVersion];
+}
+
+- (void)checkSJKHVersion{
+    ASIFormDataRequest *theRequest = [ASIFormDataRequest requestWithURL:[NSURL URLWithString:APP_URL]];
+    [theRequest setValidatesSecureCertificate:NO];
+    [theRequest setAllowCompressedResponse:NO];
+    [theRequest setTimeOutSeconds:10];
+    [theRequest setNumberOfTimesToRetryOnTimeout:2];
+    
+    [theRequest setDelegate:self];
+    [theRequest setDidFailSelector:@selector(httpFailed:)];
+    [theRequest setDidFinishSelector:@selector(httpFinished:)];
+    
+    [theRequest startAsynchronous];
+}
+
+- (void)httpFinished:(ASIHTTPRequest *)http{
+//    NSLog(@"apple =%@", [[NSString alloc]initWithData:http.responseData encoding:NSUTF8StringEncoding]);
+    [super httpFinished:http];
+    if(responseDictionary){
+        NSDictionary * rightDic = [[responseDictionary objectForKey:@"results"] firstObject];
+        NSString * version = [rightDic objectForKey:@"version"];
+        trackURL = [rightDic objectForKey:@"trackViewUrl"];
+        
+        NSDictionary *localDic =[[NSBundle mainBundle] infoDictionary];
+        NSString * localVersion =[localDic objectForKey:@"CFBundleShortVersionString"];
+        NSLog(@"lcoavier verto=%@,%@",version,localVersion);
+        
+        if (![version isEqualToString:localVersion]) {
+            UIAlertView *alert = [[UIAlertView alloc] initWithTitle:nil message:@"有新的版本更新,是否前往更新？" delegate:self cancelButtonTitle:@"关闭" otherButtonTitles:@"更新", nil];
+            alert.tag = 10001;
+            alert.delegate = self;
+            [alert show];
+        }
+    }
+}
+
+- (void)alertView:(UIAlertView *)alertView clickedButtonAtIndex:(NSInteger)buttonIndex{
+    if(buttonIndex == 1){
+        if(alertView.tag == 10000){
+            if([SJKHEngine Instance]->rootVC){
+                //                self.view.bounds = CGRectMake(0, 0, screenWidth, screenHeight - UpHeight);
+                [[SJKHEngine Instance]->rootVC vcOperation:Nil];
+            }
+        }
+        if(alertView.tag == 10001){
+            [[UIApplication sharedApplication]openURL:[NSURL URLWithString:trackURL]];
+        }
+    }
+}
+
+- (void)httpFailed:(ASIHTTPRequest *)http{
+    NSLog(@"http.error =%@",http.error);
+    
+}
+
+//初始化ui控件
+- (void) InitWidgets{
+    [super InitWidgets];
+    [self InitNavigationViewHeader];
+    
+    int localVerticalHeight = 5;
+    int localLevelWidth = 5;
+    NSArray * buttonNames = [NSArray arrayWithObjects:@"马上开户", nil];
+    CGSize size  = CGSizeMake(screenWidth, autoHeight(370));
+    
+    [rootView setAlpha:1];
+        
+    UIView * centerView = [[UIView alloc]initWithFrame:CGRectMake(0,
+                                                                  0 ,
+                                                                  size.width,
+                                                                  size.height)];
+    [centerView setBackgroundColor:BTN_DEFAULT_REDBG_COLOR];
+    
+    centerButton = [PublicMethod CreateButton:@"" withFrame:CGRectMake(0,
+                                                                                  0 ,
+                                                                                  size.width,
+                                                                                  size.height)
+                                                     tag:0
+                                                  target:centerView];
+    [centerButton setUserInteractionEnabled:NO];
+    [centerButton setBackgroundImage:[UIImage imageNamed:@"index_banner.png"] forState:UIControlStateNormal];
+    
+    //    float itemWidth = (screenWidth - localLevelWidth * 3)/2;
+    float itemWidth = screenWidth - localLevelWidth * 2;
+    float itemHeight = autoHeight(50);
+    
+    for (int i=0; i < 1; i++) {
+        UIButton *item = [PublicMethod CreateButton:@""
+                                          withFrame:CGRectMake(localLevelWidth,
+                                                               centerView.frame.origin.y+size.height + localVerticalHeight,
+                                                               itemWidth,
+                                                               itemHeight)
+                                                tag:BUTTONTAG + i
+                                             target:rootView];
+        [item setTitle:[buttonNames objectAtIndex:i] forState:UIControlStateNormal];
+        [item setBackgroundImage:[UIImage imageWithColor:ButtonColorNormal_Wu size:CGSizeMake(itemWidth, itemHeight)] forState:UIControlStateNormal];
+        [item setBackgroundImage:[UIImage imageWithColor:ButtonColorActive_Wu size:CGSizeMake(itemWidth, itemHeight)] forState:UIControlStateHighlighted];
+        item.layer.cornerRadius = 3;
+        item.layer.masksToBounds=YES;
+        [item addTarget:self action:@selector(buttonClick:) forControlEvents:UIControlEventTouchUpInside];
+    }
+    
+//    [rootView addSubview:upHeader];
+    [rootView addSubview:centerView];
+    
+    NSString * title = @"7到24小时为您服务";
+    float width = [PublicMethod getStringWidth:title font:PublicBoldFont] + 44;
+    CGSize tipSize = CGSizeMake(autoWidth(width), autoHeight(40));
+    UIButton *tip = [PublicMethod CreateButton:title
+                                     withFrame:CGRectMake(screenWidth - tipSize.width,
+                                                          centerView.frame.origin.y+size.height + localVerticalHeight+itemHeight,
+                                                          tipSize.width,
+                                                          tipSize.height)
+                                           tag:0
+                                        target:rootView];
+    //    tip.titleEdgeInsets = UIEdgeInsetsMake(0, 44 , 0, 0);
+    tip.titleLabel.font = PublicBoldFont;
+    float clockWidth = autoHeight(30);
+    [tip setImage:[[UIImage imageNamed:@"icon_clock"] imageByResizingToSize:CGSizeMake(clockWidth, clockWidth)] forState:UIControlStateNormal];
+    [tip setTitleColor:GrayTipColor_Wu forState:UIControlStateNormal];
+    [tip setContentHorizontalAlignment:UIControlContentHorizontalAlignmentLeft];
+}
+
+- (void) InitNavigationViewHeader{
+    
+    [self.navigationController.navigationBar
+     setBackgroundImage:[UIImage
+                         imageWithColor:NAV_BG_COLOR
+                         size:CGSizeMake(320, NAV_HEIGHT)]
+     forBarMetrics:UIBarMetricsDefault];
+    [self.navigationController.navigationBar setBackgroundColor:NAV_BG_COLOR];
+    self.navigationController.navigationItem.leftBarButtonItem = nil;
+}
+
+- (void)changeNavigationBarStatus:(BOOL)isRoot{
+    [rootView bringSubviewToFront:centerButton];
+    
+//        [self.navigationController.navigationBar setBackgroundColor:NAV_BG_COLOR];
+    [self.navigationController.navigationBar setBackgroundImage:[UIImage imageWithColor:NAV_BG_COLOR size:CGSizeMake(320, NAV_HEIGHT)] forBarMetrics:UIBarMetricsDefault];
+}
+
+
+- (void)buttonClick:(UIButton *)btn{
+    switch (btn.tag) {
+            //马上开户
+        case BUTTONTAG:{
+            KHRequestOrSearchViewCtrl * khRequestOrSearchVC = [[KHRequestOrSearchViewCtrl alloc]init];
+            //            KKNavigationController * navi = [[KKNavigationController alloc]initWithRootViewController:khRequestOrSearchVC];
+            //            [self addChildViewController:khRequestOrSearchVC];
+            //            [rootView addSubview:khRequestOrSearchVC.view];
+            //
+            //            [super customPushAnimation:rootView withFrame:CGRectMake(-screenWidth, 0, screenWidth, screenHeight) controller:khRequestOrSearchVC];
+            //            [khRequestOrSearchVC.view.layer addAnimation:[SJKHEngine Instance]->rightTransition forKey:nil];
+            //            [self.navigationController.navigationBar.layer addAnimation:[SJKHEngine Instance]->rightTransition forKey:nil];
+            //            khRequestOrSearchVC.modalPresentationStyle = UIModalPresentationFullScreen;
+            
+#ifdef SelectTest
+//            ClientInfoViewCtrl * clientInfoVC = [[ClientInfoViewCtrl alloc]init];
+//            [self.navigationController pushViewController:clientInfoVC animated:YES];
+//            return ;
+            
+//            VideoWitnessViewCtrl * videoVC = [[VideoWitnessViewCtrl alloc]init];
+//            [self.navigationController pushViewController:videoVC animated:YES];
+//            return ;
+            
+#endif
+            [self changeNavigationBarStatus:NO];
+            
+            [self.navigationController pushViewController:khRequestOrSearchVC animated:YES];
+            
+            break;
+        }
+            //马上转户
+        case BUTTONTAG + 1:
+            
+            break;
+    }
+}
+
+
+- (void)didReceiveMemoryWarning
+{
+    [super didReceiveMemoryWarning];
+}
+
+@end

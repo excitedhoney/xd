@@ -1,0 +1,74 @@
+1.视频页面的旋转代码备份
+-(void)currentOrien:(NSNotification *)noti{
+    localView.transform=CGAffineTransformMake(0, 1, -1, 0, 0, 0);
+    return ;
+    
+    if(currentForwardOrBack == 0){
+        switch ([UIDevice currentDevice].orientation) {
+            case  UIDeviceOrientationPortrait:{
+                localView.transform=CGAffineTransformMake(0, 1, -1, 0, 0, 0);
+                
+                break;
+            }
+            case  UIDeviceOrientationLandscapeRight:{
+                localView.transform=CGAffineTransformMake(0, -1, 1, 0, 0, 0);
+                
+                break;
+            }
+            case  UIDeviceOrientationPortraitUpsideDown:{
+                localView.transform=CGAffineTransformMake(0, 1, -1, 0, 0, 0);
+                //            localRenderView.transform = CGAffineTransformInvert(CGAffineTransformRotate(localRenderView.transform,- M_PI_2));
+                break;
+            }
+            case  UIDeviceOrientationLandscapeLeft:{
+                localView.transform=CGAffineTransformMake(0, -1, 1, 0, 0, 0);
+                
+                break;
+            }
+        }
+    }
+    if(currentForwardOrBack == 1){
+        switch ([UIDevice currentDevice].orientation) {
+            case  UIDeviceOrientationPortrait:{
+                localView.transform=CGAffineTransformMake(0, 1, 1, 0, 0, 0);
+                break;
+            }
+            case  UIDeviceOrientationLandscapeRight:{
+                localView.transform=CGAffineTransformMake(0, -1, 1, 0, 0, 0);
+                break;
+            }
+            case  UIDeviceOrientationPortraitUpsideDown:{
+                localView.transform=CGAffineTransformMake(0, 1, -1, 0, 0, 0);
+                //            localRenderView.transform = CGAffineTransformInvert(CGAffineTransformRotate(localRenderView.transform,- M_PI_2));
+                break;
+            }
+            case  UIDeviceOrientationLandscapeLeft:{
+                localView.transform=CGAffineTransformMake(0, -1, 1, 0, 0, 0);
+                break;
+            }
+        }
+    }
+}
+
+js代码
+2.- (void)loadExamplePage {
+    [webView loadHTMLString:@""
+     "<!doctype html>"
+     "<html><head>"
+     "  <style type='text/css'>h1 { color:red; }</style>"
+     "</head><body>"
+     "  <h1>Javascript Bridge Demo</h1>"
+     "  <script>"
+     "  document.addEventListener('ApexJsReady', onBridgeReady, false);"
+     "  function onBridgeReady() {"
+     "      ApexJs.setMessageHandler(function(message) {"
+     "          var el = document.body.appendChild(document.createElement('div'));"
+     "          el.innerHTML = message;"
+     "      });"
+     "      var button = document.body.appendChild(document.createElement('button'));"
+     "      button.innerHTML = 'Click me to send a message to ObjC';"
+     "      button.onclick = button.ontouchstart = function() { ApexJs.sendMessage('hello from JS button'); };"
+     "  }"
+     "  </script>"
+     "</body></html>" baseURL:nil];
+}

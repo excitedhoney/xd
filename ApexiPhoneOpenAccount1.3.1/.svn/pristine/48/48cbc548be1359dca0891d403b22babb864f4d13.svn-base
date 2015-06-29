@@ -1,0 +1,26 @@
+//
+//  LoanBaseViewCtrl.h
+//  ApexiPhoneOpenAccount
+//
+//  Created by mac  on 14-5-6.
+//  Copyright (c) 2014年 mac . All rights reserved.
+//
+
+#import <UIKit/UIKit.h>
+
+@interface LoanBaseViewCtrl : UIViewController<UIWebViewDelegate>{
+    UIWebView * webView;
+    NSURLConnection * urlConnection;
+    
+    @public
+    NSString * webViewURL;
+}
+
+- (void)toLoadWebPage:(BOOL)toLoad;
+
+- (void)initWidget;
+
+- (void)initConfig;
+
+
+@end

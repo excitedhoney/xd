@@ -1,0 +1,570 @@
+//
+//  BaseViewController.m
+//  ApexiPhoneOpenAccount
+//
+//  Created by mac  on 14-3-6.
+//  Copyright (c) 2014年 mac . All rights reserved.
+//
+
+#import "BaseViewController.h"
+#import <Security/Security.h>
+#import "SJKHEngine.h"
+//#import "ClientInfoViewCtrl.h"
+
+
+@interface BaseViewController (){
+}
+
+@end
+
+@implementation BaseViewController
+
+- (id)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil
+{
+    self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil];
+    if (self) {
+        
+    }
+    return self;
+}
+
+- (void)viewDidLoad
+{
+    [super viewDidLoad];
+    [self indispensableInit];
+}
+
+//这个方法，作一些必需的操作。
+- (void) indispensableInit{
+    [[SJKHEngine Instance].observeCtrls addObject:self];
+    bSaveStepFinish = NO;
+    bSaveStepSuccess = NO;
+    if([SJKHEngine Instance]->systemVersion < 7){
+        [UIApplication sharedApplication].statusBarStyle = UIStatusBarStyleBlackOpaque;
+    }
+}
+
+- (void) InitConfig{
+    [self.view setBackgroundColor:PAGE_BG_COLOR];
+    if([SJKHEngine Instance]->systemVersion >= 7){
+        self.view.bounds = CGRectMake(0, BOUNDS_GLOBLE, screenWidth, self.view.bounds.size.height);
+    }
+    
+}
+
+//一般子类都会调用父类的InitWidgets方法，InitConfig并不一定。
+- (void) InitWidgets{
+//    hud = [MBProgressHUD showHUDAddedTo:self.view animated:YES];
+//    [hud setHidden:YES];
+    
+    
+    rootView = [PublicMethod CreateView:CGRectMake(0, 0, screenWidth, self.view.frame.size.height)
+                                    tag:0
+                                 target:self.view];
+    [rootView setAlpha:0];
+    
+    
+    UIBarButtonItem *backBarBtn = [[UIBarButtonItem alloc] initWithImage:[UIImage imageNamed:@"button_back_default"] style:UIBarButtonSystemItemCancel target:self action:@selector(backBarBtnClicked:)];
+    self.navigationItem.leftBarButtonItem = backBarBtn;
+}
+
+- (void)backBarBtnClicked:(UIBarButtonItem *)btn{
+    UIAlertView * alertview = [[UIAlertView alloc] initWithTitle:@"提示" message:@"您确定退出开户么?" delegate:self cancelButtonTitle:@"取消" otherButtonTitles:@"确定", nil];
+    alertview.delegate = [SJKHEngine Instance]->rootVC;
+    NSLog(@"%@",alertview.delegate);
+    alertview.tag = 10000;
+    [alertview show];
+}
+
+
+
+- (void) InitScrollView{
+    scrollView = [[UIScrollView alloc]initWithFrame:CGRectMake(0, 0, screenWidth, screenHeight - UpHeight)];
+    scrollView.scrollEnabled = YES;
+    [scrollView setShowsVerticalScrollIndicator:NO];
+}
+
+- (void)chageNextStepButtonStype:(BOOL)isOK{
+    if(isOK){
+        [nextStepBtn setBackgroundImage:[UIImage imageNamed:@"btn_blue_normal"] forState:UIControlStateNormal];
+        [nextStepBtn setBackgroundImage:[UIImage imageNamed:@"btn_blue_active"] forState:UIControlStateHighlighted];
+        [PublicMethod publicCornerBorderStyle:nextStepBtn];
+    }
+    else{
+        [nextStepBtn setBackgroundImage:[UIImage imageWithColor:LightGrayTipColor size:nextStepBtn.frame.size] forState:UIControlStateNormal];
+        [PublicMethod publicCornerBorderStyle:nextStepBtn];
+    }
+}
+
+- (void) InitNextStepButton:(CGRect) rect tag:(int)tag title:(NSString *)title{
+    nextStepBtn = [[UIButton alloc]initWithFrame:rect];
+    [nextStepBtn setBackgroundImage:[UIImage imageNamed:@"btn_blue_normal"] forState:UIControlStateNormal];
+    [nextStepBtn setBackgroundImage:[UIImage imageNamed:@"btn_blue_active"] forState:UIControlStateHighlighted];
+    
+    nextStepBtn.tag = tag;
+    nextStepBtn.layer.cornerRadius=2;
+    nextStepBtn.layer.masksToBounds=YES;
+    [nextStepBtn addTarget: self action: @selector(onButtonClick:) forControlEvents: UIControlEventTouchUpInside];
+    [nextStepBtn setTitle:title forState:UIControlStateNormal];
+    [nextStepBtn setTitleColor:TITLE_WHITE_COLOR forState:UIControlStateNormal];
+    [nextStepBtn setTitleColor:WARN_TITLE_COLOR forState:UIControlStateHighlighted];
+}
+
+- (void)beginEdit:(BOOL)isStart textFieldArrar:(NSMutableArray *)fields{
+    bKeyBoardShow = isStart;
+    [self reposControl];
+}
+
+- (void)reposControl{
+    int offset = IOS7_SYS?64:44;
+    if([SJKHEngine Instance]->systemVersion < 7){
+        int offset = 0;
+    }
+	if (bKeyBoardShow)
+	{
+        [UIView animateWithDuration:0.2 animations:^{
+            CGRect tempFrame = self.view.frame;
+            NSLog(@"up1:::%f",tempFrame.origin.y);
+            if (tempFrame.origin.y > 0) {
+                tempFrame.origin.y -= 200;
+            }
+            
+            NSLog(@"up2:::%f",tempFrame.origin.y);
+            self.view.frame = tempFrame;
+        }completion:^(BOOL finish){
+            
+        }];
+	}
+	else
+	{
+        [UIView animateWithDuration:0.2 animations:^{
+            CGRect tempFrame = self.view.frame;
+            NSLog(@"down1:::%f",tempFrame.origin.y);
+            
+            if (tempFrame.origin.y <0) {
+                tempFrame.origin.y = offset;
+            }
+            NSLog(@"down2:::%f",tempFrame.origin.y);
+            self.view.frame = tempFrame;
+        }completion:^(BOOL finish){
+            [self.navigationController.navigationBar setBackgroundImage:[UIImage imageWithColor:NAV_BG_COLOR size:CGSizeMake(320, NAV_HEIGHT)] forBarMetrics:UIBarMetricsDefault];
+        }];
+	}
+}
+
+- (void)ServerAuthenticate:(REQUEST_TYPE)request_type{
+    
+}
+
+- (ASIFormDataRequest *)createASIRequest:(NSString *)urlComponent{
+    NSURL * URL = [NSURL URLWithString:urlComponent];
+    ASIFormDataRequest * theRequest = [ASIFormDataRequest requestWithURL:[PublicMethod suburlString:URL]];
+    [theRequest setValidatesSecureCertificate:NO];
+    [theRequest setClientCertificateIdentity:[SJKHEngine Instance]->identify];
+    
+    [theRequest setAllowCompressedResponse:NO];
+    [theRequest setTimeOutSeconds:10];
+    
+    return theRequest;
+}
+
+- (BOOL)parseResponseData:(ASIFormDataRequest *)theRequest dic:(NSDictionary **)stepResponseDic{
+    if(theRequest.responseData){
+        *stepResponseDic = [NSJSONSerialization JSONObjectWithData:theRequest.responseData options:NSJSONReadingMutableContainers error:Nil];
+        NSString * tip = nil;
+        
+        NSString *testSTR = [*stepResponseDic objectForKey:NOTE];
+        
+        if([*stepResponseDic objectForKey:NOTE]){
+            tip = [PublicMethod getNSStringFromCstring:[[*stepResponseDic objectForKey:NOTE] UTF8String]];
+        }
+        
+        if(*stepResponseDic && [[*stepResponseDic objectForKey:SUCCESS] intValue] == 1){
+            
+            return YES;
+        }
+        else{
+            
+            return NO;
+        }
+    }
+    return NO;
+}
+
+
+//这里要上传json数据体
+- (BOOL)sendSaveStepInfo:(NSString *)stepName dataDictionary:(NSDictionary **)stepResponseDic arrar:(NSMutableDictionary *)jsonDic
+{
+    [self activityIndicate:YES tipContent:@"保存数据..." MBProgressHUD:nil target:self.navigationController.view];
+    
+    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+        BOOL isOk = [self toSendSaveStepInfo:stepName dataDictionary:stepResponseDic arrar:jsonDic];
+        
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [self saveSuccessContinueOpetion:isOk];
+        });
+    });
+    
+    return YES;
+}
+
+- (void)saveSuccessContinueOpetion:(BOOL)bSaveSuccess{
+    bSaveStepFinish = YES;
+    bSaveStepSuccess = bSaveSuccess;
+}
+
+- (void)toSendLastCommit:(NSString *)khzd dataDictionary:(NSDictionary **)stepResponseDic{
+    NSString * urlComponent= [NSString stringWithFormat:@"%@://%@:%d%@", [SJKHEngine Instance]->isHttps?@"https":@"http",[SJKHEngine Instance]->doMain,[SJKHEngine Instance]->port,KHQRTJ];
+    
+    ASIFormDataRequest * theRequest = [self createASIRequest:urlComponent];
+    
+    NSArray *ar = [PublicMethod convertURLToArray:urlComponent];
+    [theRequest setPostValue:khzd
+                      forKey:[ar firstObject]];
+    [theRequest setPostValue:[SJKHEngine Instance]->SJHM
+                      forKey:[ar objectAtIndex:1]];
+    theRequest.request_type = KHQRTJ_REQUEST;
+    [theRequest setDelegate:self];
+    [theRequest setDidFailSelector:@selector(httpFailed:)];
+    [theRequest setDidFinishSelector:@selector(httpFinished:)];
+    
+    [theRequest startAsynchronous];
+}
+
+- (void)toSendQueryKHXX{
+    NSString * urlComponent= [NSString stringWithFormat:@"%@://%@:%d%@", [SJKHEngine Instance]->isHttps?@"https":@"http",[SJKHEngine Instance]->doMain,[SJKHEngine Instance]->port,CXKHXX];
+    
+    ASIFormDataRequest * theRequest = [self createASIRequest:urlComponent];
+    
+    NSArray *ar = [PublicMethod convertURLToArray:urlComponent];
+//    [theRequest setPostValue:@"13800000015"
+//                      forKey:[ar firstObject]];
+    [theRequest setPostValue:[SJKHEngine Instance]->SJHM
+                      forKey:[ar firstObject]];
+    theRequest.request_type = CXKHXX_REQUEST;
+    [theRequest setDelegate:self];
+    [theRequest setDidFailSelector:@selector(httpFailed:)];
+    [theRequest setDidFinishSelector:@selector(httpFinished:)];
+    
+    [theRequest startAsynchronous];
+}
+
+
+// 每一步返回给服务器
+- (BOOL)toSendSaveStepInfo:(NSString *)stepName dataDictionary:(NSDictionary **)stepResponseDic arrar:(NSMutableDictionary *)jsonDic{
+    NSString * urlComponent= [NSString stringWithFormat:@"%@://%@:%d%@", [SJKHEngine Instance]->isHttps?@"https":@"http",[SJKHEngine Instance]->doMain,[SJKHEngine Instance]->port,BCBZSJXX];
+    
+    if ([NSJSONSerialization isValidJSONObject:jsonDic])
+    {
+        NSError *error;
+        NSData *jsonData = [NSJSONSerialization dataWithJSONObject:jsonDic options:NSJSONWritingPrettyPrinted error: &error];
+        NSMutableData *tempJsonData = [NSMutableData dataWithData:jsonData];
+        NSString *jsonString = [[NSString alloc]initWithData:tempJsonData encoding:NSUTF8StringEncoding];
+        NSLog(@"cunguanzhanghu:%@",jsonString);
+        
+        ASIFormDataRequest * theRequest = [self createASIRequest:urlComponent];
+        
+        NSArray *ar = [PublicMethod convertURLToArray:urlComponent];
+        [theRequest setPostValue:jsonString forKey:[ar firstObject]];
+        [theRequest setPostValue:[SJKHEngine Instance]->SJHM forKey:[ar objectAtIndex:1]];
+        [theRequest setPostValue:stepName
+                          forKey:[ar objectAtIndex:2]];
+        
+        [theRequest startSynchronous];
+        BOOL ret;
+        ret = [self parseResponseData:theRequest dic:stepResponseDic];
+        NSLog(@"cunguanzhanghu:%@",*stepResponseDic);
+        return ret;
+    }
+    return NO;
+}
+
+- (BOOL)sendCGYHXYID:(NSString *)yhdm dataDictionary:(NSDictionary **)stepResponseDic{
+    NSString * urlComponent= [NSString stringWithFormat:@"%@://%@:%d%@", [SJKHEngine Instance]->isHttps?@"https":@"http",[SJKHEngine Instance]->doMain,[SJKHEngine Instance]->port,CXCGYHDSFCGYX];
+    
+    ASIFormDataRequest * theRequest = [self createASIRequest:urlComponent];
+    
+    NSArray *ar = [PublicMethod convertURLToArray:urlComponent];
+    [theRequest setPostValue:yhdm
+                      forKey:[ar firstObject]];
+    [theRequest startSynchronous];
+    
+    return [self parseResponseData:theRequest dic:stepResponseDic];
+}
+
+
+- (BOOL)sendSaveCurrentStepKey:(NSString *)stepName dataDictionary:(NSDictionary **)stepResponseDic{
+    NSString * urlComponent= [NSString stringWithFormat:@"%@://%@:%d%@", [SJKHEngine Instance]->isHttps?@"https":@"http",[SJKHEngine Instance]->doMain,[SJKHEngine Instance]->port,BCDQBZKEY];
+    
+    ASIFormDataRequest * theRequest = [self createASIRequest:urlComponent];
+    
+    NSArray *ar = [PublicMethod convertURLToArray:urlComponent];
+    [theRequest setPostValue:[SJKHEngine Instance]->SJHM
+                      forKey:[ar firstObject]];
+    [theRequest setPostValue:stepName
+                      forKey:[ar objectAtIndex:1]];
+    [theRequest startSynchronous];
+    
+    return [self parseResponseData:theRequest dic:stepResponseDic];
+}
+
+- (BOOL)sendGoToStep:(NSString *)stepName dataDictionary:(NSDictionary **)stepResponseDic{
+    NSString * urlComponent= [NSString stringWithFormat:@"%@://%@:%d%@", [SJKHEngine Instance]->isHttps?@"https":@"http",[SJKHEngine Instance]->doMain,[SJKHEngine Instance]->port,HQDQBUYMSJ];
+    ASIFormDataRequest * theRequest = [self createASIRequest:urlComponent];
+    
+    NSArray *ar = [PublicMethod convertURLToArray:urlComponent];
+    [theRequest setPostValue:stepName
+                      forKey:[ar firstObject]];
+    [theRequest setPostValue:[SJKHEngine Instance]->SJHM
+                      forKey:[ar objectAtIndex:1]];
+    
+    [theRequest startSynchronous];
+    
+    return [self parseResponseData:theRequest dic:stepResponseDic];
+}
+
+- (BOOL)sendGetUUID:(NSDictionary **)stepResponseDic{
+    NSString * urlComponent= [NSString stringWithFormat:@"%@://%@:%d%@", [SJKHEngine Instance]->isHttps?@"https":@"http",[SJKHEngine Instance]->doMain,[SJKHEngine Instance]->port,SCSPJZDFWDKHXX];
+    ASIFormDataRequest * theRequest = [self createASIRequest:urlComponent];
+    
+    NSArray *ar = [PublicMethod convertURLToArray:urlComponent];
+    [theRequest setPostValue:[SJKHEngine Instance]->SJHM
+                      forKey:[ar objectAtIndex:0]];
+    [theRequest startSynchronous];
+    
+    return [self parseResponseData:theRequest dic:stepResponseDic];
+}
+
+- (BOOL)sendGetStepInfo:(NSString *)stepName dataDictionary:(NSDictionary **)stepResponseDic{
+    NSString * urlComponent= [NSString stringWithFormat:@"%@://%@:%d%@", [SJKHEngine Instance]->isHttps?@"https":@"http",[SJKHEngine Instance]->doMain,[SJKHEngine Instance]->port,JZYHSRSJ];
+    ASIFormDataRequest * theRequest = [self createASIRequest:urlComponent];
+    
+    NSArray *ar = [PublicMethod convertURLToArray:urlComponent];
+    [theRequest setPostValue:[SJKHEngine Instance]->SJHM
+                      forKey:[ar firstObject]];
+    [theRequest setPostValue:stepName
+                      forKey:[ar objectAtIndex:1]];
+    
+    [theRequest startSynchronous];
+    
+    return [self parseResponseData:theRequest dic:stepResponseDic];
+}
+
+- (BOOL)sendOCRInfo:(NSDictionary **)stepResponseDic{
+    NSString * urlComponent= [NSString stringWithFormat:@"%@://%@:%d%@", [SJKHEngine Instance]->isHttps?@"https":@"http",[SJKHEngine Instance]->doMain,[SJKHEngine Instance]->port,HQOCRSBXX];
+    ASIFormDataRequest * theRequest = [self createASIRequest:urlComponent];
+    
+    NSArray *ar = [PublicMethod convertURLToArray:urlComponent];
+    [theRequest setPostValue:[SJKHEngine Instance]->SJHM
+                      forKey:[ar firstObject]];
+    
+    [theRequest startSynchronous];
+    
+    return [self parseResponseData:theRequest dic:stepResponseDic];
+}
+
+- (BOOL)sendTaskBook:(NSDictionary **)stepResponseDic{
+    NSString * urlComponent= [NSString stringWithFormat:@"%@://%@:%d%@", [SJKHEngine Instance]->isHttps?@"https":@"http",[SJKHEngine Instance]->doMain,[SJKHEngine Instance]->port,HQDZHTXY];
+    ASIFormDataRequest * theRequest = [self createASIRequest:urlComponent];
+    
+    NSArray *ar = [PublicMethod convertURLToArray:urlComponent];
+    
+    NSString * postValue = nil;
+    NSArray * arr = [[SJKHEngine Instance]->jbzl_step_Dic objectForKey:SZZRSARR];
+    if (arr.count > 0) {
+        NSDictionary * dic = [arr objectAtIndex:0];
+        NSString * IDString= [dic objectForKey:ID];
+        if(IDString){
+            postValue = [dic objectForKey:ID];
+        }
+    }
+    [theRequest setPostValue:postValue
+                      forKey:[ar firstObject]];
+    
+    [theRequest startSynchronous];
+    
+    return [self parseResponseData:theRequest dic:stepResponseDic];
+}
+
+- (void)customPushAnimation:(UIView *)target withFrame:(CGRect)frame controller:(UIViewController *)vc{
+    [UIView animateWithDuration:0.3 animations:^(void) {
+        target.frame = frame;
+    } completion:^(BOOL finished) {
+        
+    }];
+    
+    [vc.view.layer addAnimation:[SJKHEngine Instance]->rightTransition forKey:nil];
+}
+
+- (void)sendAsychronizeSaveCurrentStep:(NSString *)stepName dataDictionary:(NSDictionary **)stepResponseDic{
+    NSString * urlComponent= [NSString stringWithFormat:@"%@://%@:%d%@", [SJKHEngine Instance]->isHttps?@"https":@"http",[SJKHEngine Instance]->doMain,[SJKHEngine Instance]->port,BCDQBZKEY];
+    
+    ASIFormDataRequest * theRequest = [self createASIRequest:urlComponent];
+    
+    NSArray *ar = [PublicMethod convertURLToArray:urlComponent];
+    [theRequest setPostValue:[SJKHEngine Instance]->SJHM
+                      forKey:[ar firstObject]];
+    [theRequest setPostValue:stepName
+                      forKey:[ar objectAtIndex:1]];
+    [theRequest setDelegate:self];
+    [theRequest setDidFailSelector:@selector(httpFailed:)];
+    [theRequest setDidFinishSelector:@selector(httpFinished:)];
+    
+    [theRequest startAsynchronous];
+}
+
+- (void)dismissHUD{
+    [self activityIndicate:NO tipContent:Nil MBProgressHUD:Nil target:Nil];
+}
+
+- (void)activityIndicateTextMode:(BOOL)isBegin tipContent:(NSString *)content target:(UIView *)target {
+    dispatch_async(dispatch_get_main_queue(), ^{
+        if(isBegin){
+            if(hud == nil){
+                hud = [MBProgressHUD showHUDAddedTo:target animated:YES];
+            }
+            [hud setHidden:NO];
+            [hud setOpaque:YES];
+            hud.mode = MBProgressHUDModeText;
+            hud.labelText = content;
+            [target bringSubviewToFront:hud];
+        }
+        else {
+            if(content == nil){
+                [hud hide:YES];
+
+                [hud setHidden:YES];
+                hud = nil;
+            }
+            else{
+                if(hud == nil){
+                    hud = [MBProgressHUD showHUDAddedTo:target animated:YES];
+                }
+                hud.mode = 	MBProgressHUDModeText;
+                hud.labelText = content;
+                [self performSelector:@selector(hiddenHud) withObject:nil afterDelay:1];
+            }
+        }
+    });
+}
+
+
+- (void)activityIndicate:(BOOL)isBegin tipContent:(NSString *)content MBProgressHUD:(MBProgressHUD *)hudd target:(UIView *)target  {
+    dispatch_async(dispatch_get_main_queue(), ^{
+        [hud setHidden:NO];
+        [hud setOpaque:YES];
+        
+        if(isBegin){
+            if(hud == nil){
+                hud = [MBProgressHUD showHUDAddedTo:target animated:YES];
+            }
+            hud.labelText = content;
+            [target bringSubviewToFront:hud];
+        }
+        else {
+            if(hud == nil){
+                hud = [MBProgressHUD showHUDAddedTo:target animated:YES];
+            }
+            if(content == nil){
+                [hud hide:YES];
+//                [hud setHidden:YES];
+                hud = nil;
+            }
+            else{
+                hud.mode = 	MBProgressHUDModeText;
+                hud.labelText = content;
+                [self performSelector:@selector(hiddenHud) withObject:nil afterDelay:2];
+            }
+        }
+    });
+}
+
+- (void) hiddenHud{
+    [hud hide:YES];
+//    [hud setHidden:YES];
+    hud = nil;
+}
+
+- (void) addGesture:(UIView *)view{
+    singleTapRecognizer = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(OnTouchDownResign:)];
+    singleTapRecognizer.numberOfTapsRequired = 1;
+    singleTapRecognizer.numberOfTouchesRequired = 1;
+    [view addGestureRecognizer:singleTapRecognizer];
+}
+
+- (void) httpFailed:(ASIHTTPRequest *)http{
+    NSError * error = nil;
+    if (http.responseData && http.responseData.length > 0) {
+        responseDictionary = [NSJSONSerialization JSONObjectWithData:http.responseData options:NSJSONReadingMutableContainers error:&error];
+        NSLog(@"dic fail error= %@,%@,%@",responseDictionary,self,error);
+    }
+}
+
+- (void) httpFinished:(ASIHTTPRequest *)http{
+    NSError * error = nil;
+    if (http.responseData && http.responseData.length > 0) {
+        responseDictionary = [NSJSONSerialization JSONObjectWithData:http.responseData options:NSJSONReadingMutableContainers error:&error] ;
+//        NSLog(@"error 0=%@",error);
+//        responseDictionary = [NSJSONSerialization JSONObjectWithData:http.responseData options:NSJSONReadingMutableContainers|NSJSONReadingAllowFragments error:&error];
+//        NSLog(@"error 1=%@",error);
+        if(error){
+            responseDictionary = [NSJSONSerialization JSONObjectWithData:http.responseData options:NSJSONReadingAllowFragments error:&error];
+        }
+        NSLog(@"error 2=%@",error);
+        
+        if([responseDictionary objectForKey:NOTE]){
+            NSString * note = [PublicMethod getNSStringFromCstring:[[responseDictionary objectForKey:NOTE] UTF8String]];
+            NSLog(@"dic finished = %@,%@,%@",responseDictionary,self,note);
+        }
+    }
+}
+
+- (UIButton *)createSelectImageButton:(int)i withFrame:(CGRect)frame{
+    UIButton * selectImageButton = [[UIButton alloc]initWithFrame:frame];
+    selectImageButton.tag = i;
+    [selectImageButton setBackgroundImage:[UIImage imageNamed:@"checkBox_default"] forState:UIControlStateNormal];
+    [selectImageButton setBackgroundImage:[UIImage imageNamed:@"checkBox_checked"] forState:UIControlStateSelected];
+    return selectImageButton;
+}
+
+- (UIButton *)createSelectTitleButton:(int)i withFrame:(CGRect)frame title:(NSString *)title{
+    UIButton * selectTitleButton = [[UIButton alloc]initWithFrame:frame];
+//    [selectTitleButton setImage:[UIImage imageNamed:@""] forState:UIControlStateNormal];
+    [selectTitleButton setBackgroundColor:[UIColor clearColor]];
+    [selectTitleButton setTitleColor:GrayTipColor_Wu forState:UIControlStateNormal];
+    selectTitleButton.tag = i;
+    [selectTitleButton setTitle:title forState:UIControlStateNormal];
+    selectTitleButton.titleLabel.font = [UIFont systemFontOfSize:10];
+    
+    return selectTitleButton;
+}
+
+- (float)getHeightForHeaderString:(NSString *)text size:(CGSize)size{
+    CGFloat height = 25.0f;
+    height += ceilf([text sizeWithFont:TipFont constrainedToSize:size lineBreakMode:NSLineBreakByWordWrapping].height);
+    return height;
+}
+
+- (void)updateUI{
+    while (!self.isViewLoaded) {
+        NSLog(@"123456");
+        [[NSRunLoop currentRunLoop] runMode:NSDefaultRunLoopMode beforeDate:[NSDate distantFuture]];
+    }
+}
+
+- (void)OnTouchDownResign:(UIControl *)control{
+    if(bKeyBoardShow ){
+        
+    }
+}
+
+- (void)didReceiveMemoryWarning
+{
+    [super didReceiveMemoryWarning];
+}
+
+- (void)dealloc{
+//    NSLog(@"BASE回收");
+}
+
+@end

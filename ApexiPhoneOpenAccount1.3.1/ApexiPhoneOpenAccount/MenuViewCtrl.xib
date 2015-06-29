@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="5056" systemVersion="13B42" targetRuntime="iOS.CocoaTouch" variant="6xAndEarlier" propertyAccessControl="none" useAutolayout="YES">
+    <dependencies>
+        <deployment version="1536" defaultVersion="1280" identifier="iOS"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="3733"/>
+    </dependencies>
+    <objects>
+        <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner" customClass="MenuViewCtrl">
+            <connections>
+                <outlet property="backImageView" destination="uJd-Fb-3Yn" id="ubL-Lx-Lfz"/>
+                <outlet property="borrowButton" destination="Erk-Rz-8LO" id="HFY-0Z-muU"/>
+                <outlet property="caculateButton" destination="0Ke-dB-tGN" id="qte-FE-qBb"/>
+                <outlet property="centerView" destination="Iz8-tX-yoQ" id="wrv-SV-WQd"/>
+                <outlet property="kaihuButton" destination="Ft9-qn-0fS" id="9xT-vV-sLB"/>
+                <outlet property="view" destination="i5M-Pr-FkT" id="hmY-cn-xt7"/>
+            </connections>
+        </placeholder>
+        <placeholder placeholderIdentifier="IBFirstResponder" id="-2" customClass="UIResponder"/>
+        <view clearsContextBeforeDrawing="NO" contentMode="scaleToFill" id="i5M-Pr-FkT">
+            <rect key="frame" x="0.0" y="20" width="320" height="548"/>
+            <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+            <subviews>
+                <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Ft9-qn-0fS" userLabel="kaihuButton">
+                    <rect key="frame" x="193" y="470" width="97" height="48"/>
+                    <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                    <constraints>
+                        <constraint firstAttribute="width" constant="97" id="Xz3-Pp-3t6"/>
+                        <constraint firstAttribute="height" constant="48" id="iTw-Xp-wnp"/>
+                    </constraints>
+                    <state key="normal">
+                        <color key="titleShadowColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>
+                    </state>
+                </button>
+                <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="Iz8-tX-yoQ" userLabel="centerView">
+                    <rect key="frame" x="0.0" y="90" width="320" height="240"/>
+                    <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                    <subviews>
+                        <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="uJd-Fb-3Yn" userLabel="backImageView">
+                            <rect key="frame" x="0.0" y="0.0" width="320" height="240"/>
+                            <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        </imageView>
+                        <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="0Ke-dB-tGN" userLabel="caculateButton">
+                            <rect key="frame" x="0.0" y="16" width="160" height="208"/>
+                            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                            <constraints>
+                                <constraint firstAttribute="width" constant="160" id="aS0-I2-d2U"/>
+                            </constraints>
+                            <state key="normal">
+                                <color key="titleShadowColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>
+                            </state>
+                        </button>
+                        <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Erk-Rz-8LO" userLabel="borrowButton">
+                            <rect key="frame" x="160" y="16" width="160" height="208"/>
+                            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                            <state key="normal">
+                                <color key="titleShadowColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>
+                            </state>
+                        </button>
+                    </subviews>
+                    <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="calibratedWhite"/>
+                    <constraints>
+                        <constraint firstItem="uJd-Fb-3Yn" firstAttribute="trailing" secondItem="Erk-Rz-8LO" secondAttribute="trailing" id="4uF-GR-L7a"/>
+                        <constraint firstItem="uJd-Fb-3Yn" firstAttribute="leading" secondItem="0Ke-dB-tGN" secondAttribute="leading" id="LOa-1i-ALt"/>
+                        <constraint firstItem="0Ke-dB-tGN" firstAttribute="baseline" secondItem="Erk-Rz-8LO" secondAttribute="baseline" id="OK6-rK-wyt"/>
+                        <constraint firstItem="Erk-Rz-8LO" firstAttribute="top" secondItem="0Ke-dB-tGN" secondAttribute="top" id="OLm-9W-Yyh"/>
+                        <constraint firstAttribute="bottom" secondItem="uJd-Fb-3Yn" secondAttribute="bottom" id="QHj-KM-e4f"/>
+                        <constraint firstAttribute="trailing" secondItem="uJd-Fb-3Yn" secondAttribute="trailing" id="ULu-1N-Upg"/>
+                        <constraint firstItem="uJd-Fb-3Yn" firstAttribute="top" secondItem="Iz8-tX-yoQ" secondAttribute="top" id="Ygf-ve-dCg"/>
+                        <constraint firstItem="Erk-Rz-8LO" firstAttribute="leading" secondItem="0Ke-dB-tGN" secondAttribute="trailing" id="fUa-pJ-zeq"/>
+                        <constraint firstItem="Erk-Rz-8LO" firstAttribute="bottom" secondItem="0Ke-dB-tGN" secondAttribute="bottom" id="gwu-gX-KKq"/>
+                        <constraint firstItem="0Ke-dB-tGN" firstAttribute="top" secondItem="Iz8-tX-yoQ" secondAttribute="top" constant="16" id="n7O-7l-Sdw"/>
+                        <constraint firstItem="uJd-Fb-3Yn" firstAttribute="leading" secondItem="Iz8-tX-yoQ" secondAttribute="leading" id="nZx-vd-c4H"/>
+                        <constraint firstItem="0Ke-dB-tGN" firstAttribute="centerY" secondItem="uJd-Fb-3Yn" secondAttribute="centerY" id="xpY-1a-ytn"/>
+                    </constraints>
+                </view>
+            </subviews>
+            <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="calibratedWhite"/>
+            <constraints>
+                <constraint firstAttribute="bottom" secondItem="Ft9-qn-0fS" secondAttribute="bottom" constant="30" id="7yW-7V-JPB"/>
+                <constraint firstItem="Iz8-tX-yoQ" firstAttribute="leading" secondItem="i5M-Pr-FkT" secondAttribute="leading" id="JyZ-JW-TZG"/>
+                <constraint firstAttribute="bottom" secondItem="Iz8-tX-yoQ" secondAttribute="bottom" constant="218" id="an3-Np-fm0"/>
+                <constraint firstAttribute="trailing" secondItem="Ft9-qn-0fS" secondAttribute="trailing" constant="30" id="jv9-c1-h60"/>
+                <constraint firstItem="Iz8-tX-yoQ" firstAttribute="top" secondItem="i5M-Pr-FkT" secondAttribute="top" constant="90" id="xK3-Y3-rTr"/>
+                <constraint firstAttribute="trailing" secondItem="Iz8-tX-yoQ" secondAttribute="trailing" id="yqf-Os-esp"/>
+            </constraints>
+            <simulatedStatusBarMetrics key="simulatedStatusBarMetrics"/>
+            <simulatedScreenMetrics key="simulatedDestinationMetrics" type="retina4"/>
+        </view>
+    </objects>
+</document>

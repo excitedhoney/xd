@@ -1,0 +1,871 @@
+//
+//  KHRequestOrSearchViewCtrl.m
+//  ApexiPhoneOpenAccount
+//
+//  Created by mac  on 14-3-6.
+//  Copyright (c) 2014年 mac . All rights reserved.
+//
+
+#import "KHRequestOrSearchViewCtrl.h"
+#import "UploadImageViewCtrl.h"
+#import "RiskEvaluateViewCtrl.h"
+#import "ReturnVisitViewCtrl.h"
+#import "VideoWitnessViewCtrl.h"
+#import <CoreFoundation/CoreFoundation.h>
+#import "RootModelViewCtrl.h"
+#import "UINavigationBar+Frame.h"
+#import "ClientInfoViewCtrl.h"
+//#import "ViewController.h"
+#import "InstallProfileViewCtrl.h"
+#import "SecretSetViewCtrl.h"
+#import "DepositBankViewCtrl.h"
+#import "RiskEvaluateViewCtrl.h"
+#import "AccountTypeViewCtrl.h"
+#import "ReturnVisitViewCtrl.h"
+#import "VideoWitnessViewCtrl.h"
+#import "LookProcessViewCtrl.h"
+
+#define  serviceTag  1990
+
+@interface KHRequestOrSearchViewCtrl (){
+    UITextField * phoneEditor;
+    UITextField * verifyEditor;
+    CGRect centerViewNormalRect;
+    NSMutableArray * verifyTitlts;
+    NSTimer * verifyTextMonitor;
+    int timeLeft;
+    CGRect staticVerifyFieldRect;
+    CGRect staticVerifyButtonRect;
+    UIScrollView *rootScollView;
+    UITextField *ocusView;
+}
+
+@end
+
+@implementation KHRequestOrSearchViewCtrl
+
+- (id)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil
+{
+    self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil];
+    if (self) {
+        
+    }
+    return self;
+}
+
+- (void)loadView{
+    [super loadView];
+}
+
+- (void)viewWillAppear:(BOOL)animated{
+    if([SJKHEngine Instance]->SJHM && [SJKHEngine Instance]->SJHM.length > 0){
+        [phoneEditor setText:[SJKHEngine Instance]->SJHM];
+    }
+//    [self addGesture:self.navigationController.navigationBar];
+    [super viewWillAppear:animated];
+    self.navigationController.title = @"手机号";
+}
+
+- (void)viewWillDisappear:(BOOL)animated{
+    [super viewWillDisappear:animated];
+//    [self.navigationController.navigationBar removeGestureRecognizer:singleTapRecognizer];
+    [phoneEditor resignFirstResponder];
+    [verifyEditor resignFirstResponder];
+}
+
+- (void)viewDidAppear:(BOOL)animated{
+    [super viewDidAppear:animated];
+}
+
+static  double tt = 0;
+
+- (void)viewDidLoad
+{
+    tt = CFAbsoluteTimeGetCurrent();
+    [self InitConfig];
+    [self InitWidgets];
+    
+    [super viewDidLoad];
+}
+
+- (void)didReceiveMemoryWarning
+{
+    [super didReceiveMemoryWarning];
+}
+
+- (void)dealloc{
+    NSLog(@"验证码页面回收");
+//    [self.view removeObserver:self forKeyPath:@"frame"];
+}
+
+- (void)vcOperation:(UIViewController *)vc{
+    NSArray * ar = [self.navigationController childViewControllers];
+    NSLog(@"vcs =%@",self.navigationController.viewControllers);
+    
+    if([[ar lastObject] isMemberOfClass:[KHRequestOrSearchViewCtrl class]] ||
+       [[ar lastObject] isMemberOfClass:[VideoWitnessViewCtrl class]])
+    {
+        [[ar lastObject] backOperation];
+    }
+    
+    if(vc == Nil){
+        [self.navigationController popToRootViewControllerAnimated:YES];
+        
+        [SJKHEngine Instance]->rootVC = nil;
+        __strong BaseViewController * _vc;
+        for (int i=1;i<ar.count;i++) {
+            _vc = [ar objectAtIndex:i];
+            if(![_vc isMemberOfClass:[RootModelViewCtrl class]]){
+                
+                __strong UIViewController * viewCtrl;
+                for(viewCtrl in _vc.childViewControllers){
+                    if([viewCtrl isMemberOfClass:[DepositBankViewCtrl class]]){
+                        [[SJKHEngine Instance].observeCtrls removeObject:viewCtrl];
+                        [viewCtrl removeFromParentViewController];
+                        [viewCtrl.view removeFromSuperview];
+                        viewCtrl = nil;
+                        break ;
+                    }
+                }
+                
+                [[SJKHEngine Instance].observeCtrls removeObject:_vc];
+                [_vc removeFromParentViewController];
+                _vc = nil;
+            }
+        }
+    }
+    
+    @autoreleasepool {
+//        if(ar.count > 0){
+//            BaseViewController *baseVC = [ar objectAtIndex:0];
+//            [[SJKHEngine Instance].observeCtrls removeObject:baseVC];
+//            [baseVC removeFromParentViewController];
+//            [baseVC.view removeFromSuperview];
+//            baseVC = nil;
+//        }
+    }
+    
+//    [[SJKHEngine Instance]->rootVC addChildViewController:vc];
+//    [[SJKHEngine Instance]->rootVC.view addSubview:vc.view];
+//    [vc.view.layer addAnimation:[SJKHEngine Instance]->rightTransition forKey:Nil];
+}
+
+- (void)backOperation{
+    [self verifyButtonChange:NO];
+}
+
+#pragma tool methods
+- (void)InitConfig{
+    [self.navigationController setNavigationBarHidden:NO animated:NO];
+    [self.navigationItem setHidesBackButton:YES];
+    self.navigationController.navigationBar.translucent = NO;
+    bKeyBoardShow = NO;
+    [SJKHEngine Instance]->rootVC = self;
+    NSLog(@"%@",[SJKHEngine Instance]->rootVC);
+    
+
+//    [self.navigationController.navigationBar addObserver:self forKeyPath:@"barPosition" options:NSKeyValueObservingOptionNew |
+//    NSKeyValueObservingOptionOld context:nil];
+    
+    [self.view setBackgroundColor:PAGE_BG_COLOR];
+}
+
+//- (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary *)change context:(void *)context{
+//    NSLog(@"change =%@",change);
+//    if([[change objectForKey:@"old"]intValue] == 2){
+//        
+//    }
+//}
+
+//- (UIBarPosition)positionForBar:(id<UIBarPositioning>)bar
+//{
+//    return UIBarPositionTopAttached;
+//}
+
+- (void) InitWidgets{
+    [super InitWidgets];
+    rootScollView = [[UIScrollView alloc] initWithFrame:CGRectMake(0, 0, screenWidth, screenHeight - (IOS7_SYS?64:44))];
+    rootScollView.bounces = NO;
+    rootScollView.backgroundColor = PAGE_BG_COLOR;
+    rootScollView.delegate = self;
+    CGSize size = CGSizeMake(screenWidth, screenHeight);
+    verifyTitlts = [NSMutableArray arrayWithObjects:@"获取验证码",@"重新获取验证码", nil];
+    float width = [PublicMethod getStringWidth:[verifyTitlts objectAtIndex:0] font:TipFont] + 2*Padding;
+    int fieldWidth = (screenWidth - levelSpace*3) - width;
+    
+    [rootScollView setAlpha:1];
+    
+    UIImageView *banner = [[UIImageView alloc] initWithImage:[UIImage imageNamed:@"index_banner.png"]];
+    [banner setUserInteractionEnabled:NO];
+    banner.frame = CGRectMake(0, 0, screenWidth, 200);
+    banner.backgroundColor = BTN_DEFAULT_REDBG_COLOR;
+    [rootScollView addSubview:banner];
+    
+    UILabel * tipLabel = [PublicMethod initLabelWithFrame:CGRectMake(0, banner.frame.size.height, screenWidth, ButtonHeight) title:@"为了顺利开户,请您勿必填写真实信息!" target:rootScollView];
+    tipLabel.textAlignment = UITextAlignmentCenter;
+    tipLabel.textColor = GrayTipColor_Wu;
+    
+    phoneEditor = [PublicMethod CreateField:@"手机号" withFrame:CGRectMake(levelSpace , ButtonHeight + banner.frame.size.height, screenWidth - levelSpace * 2, ButtonHeight) tag:serviceTag target:rootScollView];
+    phoneEditor.delegate = self;
+    
+    //后期想想UITextField为什么placeHolder会在最上方;为什么在ios6下输入数字会没反应。待调试
+    verifyEditor = [PublicMethod CreateField:@"手机验证码" withFrame:CGRectMake(levelSpace , ButtonHeight *2 + verticalHeight + banner.frame.size.height,fieldWidth,ButtonHeight) tag:serviceTag + 2 target:rootScollView];
+    verifyEditor.delegate =self;
+    staticVerifyFieldRect = verifyEditor.frame;
+    
+    UIButton * verifyButton = [PublicMethod CreateButton:[verifyTitlts objectAtIndex:0]
+                                           withFrame:CGRectMake(levelSpace*2 + fieldWidth,
+                                                                ButtonHeight *2 + verticalHeight + banner.frame.size.height,
+                                                                width,
+                                                                ButtonHeight)
+                                                 tag:serviceTag + 1
+                                              target:rootScollView];
+    verifyButton.titleLabel.font = TipFont;
+    verifyButton.layer.cornerRadius = 2;
+    verifyButton.layer.masksToBounds = YES;
+    [verifyButton addTarget:self action:@selector(onButtonClick:) forControlEvents:UIControlEventTouchUpInside];
+    [verifyButton setBackgroundImage:[UIImage imageNamed:@"btn_blue_normal"] forState:UIControlStateNormal];
+    [verifyButton setBackgroundImage:[UIImage imageNamed:@"btn_blue_active"] forState:UIControlStateHighlighted];
+    staticVerifyButtonRect = verifyButton.frame;
+    
+    [self InitNextStepButton:CGRectMake (levelSpace,
+                                         verifyButton.frame.origin.y + ButtonHeight + verticalHeight,
+                                         screenWidth - 2 * levelSpace,
+                                         ButtonHeight)
+                         tag:serviceTag + 3
+                       title:@"确定"];
+    [rootScollView addSubview:nextStepBtn];
+    
+    rootScollView.contentSize = CGSizeMake(320, nextStepBtn.frame.origin.y  + 50);
+    [self.view addSubview:rootScollView];
+}
+
+//- (CGRect)placeholderRectForBounds:(CGRect)bounds{
+//    return CGRectMake(levelSpace, (ButtonHeight - 30)/2 , bounds.size.width , 30);
+//}
+
+- (void)OnTouchDownResign:(UIControl *)control{
+    if(bKeyBoardShow ){
+//        [self beginEdit:NO textFieldArrar:[NSMutableArray arrayWithObjects:phoneEditor,verifyEditor, nil]];
+    }
+}
+
+- (void)onButtonClick:(UIButton *)btn{
+    [phoneEditor resignFirstResponder];
+    [verifyEditor resignFirstResponder];
+    
+    switch (btn.tag) {
+        case serviceTag + 1:{
+            
+#ifdef SelectTest
+//            VideoWitnessViewCtrl * witnessVC = [[VideoWitnessViewCtrl alloc]init];
+//            [self.navigationController pushViewController:witnessVC animated:YES];
+            
+//            InstallProfileViewCtrl * installVC = [[InstallProfileViewCtrl alloc]init];
+//            [self.navigationController pushViewController:installVC animated:YES];
+            
+//            SecretSetViewCtrl *secretVC = [[SecretSetViewCtrl alloc]init];
+//            [self.navigationController pushViewController:secretVC animated:YES];
+            
+//            DepositBankViewCtrl * depositVC = [[DepositBankViewCtrl alloc]init];
+//            [self.navigationController pushViewController:depositVC animated:YES];
+            
+//            RiskEvaluateViewCtrl * riskVC = [[RiskEvaluateViewCtrl alloc]init];
+//            [self.navigationController pushViewController:riskVC animated:YES];
+            
+//            ReturnVisitViewCtrl * returnVC = [[ReturnVisitViewCtrl alloc]init];
+//            [self.navigationController pushViewController:returnVC animated:YES];
+            
+//            ClientInfoViewCtrl * clientVC = [[ClientInfoViewCtrl alloc]init];
+//            [self.navigationController pushViewController:clientVC animated:YES];
+            
+//            AccountTypeViewCtrl * accountVC =[[AccountTypeViewCtrl alloc]init];
+//            [self.navigationController pushViewController:accountVC animated:YES];
+
+//            ReturnVisitViewCtrl *returnVC = [[ReturnVisitViewCtrl alloc]init];
+//            [self.navigationController pushViewController:returnVC animated:YES];
+//            [returnVC updateUI];
+            
+//            UploadImageViewCtrl * uploadVC = [[UploadImageViewCtrl alloc]init];
+//            [self.navigationController pushViewController:uploadVC animated:YES];
+            
+//            LookProcessViewCtrl * lookVC =[[LookProcessViewCtrl alloc]init];
+//            [self.navigationController pushViewController:lookVC animated:YES];
+            
+//            return ;
+            
+#endif
+            
+            NSString * text = [phoneEditor.text stringByReplacingOccurrencesOfString:@" " withString:@""];
+            if(text && text.length > 0){
+                [self verifyButtonChange:YES];
+                [self ServerAuthenticate:HQNZM_REQUEST];
+            }
+            else{
+                UIAlertView * alertview = [[UIAlertView alloc] initWithTitle:@"提示" message:@"请先输入手机号码" delegate:self cancelButtonTitle:nil otherButtonTitles:@"确定", nil];
+                [alertview show];
+            }
+            break;
+        }
+            //开户申请或转户
+        case serviceTag + 3:{
+#ifdef SelectTest
+//            UploadImageViewCtrl * uploadVC = [[UploadImageViewCtrl alloc]init];
+//            [self addChildViewController:uploadVC];
+//            [self.view addSubview:uploadVC.view];
+//            
+//            return ;
+#endif
+            
+            [self verifyButtonChange:NO];
+            [self ServerAuthenticate:NZNZM_REQUEST];
+            break;
+        }
+    }
+}
+
+- (void)verifyButtonChange:(BOOL)isWait{
+    UIButton * verifyButton = (UIButton *)[rootScollView viewWithTag: serviceTag + 1];
+    
+    if(isWait){
+        timeLeft = 30;
+        verifyTextMonitor = [NSTimer scheduledTimerWithTimeInterval:1 target:self selector:@selector(setVerifyTitle:) userInfo:verifyButton repeats:YES];
+        NSString * title = [[verifyTitlts objectAtIndex:1] stringByAppendingString:@"(30s)"];
+        float width = [PublicMethod getStringWidth:title font:TipFont] + 2*Padding;
+        float verifyFieldWidth = (screenWidth - levelSpace*3) - width;
+        [verifyButton setTitle:title forState:UIControlStateNormal];
+        [verifyButton setUserInteractionEnabled:NO];
+        [UIView animateWithDuration:0.2 animations:^{
+            [verifyEditor setFrame:CGRectMake(levelSpace, staticVerifyFieldRect.origin.y, verifyFieldWidth, staticVerifyFieldRect.size.height)];
+            [verifyButton setFrame:CGRectMake(levelSpace * 2 + verifyFieldWidth, staticVerifyButtonRect.origin.y, width, staticVerifyButtonRect.size.height)];
+        }completion:^(BOOL finish){
+            
+        }];
+    }
+    else{
+        if (verifyTextMonitor != nil) {
+            [verifyTextMonitor invalidate];
+            verifyTextMonitor = nil;
+        }
+        [verifyButton setTitle:[verifyTitlts objectAtIndex:0] forState:UIControlStateNormal];
+        [verifyButton setUserInteractionEnabled:YES];
+        [UIView animateWithDuration:0.2 animations:^{
+            [verifyEditor setFrame:staticVerifyFieldRect];
+            [verifyButton setFrame:staticVerifyButtonRect];
+        }completion:^(BOOL finish){
+            
+        }];
+    }
+}
+
+- (void)setVerifyTitle:(NSTimer *)timer{
+    UIButton * btn = [timer userInfo];
+    NSString * title = [[verifyTitlts objectAtIndex:1] stringByAppendingFormat: @"(%is)",--timeLeft];
+    [btn setTitle:title forState:UIControlStateNormal];
+    if(timeLeft == 0){
+        [self verifyButtonChange:NO];
+    }
+}
+
+- (void)ServerAuthenticate:(REQUEST_TYPE)request_type{
+    NSString * urlComponent = nil;
+    
+    switch (request_type) {
+        case HQNZM_REQUEST:{
+            urlComponent= [NSString stringWithFormat:@"%@://%@:%d%@", [SJKHEngine Instance]->isHttps?@"https":@"http",[SJKHEngine Instance]->doMain,[SJKHEngine Instance]->port,HQNZM];
+            break;
+        }
+        case NZNZM_REQUEST:
+            urlComponent= [NSString stringWithFormat:@"%@://%@:%d%@", [SJKHEngine Instance]->isHttps?@"https":@"http",[SJKHEngine Instance]->doMain,[SJKHEngine Instance]->port,NZNZM];
+            break;
+    }
+    NSURL * URL = [NSURL URLWithString:urlComponent];
+    
+    
+    ASIFormDataRequest * theRequest = [ASIFormDataRequest requestWithURL:[PublicMethod suburlString:URL]];
+    //    ASIFormDataRequest * theRequest = [ASIFormDataRequest requestWithURL:[NSURL URLWithString:@"https://192.168.1.108:8443/WebServer/request.jsp"]];
+    [theRequest setValidatesSecureCertificate:NO];
+    [theRequest setClientCertificateIdentity:[SJKHEngine Instance]->identify];
+    
+    [theRequest setAllowCompressedResponse:NO];
+    [theRequest setTimeOutSeconds:10];
+    
+    //为调试https://192.168.1.108:8443/WebServer/request.jsp而作的操作。
+    //    [theRequest setTimeOutSeconds:15];
+    //    [theRequest startAsynchronous];
+    //
+    //    return ;
+    
+    NSArray *ar = [PublicMethod convertURLToArray:[URL absoluteString]];
+    if(ar.count > 0){
+        switch (request_type) {
+            case HQNZM_REQUEST:{
+                NSString * phoneText = [phoneEditor.text stringByReplacingOccurrencesOfString:@" " withString:@""];
+                if(![PublicMethod validateCellPhone:phoneText]){
+                    [self verifyButtonChange:NO];
+                    UIAlertView *alert = [[UIAlertView alloc] initWithTitle: nil
+                                                                    message: @"请输入正确的手机号码"
+                                                                   delegate: self
+                                                          cancelButtonTitle: @"我知道了!"
+                                                          otherButtonTitles: nil];
+                    [alert show];
+                    return;
+                }
+                
+                theRequest.request_type = HQNZM_REQUEST;
+                [theRequest setDelegate:self];
+                [theRequest setDidFailSelector:@selector(httpFailed:)];
+                [theRequest setDidFinishSelector:@selector(httpFinished:)];
+                
+                [theRequest setPostValue:phoneText forKey:[ar firstObject]];
+                [theRequest startAsynchronous];
+                break;
+            }
+            case NZNZM_REQUEST:{
+                #ifndef Test
+                if (phoneEditor.text.length == 0 || verifyEditor.text.length == 0)
+                {
+                    UIAlertView *alert = [[UIAlertView alloc] initWithTitle: @"开户提示"
+                                                                    message: @"请输入手机号码或验证码."
+                                                                   delegate: self
+                                                          cancelButtonTitle: @"我知道了!"
+                                                          otherButtonTitles: nil];
+                    [alert show];
+                    return;
+                }
+                #endif
+                [self activityIndicate:YES tipContent:@"正在登录..." MBProgressHUD:nil target:self.navigationController.view];
+                [self dispatchUploadImageViewCtrl:ar request:theRequest];
+            }
+        }
+    }
+}
+
+- (void)dispatchUploadImageViewCtrl:(NSArray *)ar request:(ASIFormDataRequest *)theRequest{
+    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+        [theRequest setPostValue:[phoneEditor.text stringByReplacingOccurrencesOfString:@" " withString:@""]
+                          forKey:[ar firstObject]];
+        [theRequest setPostValue:[verifyEditor.text stringByReplacingOccurrencesOfString:@" " withString:@""]
+                          forKey:[ar objectAtIndex:1]];
+        
+        NSDictionary * responseDic = nil;
+        
+        [theRequest startSynchronous];
+        
+        if(theRequest.responseData){
+            responseDic = [NSJSONSerialization JSONObjectWithData:theRequest.responseData options:NSJSONReadingMutableContainers error:Nil] ;
+            
+            NSLog(@"responseDic:\n%@",responseDic);
+            
+            [SJKHEngine Instance]->isKaiHuOVER = nop;
+            
+            NSLog(@"\nkhbdinfo:\n%@",[responseDic objectForKey:@"khbdinfo"]);
+            NSLog(@"\ncount:\n%d",((NSDictionary *)[responseDic objectForKey:@"khbdinfo"]).count);
+            
+            if ([responseDic objectForKey:@"khbdinfo"] && ((NSDictionary *)[responseDic objectForKey:@"khbdinfo"]).count) {
+                [SJKHEngine Instance]->isKaiHuOVER = yep;
+                [SJKHEngine Instance]->khbd_info_Dic = [[responseDic objectForKey:@"khbdinfo"] mutableCopy];
+            }
+            else{
+                [SJKHEngine Instance]->isKaiHuOVER = nop;
+                [SJKHEngine Instance]->khsq_info_Dic = [[responseDic objectForKey:phoneEditor.text] mutableCopy];
+            }
+            NSLog(@"%@",[SJKHEngine Instance]->khsq_info_Dic);
+            
+            NSString * tip = nil;
+            
+            if([responseDic objectForKey:NOTE]){
+                tip = [PublicMethod getNSStringFromCstring:[[responseDic objectForKey:NOTE] UTF8String]];
+            }
+            if(responseDic && ([[responseDic objectForKey:SUCCESS] intValue] == 1 || [[responseDic objectForKey:SUCCESS] boolValue] == true))
+            {
+                [SJKHEngine Instance]->SJHM = [phoneEditor.text stringByReplacingOccurrencesOfString:@" " withString:@""];
+
+                //如果已经申请成功，则直接处理，不往下派发
+                if([responseDic objectForKey:KhbdInfo]){
+                    //为东吴环境所做的修改
+                    NSMutableDictionary * khbdinfo = [responseDic objectForKey:KhbdInfo];
+                    if (![self vailToCert]) {
+                        return;
+                    }
+                    dispatch_async(dispatch_get_main_queue(), ^{
+                        [self activityIndicate:NO tipContent:nil MBProgressHUD:nil target:nil];
+                        LookProcessViewCtrl * lookVC = [[LookProcessViewCtrl alloc]init];
+                        lookVC->khbdInfo = [khbdinfo mutableCopy];
+                        [self.navigationController pushViewController:lookVC animated:YES];
+                    });
+                    
+                    return ;
+                }
+                
+                NSDictionary * dic = [responseDic objectForKey:[SJKHEngine Instance]->SJHM];
+                if(dic){
+                    NSString * step = [dic objectForKey:CurrentStep_Login];
+                    NSLog(@"step_%@_",step);
+                    if (!step || !step.length) {
+                        
+                    }
+                    else if(step.length &&
+                        ![step isEqualToString:YXCJ_STEP] &&
+                        ![step isEqualToString:JBZL_STEP] &&
+                        ![step isEqualToString:SPJZ_STEP] &&
+                        ![step isEqualToString:ZSGL_STEP])
+                    {
+                        if (![self vailToCert]) {
+                            return;
+                        }
+                    }
+                    
+                    NSDictionary * stepResponseDic = nil;
+                    //如果是视频见证步骤，则加载khjbzl，因为在startagent()中要传入username.后续步骤可能还要用到jbzl数据。
+                    if([dic objectForKey:StepData_Login]){
+                        [SJKHEngine Instance]->khjbzl = [[dic objectForKey:StepData_Login] objectForKey:JBZL_STEP];
+                    }
+                    if(step.length == 0 || step == Nil){
+                        step = YXCJ_STEP;
+                    }
+                    BaseViewController * vc = [self getVCByStep:step];
+                    
+                    //如果是基本资料页面,则还需要加载图片上传页。
+                    if([step isEqualToString:JBZL_STEP]){
+                        if ([self sendGoToStep:YXCJ_STEP dataDictionary:&stepResponseDic]) {
+                            dispatch_async(dispatch_get_main_queue(), ^{
+                                [self activityIndicate:NO tipContent:Nil MBProgressHUD:hud target:nil];
+                                UploadImageViewCtrl * uploadViewCtrl = [[UploadImageViewCtrl alloc]init];
+                                NSArray * arr = (NSArray *)[stepResponseDic objectForKey:YXSZ];
+                                
+                                [SJKHEngine Instance]->yxData = [arr mutableCopy];
+                                if ([step isEqualToString:YXCJ_STEP]) {
+                                    [SJKHEngine Instance]->jbzl_step_Dic = [stepResponseDic mutableCopy];
+                                }
+                                NSArray * arrr = [[SJKHEngine Instance]->jbzl_step_Dic objectForKey:SZZRSARR];
+                                if (arr.count > 0) {
+                                    NSDictionary * dic = [arrr objectAtIndex:0];
+                                    NSString *HTXYID= [dic objectForKey:ID];
+                                    NSLog(HTXYID);
+                                }
+                                [self goZDPage:step viewCtrl:vc frontVC:uploadViewCtrl];
+                            });
+                        }
+                        else{
+                            [self activityIndicate:NO tipContent:@"加载数据失败" MBProgressHUD:hud target:nil];
+                        }
+                    }
+                    //不是基本资料页面，则不需要加载前一页面。
+                    else {
+                        [self goZDPage:step viewCtrl:vc frontVC:nil];
+                    }
+                }
+                else{
+                    [self activityIndicate:NO tipContent:@"加载数据失败" MBProgressHUD:hud target:nil];
+                }
+            }
+            else{
+                [self activityIndicate:NO tipContent:@"登录失败" MBProgressHUD:hud target:nil];
+            }
+        }
+        else{
+            [self activityIndicate:NO tipContent:@"登录失败" MBProgressHUD:hud target:nil];
+        }
+    });
+}
+
+- (void)goZDPage:(NSString *)step viewCtrl:(BaseViewController *)vc frontVC:(BaseViewController *)frontVC{
+    NSDictionary * stepResponseDic = nil;
+    if ([self sendGoToStep:step dataDictionary:&stepResponseDic]) {
+        
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [self activityIndicate:NO tipContent:Nil MBProgressHUD:hud target:nil];
+            
+            [self loadDataAndPushVC:step dataSource:stepResponseDic pushVC:vc];
+            
+            if([step isEqualToString:CGZD_STEP]){
+                [self addChildViewController:vc];
+                [self.view addSubview:vc.view];
+                
+                [super customPushAnimation:rootScollView withFrame:CGRectMake(-screenWidth, 0, screenWidth, screenHeight - UpHeight) controller:vc];
+            }
+            else{
+                if(frontVC){
+                    [self.navigationController pushViewController:frontVC animated:NO];
+                }
+                [self.navigationController pushViewController:vc animated:YES];
+            }
+            
+            if([step isEqualToString:JBZL_STEP] ||
+               [step isEqualToString:FXPC_STEP])
+            {
+                [vc updateUI];
+            }
+            if([step isEqualToString:CGZD_STEP]){
+                [((DepositBankViewCtrl *)vc) setViewBound];
+                [vc updateUI];
+            }
+        });
+    }
+    else{
+        [self activityIndicate:NO tipContent:@"加载数据失败" MBProgressHUD:hud target:nil];
+    }
+}
+
+- (BaseViewController *)getVCByStep:(NSString *)step{
+    BaseViewController * vc = nil;
+    
+    if([step isEqualToString:YXCJ_STEP]){
+        vc = [[UploadImageViewCtrl alloc]init];
+    }
+    else if([step isEqualToString:JBZL_STEP]){
+        vc = [[ClientInfoViewCtrl alloc]init];
+    }
+    else if([step isEqualToString:SPJZ_STEP]){
+        vc = [[VideoWitnessViewCtrl alloc]initWithNibName:@"VideoWitnessView" bundle:nil];
+    }
+    else if([step isEqualToString:ZSGL_STEP]){
+        vc = [[InstallProfileViewCtrl alloc]init];
+    }
+    else if([step isEqualToString:FXPC_STEP]){
+        vc = [[RiskEvaluateViewCtrl alloc]init];
+    }
+    else if ([step isEqualToString:MMSZ_STEP]){
+        vc = [[SecretSetViewCtrl alloc]init];
+    }
+    else if([step isEqualToString:CGZD_STEP]){
+        vc = [[DepositBankViewCtrl alloc]init];
+    }
+    else if([step isEqualToString:ZQZH_STEP]){
+        vc = [[AccountTypeViewCtrl alloc]init];
+    }
+    else if([step isEqualToString:HFWJ_STEP]){
+        vc = [[ReturnVisitViewCtrl alloc]init];
+    }
+    else{
+        NSLog(@"vc为空");
+        vc = [[UploadImageViewCtrl alloc]init];
+    }
+    
+    NSLog(@"vc =%@",vc);
+    
+    return vc;
+}
+
+- (void)loadDataAndPushVC:(NSString *)step dataSource:(NSDictionary *)stepResponseDic pushVC:(BaseViewController *)vc{
+    [self activityIndicate:NO tipContent:nil MBProgressHUD:nil target:rootScollView];
+//    NSLog(@"stepResponseDic =%@",stepResponseDic);
+    
+    if([step isEqualToString:YXCJ_STEP]){
+        NSArray * arr = (NSArray *)[stepResponseDic objectForKey:YXSZ];
+        [SJKHEngine Instance]->yxData = [arr mutableCopy];
+        [SJKHEngine Instance]->jbzl_step_Dic = [stepResponseDic mutableCopy];
+    }
+    else if([step isEqualToString:JBZL_STEP]){
+        [SJKHEngine Instance]->jbzl_step_Dic = [stepResponseDic mutableCopy];
+        
+        if([self sendOCRInfo: &stepResponseDic]){
+            NSLog(@"%@",stepResponseDic);
+            ((ClientInfoViewCtrl*)vc)->jbzl_step_OCR_Dic = [stepResponseDic mutableCopy];
+        }
+        else{
+            [[SJKHEngine Instance] dispatchMessage:GET_OCR_FAIL_POP_MESSAGE];
+        }
+    }
+    else if([step isEqualToString:SPJZ_STEP]){
+        [SJKHEngine Instance]->spzj_step_Dic = [stepResponseDic mutableCopy];
+        [[SJKHEngine Instance]->spzj_step_Dic writeToFile:[PublicMethod getFilePath:DOCUMENT_CACHE fileName:SPJZ_KEY] atomically:YES];
+        BOOL ok = [self sendGetUUID:&stepResponseDic];
+        if(ok){
+            ((VideoWitnessViewCtrl *)vc)->uuid = [stepResponseDic objectForKey:UUID];
+        }
+        else {
+            [[SJKHEngine Instance] dispatchMessage:POP_MESSAGE];
+        }
+    }
+    else if([step isEqualToString:ZSGL_STEP]){
+        [SJKHEngine Instance]->zsgl_step_Dic = [stepResponseDic mutableCopy];
+    }
+    else if([step isEqualToString:FXPC_STEP]){
+        [SJKHEngine Instance]->fxpc_step_Dic = [stepResponseDic mutableCopy];
+    #ifdef SelectTest
+        [stepResponseDic writeToFile:[PublicMethod getFilePath:DOCUMENT_CACHE fileName:FXPC_KEY] atomically:YES];
+    #endif
+    }
+    else if ([step isEqualToString:MMSZ_STEP]){
+        [SJKHEngine Instance]->mmsz_step_Dic = [stepResponseDic mutableCopy];
+        NSMutableArray * ar = [[SJKHEngine Instance]->mmsz_step_Dic objectForKey:RMMARR_MMSZ];
+        ((SecretSetViewCtrl *)vc)->rmmArray = [NSMutableArray array];
+        for (NSDictionary * rmm in ar) {
+            [((SecretSetViewCtrl *)vc)->rmmArray addObject:[rmm objectForKey:@"MM"]];
+        }
+    }
+    else if([step isEqualToString:CGZD_STEP]){
+        [SJKHEngine Instance]->cgzd_step_Dic = [stepResponseDic mutableCopy];
+        NSLog(@"%@",[SJKHEngine Instance]->cgzd_step_Dic);
+        ((DepositBankViewCtrl *)vc)->filterArray = [NSMutableArray array];
+        for (NSDictionary * yhDic in [[SJKHEngine Instance]->cgzd_step_Dic objectForKey:CGYHARR_CGYH]) {
+            [((DepositBankViewCtrl *)vc)->filterArray addObject:[yhDic objectForKey:YHMC_CGYH]];
+        }
+        NSLog(@"%@",((DepositBankViewCtrl *)vc)->filterArray);
+    }
+    else if([step isEqualToString:ZQZH_STEP]){
+        [SJKHEngine Instance]->zqzh_step_Dic = [[stepResponseDic objectForKey:KhxyArr_ZQZH] mutableCopy];
+        
+    }
+    else if([step isEqualToString:HFWJ_STEP]){
+        [SJKHEngine Instance]->hfwj_step_Dic = [stepResponseDic mutableCopy];
+    #ifdef SelectTest
+        [stepResponseDic writeToFile:[PublicMethod getFilePath:DOCUMENT_CACHE fileName:HFWJ_KEY] atomically:YES];
+    #endif
+    }
+    
+//    [vc updateUI];
+    
+    NSLog(@"step vc =%@,%@",step,vc);
+}
+
+- (void)httpFinished:(ASIHTTPRequest *)http{
+    [super httpFinished:http];
+    
+    if(http.request_type == HQNZM_REQUEST){
+        if([[responseDictionary objectForKey:SUCCESS]intValue]==1){
+            [verifyEditor setText:[responseDictionary objectForKey:YZM]];
+            [self verifyButtonChange:NO];
+        }
+        else{
+            NSString * tip = [responseDictionary objectForKey:NOTE];
+            tip = @"获取验证码失败";
+            
+            //测试号为48680268032时，将通过客户端验证，但不能通过服务器手机端验证。待调试.为何不出现tip提示
+            [self activityIndicate:NO tipContent:tip MBProgressHUD:hud target:self.navigationController.view];
+            [self verifyButtonChange:NO];
+        }
+    }
+}
+
+- (void)httpFailed:(ASIHTTPRequest *)http{
+    [super httpFailed:http];
+    
+    [self verifyButtonChange:NO];
+    
+    if(http.request_type == HQNZM_REQUEST){
+        if ([responseDictionary objectForKey:NOTE]) {
+//            UIAlertView *alert = [[UIAlertView alloc] initWithTitle: nil
+//                                                            message:[responseDictionary objectForKey:NOTE]
+//                                                           delegate: self
+//                                                  cancelButtonTitle: @"我知道了!"
+//                                                  otherButtonTitles: nil];
+//            [alert show];
+            
+            [self activityIndicate:NO tipContent:@"获取验证码失败" MBProgressHUD:hud target:self.navigationController.view];
+        }
+        if(http.responseData.length == 0){
+            [self activityIndicate:NO tipContent:@"获取验证码失败" MBProgressHUD:hud target:self.navigationController.view];
+        }
+    }
+}
+
+
+- (BOOL) textFieldShouldBeginEditing:(UITextField *)textField{
+    ocusView = textField;
+    [self beginEdit:YES textFieldArrar:[NSMutableArray arrayWithArray: scrollView.subviews]];
+    return YES;
+}
+
+- (BOOL)textFieldShouldEndEditing:(UITextField *)textField{
+    if (ocusView.tag == textField.tag) {
+        [self beginEdit:NO textFieldArrar:[NSMutableArray arrayWithArray: scrollView.subviews]];
+        ocusView.tag = nil;
+    }
+    return YES;
+}
+
+- (BOOL) textField:(UITextField *)textField shouldChangeCharactersInRange:(NSRange)range replacementString:(NSString *)string{
+    NSString * fieldText = [NSString stringWithFormat:@"%@%@", textField.text , string];
+    if(fieldText.length>11){
+//        UIAlertView * alertview = [[UIAlertView alloc] initWithTitle:Nil message:@"您的手机号码不能超过11位" delegate:self cancelButtonTitle:nil otherButtonTitles:@"确定", nil];
+//        [alertview show];
+        
+        return NO;
+    }
+    return  YES;
+}
+
+#pragma textfield Delegate
+-(void)textFieldDidBeginEditing:(UITextField *)textField{
+//    [textField becomeFirstResponder];
+    bKeyBoardShow = YES;
+    keyboardOffset = textField.frame.origin.y + ButtonHeight - (screenHeight - UpHeight - KeyBoardHeight);
+    textField.layer.borderColor = TEXTFEILD_BOLD_HIGHLIGHT_COLOR.CGColor;
+    if(keyboardOffset > 0){
+//        [self beginEdit:YES textFieldArrar:nil];
+    }
+    switch (textField.tag) {
+        case serviceTag:
+            
+            break;
+        case serviceTag + 2:
+            
+            break;
+        default:
+            break;
+    }
+}
+
+- (void)textFieldDidEndEditing:(UITextField *)textField{
+    textField.layer.borderColor = FieldNormalColor.CGColor;
+}
+
+- (BOOL)textFieldShouldReturn:(UITextField *)textField{
+    if(bKeyBoardShow ){
+        [self beginEdit:NO textFieldArrar:[NSMutableArray arrayWithObjects:textField,nil]];
+    }
+    return YES;
+}
+
+- (void)resignAllResponse{
+    [phoneEditor resignFirstResponder];
+    [verifyEditor resignFirstResponder];
+}
+
+#pragma scrollview delegate
+- (void)scrollViewWillBeginDragging: (UIScrollView *)_scrollView
+{
+    [self resignAllResponse];
+}
+
+- (YEorNO)vailToCert{
+    [self activityIndicate:YES tipContent:@"检查证书..." MBProgressHUD:nil target:self.navigationController.view];
+    CertHandle *certClass = [CertHandle defaultCertHandle];
+    [certClass createHandleData];
+    certClass.delegate = self;
+    YEorNO resault = nop;
+    NSLog(@"到此一游");
+    resault = [certClass vailCertExist];
+    NSLog(@"到此再游");
+    if (!resault) {
+        YEorNO isLoadCert = nop;
+        isLoadCert = [certClass certToHandle];
+        NSLog(@"到此三游");
+        [NSThread sleepForTimeInterval:2.0];
+        return isLoadCert;
+    }
+    return resault;
+}
+
+- (void)certHandleResault:(NSString *)resaultString{
+    NSLog(@"开始");
+    [self activityIndicate:NO tipContent:resaultString MBProgressHUD:nil target:nil];
+    NSLog(@"结束");
+}
+
+
+- (void)alertView:(UIAlertView *)alertView clickedButtonAtIndex:(NSInteger)buttonIndex{
+    if(buttonIndex == 1){
+        if(alertView.tag == 10000){
+            if([SJKHEngine Instance]->rootVC){
+                //                self.view.bounds = CGRectMake(0, 0, screenWidth, screenHeight - UpHeight);
+                [[SJKHEngine Instance]->rootVC vcOperation:Nil];
+            }
+        }
+    }
+}
+
+@end

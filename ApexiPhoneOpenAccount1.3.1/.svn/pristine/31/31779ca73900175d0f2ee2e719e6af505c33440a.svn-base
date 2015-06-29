@@ -1,0 +1,283 @@
+/*
+ * sm3nss.c - implementation of sm3
+ *
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+/* $Id: sha512.c,v 1.23 2013/02/06 00:41:13 wtc%google.com Exp $ */
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <stdarg.h>
+#include <time.h>
+
+#ifdef FREEBL_NO_DEPEND
+#include "stubs.h"
+#endif
+
+#include "prcpucfg.h"
+#if defined(NSS_X86) || defined(SHA_NO_LONG_LONG)
+#define NOUNROLL512 1
+#undef HAVE_LONG_LONG
+#endif
+#include "prtypes.h"	/* for PRUintXX */
+#include "prlong.h"
+#include "secport.h"	/* for PORT_XXX */
+#include "blapi.h"
+#include "sm3.h"	/* for struct SM3ContextStr */
+
+
+#define LOG_FILE_PATH		"d:/sm3.log"
+
+void LOG_PRINTF(char *szMsg, ...)
+{	
+#ifdef _DEBUG
+	va_list		vlArgs;
+	FILE		*fp;
+	time_t		lTime;	
+	struct tm	*pstTime;
+	char		szFormat[500];
+		
+	fp = NULL;
+	pstTime = NULL;
+	memset(szFormat, 0, sizeof(szFormat));
+			
+	//日志文件需要手工建立,没有文件,创建
+	fp = fopen((char*)LOG_FILE_PATH, "r");	
+	if( NULL == fp )
+	{
+		fp = fopen(LOG_FILE_PATH, "wb");	
+		if(NULL == fp)
+		{
+			return;
+		}
+	}
+	fclose(fp);
+
+	fp = fopen((char*)LOG_FILE_PATH, "at");
+	if( NULL == fp )
+	{
+		return;
+	}
+#if 1		
+	time(&lTime);
+	pstTime = localtime(&lTime);
+	sprintf(szFormat, "%.2d/%.2d %.2d:%.2d:%.2d , %s", 
+		pstTime->tm_mday, 
+		pstTime->tm_mon+1, 
+		pstTime->tm_hour, 
+		pstTime->tm_min, 
+		pstTime->tm_sec,						
+		szMsg);
+#else	
+	sprintf(szFormat, ">>>>1, %s", szMsg);
+#endif
+	va_start(vlArgs, szMsg);
+	vfprintf(fp, szFormat, vlArgs);
+	va_end(vlArgs);
+	
+	fputs("\n", fp);	
+	fclose(fp);	
+#endif	//_DEBUG
+	return;
+}
+
+void LOG_PRINTF_HEX(void *pbData, int nDataLen)
+{
+#ifdef _DEBUG
+	unsigned char		*pbTemp;
+	int			i;	
+	FILE		*fp;
+	
+	
+	pbTemp = NULL;
+	fp = NULL;		
+	
+	//日志文件需要手工建立,没有文件,创建
+	fp = fopen((char*)LOG_FILE_PATH, "r");	
+	if( NULL == fp )
+	{
+		fp = fopen(LOG_FILE_PATH, "wb");	
+		if(NULL == fp)
+		{
+			return;
+		}
+	}
+	fclose(fp);
+
+	fp = fopen((char*)LOG_FILE_PATH, "at");
+	if( NULL == fp )
+	{
+		return;
+	}
+	
+	pbTemp = (unsigned char*)pbData;	
+	if( pbTemp )
+	{
+		for(i=0; i<nDataLen; i++)
+		{
+			if( (i>0) && (0==i%16) )
+			{
+				fputs("\n", fp);
+			}
+			fprintf(fp, " %02x", pbTemp[i]);		
+		}
+	}
+	fputs("\n", fp);
+	fclose(fp);
+#endif	//_DEBUG
+
+	return;
+}
+
+
+SM3Context *
+SM3_NewContext(void)
+{
+    SM3Context *ctx = PORT_New(SM3Context);
+
+	int a = sizeof *ctx;
+    return ctx;
+}
+
+void 
+SM3_DestroyContext(SM3Context *ctx, PRBool freeit)
+{	
+    memset(ctx, 0, sizeof *ctx);
+    if (freeit) {
+        PORT_Free(ctx);
+    }
+}
+
+void 
+SM3_Begin(SM3Context *ctx)
+{
+	int a = sizeof *ctx;
+
+	a =  sizeof(SM3Context);
+    memset(ctx, 0, sizeof(SM3Context));
+    tcm_sch_starts(&ctx->context);    
+
+	LOG_PRINTF("SM3_Begin ->>>>>>>>>>>>>  ctx:");
+	LOG_PRINTF_HEX(&ctx, 4);
+	LOG_PRINTF("\n");
+}
+
+void 
+SM3_Update(SM3Context *ctx, const unsigned char *input,
+		    unsigned int inputLen)
+{
+	LOG_PRINTF("SM3_Update ->>>>>>>>>>>>>  ctx:");
+	LOG_PRINTF_HEX(&ctx, 4);
+	LOG_PRINTF("\ninput:\n");
+	LOG_PRINTF_HEX((void*)input, inputLen);
+	LOG_PRINTF("\n");
+    tcm_sch_update(&ctx->context, (unsigned char *)input, inputLen);	
+}
+
+void 
+SM3_End(SM3Context *ctx, unsigned char *digest,
+           unsigned int *digestLen, unsigned int maxDigestLen)
+{
+	if (digestLen)
+	{
+		*digestLen = SM3_DIGEST_LEN;		
+	}
+	tcm_sch_finish(&ctx->context, digest);
+	memset(ctx, 0, sizeof(SM3Context));
+	
+	LOG_PRINTF("SM3_End ->>>>>>>>>>>>>  ctx:");
+	LOG_PRINTF_HEX(&ctx, 4);
+	LOG_PRINTF("\ndigest:\n");
+	LOG_PRINTF_HEX(digest, SM3_DIGEST_LEN);
+	LOG_PRINTF("\n");
+
+	//len = PR_MIN(SM3_DIGEST_LEN, maxDigestLen);
+  // memcpy(digest, h, len);
+		
+}
+
+void
+SM3_EndRaw(SM3Context *ctx, unsigned char *digest,
+	      unsigned int *digestLen, unsigned int maxDigestLen)
+{
+	SM3Context *tmpctx = NULL; 
+	SECStatus ret;
+	unsigned char space[sizeof *ctx];
+
+	ret = SM3_Flatten(ctx, space);
+
+	tmpctx = SM3_Resurrect(space, NULL);
+
+	if (digestLen)
+	{
+		*digestLen = SM3_DIGEST_LEN;		
+	}
+	
+	tcm_sch_finish_EndRaw(&tmpctx->context, digest);
+		
+	LOG_PRINTF("SM3_EndRaw ->>>>>>>>>>>>>  ctx:");
+	LOG_PRINTF_HEX(&ctx, 4);
+	LOG_PRINTF("\ndigest:\n");
+	LOG_PRINTF_HEX(digest, SM3_DIGEST_LEN);
+	LOG_PRINTF("\n");
+
+	SM3_DestroyContext(tmpctx, 1);
+	//len = PR_MIN(SM3_DIGEST_LEN, maxDigestLen);
+  // memcpy(digest, h, len);
+}
+SECStatus 
+SM3_HashBuf(unsigned char *dest, const unsigned char *src, 
+               PRUint32 src_length)
+{
+    sch_context ctx;
+
+		if( (src_length>0) && (!src) )
+			return -1;
+
+		tcm_sch_starts(&ctx);
+		tcm_sch_update(&ctx, (unsigned char *)src, src_length);
+		tcm_sch_finish(&ctx, dest);
+
+		memset(&ctx, 0, sizeof(sch_context));
+
+    return SECSuccess;
+}
+
+
+SECStatus 
+SM3_Hash(unsigned char *dest, const char *src)
+{
+    return SM3_HashBuf(dest, (const unsigned char *)src, PORT_Strlen(src));
+}
+
+
+void SM3_TraceState(SM3Context *ctx) { }
+
+unsigned int 
+SM3_FlattenSize(SM3Context *ctx)
+{
+    return sizeof *ctx;
+}
+
+SECStatus 
+SM3_Flatten(SM3Context *ctx,unsigned char *space)
+{
+    PORT_Memcpy(space, ctx, sizeof *ctx);
+    return SECSuccess;
+}
+
+SM3Context * 
+SM3_Resurrect(unsigned char *space, void *arg)
+{
+    SM3Context *ctx = SM3_NewContext();
+    if (ctx) 
+	PORT_Memcpy(ctx, space, sizeof *ctx);
+    return ctx;
+}
+
+void SM3_Clone(SM3Context *dest, SM3Context *src) 
+{
+    memcpy(dest, src, sizeof *dest);
+}
+

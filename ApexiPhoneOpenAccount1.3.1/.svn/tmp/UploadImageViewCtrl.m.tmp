@@ -1,0 +1,1024 @@
+//
+//  UploadImageViewCtrl.m
+//  ApexiPhoneOpenAccount
+//
+//  Created by mac  on 14-3-7.
+//  Copyright (c) 2014年 mac . All rights reserved.
+//
+
+#import "UploadImageViewCtrl.h"
+#import "ClientInfoViewCtrl.h"
+#import "RootModelViewCtrl.h"
+#import "KHRequestOrSearchViewCtrl.h"
+#import "UIImage+custom_.h"
+#import "PostWebForm.h"
+#import "VideoWitnessViewCtrl.h"
+
+
+#define SFZBUTTONTAG 1021
+#define IMAGECONTENTTAG 2132
+
+@interface UploadImageViewCtrl (){
+    UIImage * selectedImage;
+    int currentCameraIndex;                 //当前点击的是正面还是背面拍照的按钮
+    int uploadFailBtnTag;
+    NSMutableDictionary * imageUploadSign;
+//    MBProgressHUD * hud;
+    NSArray * images;
+    PECropViewController *controller;
+    BOOL bImagePickerCropOK;
+    NSData * postImageFileData;
+    BOOL bUploadFail;
+//    NSString * imagePathKey;
+    
+    NSMutableArray *picArray;
+    
+    UILabel * requestZRS;
+    NSString *HTXYID;
+}
+
+@end
+
+@implementation UploadImageViewCtrl
+
+- (id)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil
+{
+    self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil];
+    if (self) {
+        
+    }
+    return self;
+}
+
+- (void)viewDidLoad
+{
+    [self InitConfig];
+    [self InitWidgets];
+    
+    [super viewDidLoad];
+}
+
+- (void) viewWillAppear:(BOOL)animated{
+    [super viewWillAppear:animated];
+    self.navigationController.title = @"影像采集";
+}
+
+- (void) viewDidLayoutSubviews{
+//    self.view.bounds = CGRectMake(0, -20, screenWidth, screenHeight - UpHeight );
+//    [[SJKHEngine Instance] setWindowHeaderView:YES];
+}
+
+- (void) viewDidAppear:(BOOL)animated{
+    
+}
+
+- (void) InitConfig{
+    [self stepInfoRequest];
+    [self.view setBackgroundColor:PAGE_BG_COLOR];
+    
+    imageUploadSign = [[NSMutableDictionary alloc] init];
+    
+    currentCameraIndex = 0;
+    bUploadFail = NO;
+    
+    if([SJKHEngine Instance]->systemVersion < 7){
+        self.view.bounds = CGRectMake(0, 0, screenWidth, screenHeight);
+    }
+    
+    [self.navigationItem setHidesBackButton:YES];
+    
+    
+    
+//    self.view.frame = CGRectMake(0, UpHeight, screenWidth, screenHeight - UpHeight);
+//    [super InitConfig];
+}
+
+- (void) InitWidgets{
+    int viewHeight = screenHeight - UpHeight;
+    [self InitScrollView];
+    
+    int labelHeight = (screenWidth - 300)/2;
+    float avatarWidth = 300;
+    float avatarHeight = 175;
+    images = [NSMutableArray arrayWithObjects:[UIImage imageNamed:BTN_CERCARD_IMG],[UIImage imageNamed:BTN_CERCARD_IMG2],nil];
+    int i = 0;
+    for (; i < 2; i++) {
+        CGFloat top = 0; // 顶端盖高度
+        
+        CGFloat bottom = 0 ; // 底端盖高度
+        
+        CGFloat left = 0; // 左端盖宽度
+        
+        CGFloat right = 0; // 右端盖宽度
+        
+        UIEdgeInsets insets = UIEdgeInsetsMake(top, left, bottom, right);
+        
+        
+        UIButton * btn = [PublicMethod CreateButton:nil withFrame:CGRectMake(levelSpace, labelHeight+(avatarHeight + labelHeight)*i + FLOWVIEW_BUTTOM, avatarWidth, avatarHeight) tag:SFZBUTTONTAG + i target:scrollView];
+        UIImage * image = [images objectAtIndex:i];
+        [btn setImage:[image resizableImageWithCapInsets:insets resizingMode:UIImageResizingModeStretch] forState:UIControlStateNormal];
+        btn.selected = NO;
+        [btn addTarget: self action:@selector(onButtonClick:) forControlEvents: UIControlEventTouchUpInside];
+        btn.backgroundColor = CLEAR_COLOR;
+        btn.layer.borderColor = TEXTFEILD_BOLD_DEFAULT_COLOR.CGColor;
+        btn.layer.masksToBounds = YES;
+        btn.backgroundColor = [UIColor whiteColor];
+        btn.layer.borderWidth = 0.5;
+        
+        CGRect frame = btn.frame;
+        frame.origin.x += 72;
+        frame.origin.y += 48;
+        frame.size.width = 156;
+        frame.size.height = 98;
+        UIImageView *imageView= [[UIImageView alloc] initWithFrame:frame];
+        imageView.layer.cornerRadius = 5;
+        imageView.layer.masksToBounds = YES;
+        imageView.tag = SFZBUTTONTAG * 2 + i;
+        [imageUploadSign setObject:@"0" forKey:[NSString stringWithFormat:@"%i",SFZBUTTONTAG*2 + i]];
+        [scrollView addSubview:imageView];
+    }
+    
+    
+//    for(; i < [SJKHEngine Instance]->yxData.count ;i++){
+//        UIView * vi = [PublicMethod CreateView:CGRectMake(levelSpace, labelHeight+(avatarHeight + labelHeight)*i + FLOWVIEW_BUTTOM, avatarWidth, avatarHeight) tag:0 target:scrollView];
+//        vi.layer.borderColor = LightGrayTipColor.CGColor;
+//        vi.layer.borderWidth = 0.5;
+//        vi.layer.cornerRadius = 1;
+//        vi.layer.masksToBounds = YES;
+//        
+//        UIButton * btn = [PublicMethod CreateButton:nil withFrame:CGRectMake(0, 0, avatarWidth, avatarHeight) tag:SFZBUTTONTAG + i target:vi];
+//        UIImage * image = [images objectAtIndex:i];
+//        [btn setImage:image forState:UIControlStateNormal];
+//        [btn setImage:nil forState:UIControlStateHighlighted];
+//        [btn addTarget: self action: @selector(onButtonClick:) forControlEvents: UIControlEventTouchUpInside];
+//        btn.imageEdgeInsets = UIEdgeInsetsMake(3, (avatarWidth - avatarWidth * 0.9)/2, 3, (avatarWidth - avatarWidth*0.9)/2);
+//        
+//        [imageUploadSign setObject:@"0" forKey:[NSString stringWithFormat:@"%i",SFZBUTTONTAG + i]];
+//    }
+    
+    int originY = labelHeight+(avatarHeight + labelHeight) + avatarHeight + verticalHeight + FLOWVIEW_BUTTOM;
+    
+    
+    NSMutableArray * options = [NSMutableArray array];
+    [options addObject:@"readZRS"];
+    NSString * title = @"我已阅读:数字证书申请责任书";
+    float readZRSHeight = [super getHeightForHeaderString:title size:CGSizeMake(screenWidth - 2 * levelSpace - ButtonHeight , CGFLOAT_MAX)];
+    
+    requestZRS = [[UILabel alloc]initWithFrame:CGRectMake(levelSpace*2,
+                                                                  originY,
+                                                                  screenWidth - 2 * levelSpace ,
+                                                                   readZRSHeight)];
+    requestZRS.font = [UIFont systemFontOfSize:16];
+    requestZRS.backgroundColor = CLEAR_COLOR;
+
+    requestZRS.text = title;
+    NSLog(@"%@",requestZRS);
+    
+    [requestZRS presentCertTitleClickToTarget:self andSEL:@selector(CertTitleClicked:) WithSepString:@":"];
+    NSLog(@"%@",requestZRS.subviews);
+    [scrollView addSubview:requestZRS];
+//
+//    requestZRS = [PublicMethod InitReadXYWithAttributeLabel:title
+//                                                  withFrame:CGRectMake(levelSpace,
+//                                                                       originY,
+//                                                                       screenWidth - 2 * levelSpace ,
+//                                                                       readZRSHeight)
+//                                                        tag: 2105 // JBZL_VIEW_TAG + i
+//                                                     target:self
+//                                                    options:options
+//                                                  superView:scrollView];
+//    
+//    
+//    CGRect rect = ((TTTAttributedLabel *)[requestZRS viewWithTag:TTTLabelTag]).frame;
+//    
+//    ((TTTAttributedLabel *)[requestZRS viewWithTag:TTTLabelTag]).frame =
+//                                                                CGRectMake(rect.origin.x,
+//                                                                           rect.origin.y + 11,
+//                                                                           rect.size.width,
+//                                                                           rect.size.height);
+    
+    [self InitNextStepButton:CGRectMake (levelSpace, originY + 60 , screenWidth - 2*levelSpace , ButtonHeight) tag:SFZBUTTONTAG + i title:@"下一步"];
+    
+    [scrollView addSubview:nextStepBtn];
+    
+    [scrollView setContentSize:CGSizeMake(screenWidth, originY + ButtonHeight*2 + verticalHeight * 3)];
+    
+    [self.view addSubview:scrollView];
+    
+    [super InitWidgets];
+    
+    flowView.image = [UIImage imageNamed:@"flow_1"];
+    [scrollView addSubview:flowView];
+    
+    scrollView.delegate=self;
+}
+
+- (void)CertTitleClicked:(UITapGestureRecognizer *)tgr{
+    UIButton *btn = (UIButton *)[tgr.view.superview viewWithTag:MarkBtnTag];
+    btn.selected = YES;
+    [self chageNextStepButtonStype:YES];
+    
+    NSError * error = nil;
+    NSString * htmlString = [NSString stringWithContentsOfFile:
+                             [PublicMethod getFilePath:DOCUMENT_CACHE fileName:XYZRS_NAME]
+                                                      encoding:[SJKHEngine Instance]->stringEncode
+                                                         error:&error];
+    if(htmlString == nil || htmlString.length == 0){
+        [self showCustomAlertViewContent:YES htmlString:nil];
+        [self loadTaskBook];
+    }
+    else{
+        [self showCustomAlertViewContent:YES htmlString:htmlString];
+    }
+}
+
+#pragma mark
+#pragma mark Downsite_____________________________________________________HaoyeeAlert
+/*haoyee alert downsite*/
+
+- (void)stepInfoRequest{
+    NSDictionary * stepResponseDic = nil;
+    if ([self sendGoToStep:YXCJ_STEP dataDictionary:&stepResponseDic]) {
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [self activityIndicate:NO tipContent:Nil MBProgressHUD:hud target:nil];
+            NSArray * arr = (NSArray *)[stepResponseDic objectForKey:YXSZ];
+            [SJKHEngine Instance]->yxData = [arr mutableCopy];
+            [SJKHEngine Instance]->jbzl_step_Dic = [stepResponseDic mutableCopy];
+            NSArray * arrr = [[SJKHEngine Instance]->jbzl_step_Dic objectForKey:SZZRSARR];
+            if (arr.count > 0) {
+                NSDictionary * dic = [arrr objectAtIndex:0];
+                HTXYID= [[dic objectForKey:ID] copy];
+                return ;
+            }
+            [self activityIndicate:NO tipContent:@"加载数据失败" MBProgressHUD:hud target:nil];
+        });
+    }
+    else{
+        [self activityIndicate:NO tipContent:@"加载数据失败" MBProgressHUD:hud target:nil];
+    }
+}
+
+
+- (void)attributedLabel:(TTTAttributedLabel *)label didSelectLinkWithURL:(NSURL *)url{
+    UIButton * markBtn = (UIButton *)[requestZRS viewWithTag:MarkBtnTag];
+    if(!markBtn.selected){
+        markBtn.selected = YES;
+        [self chageNextStepButtonStype:YES];
+    }
+    
+    NSError * error = nil;
+    NSString * htmlString = [NSString stringWithContentsOfFile:
+                             [PublicMethod getFilePath:DOCUMENT_CACHE fileName:XYZRS_NAME]
+                                                      encoding:[SJKHEngine Instance]->stringEncode
+                                                         error:&error];
+    if(htmlString == nil || htmlString.length == 0){
+        [self showCustomAlertViewContent:YES htmlString:nil];
+        [self loadTaskBook];
+    }
+    else{
+        [self showCustomAlertViewContent:YES htmlString:htmlString];
+    }
+}
+
+
+//异步加载责任书数据
+- (void) loadTaskBook{
+    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+        NSDictionary * taskBook = nil;
+        BOOL ok= [self sendTaskBook:&taskBook];
+        if (taskBook && taskBook.count > 0 && ok)
+        {
+            [[taskBook objectForKey:XYNR] writeToFile:[PublicMethod getFilePath:DOCUMENT_CACHE fileName:XYZRS_NAME] atomically:YES encoding:NSUTF8StringEncoding error:nil];
+            dispatch_async(dispatch_get_main_queue(), ^{
+                [[SJKHEngine Instance] updateAlertViewUI:YES];
+            });
+        }
+        else{
+            dispatch_async(dispatch_get_main_queue(), ^{
+                [[SJKHEngine Instance] updateAlertViewUI:NO];
+            });
+        }
+    });
+}
+
+
+- (void) showCustomAlertViewContent:(BOOL)isShow htmlString:(NSString *)htmlString{
+    if(isShow){
+        [[SJKHEngine Instance] createCustomAlertView];
+        [SJKHEngine Instance]->_customAlertView->htmlKey = XYZRS_NAME;
+        [[SJKHEngine Instance]->_customAlertView setTarget:self withSEL:@selector(showCustomAlertViewContent:htmlString:)];
+        [[SJKHEngine Instance] JBZLCustomAlertViewXYZRS:YES htmlString:htmlString];
+        
+        //        int location = [_customAlertView->httpString rangeOfString:@"</p>"].location;
+        //        NSString * HttpString = [_customAlertView->httpString substringFromIndex: location + 4];
+        //        NSString *htmlString =[NSString stringWithFormat:@"<font face='GothamRounded-Bold' size='30'>%@", HttpString];
+        //
+        //        NSString *myDescriptionHTML = [NSString stringWithFormat:@"<html> \n"
+        //                                       "<head> \n"
+        //                                       "<style type=\"text/css\"> \n"
+        //                                       "body {font-family: \"%@\"; font-size: %@;}\n"
+        //                                       "</style> \n"
+        //                                       "</head> \n"
+        //                                       "<body>%@</body> \n"
+        //                                       "</html>", @"helvetica", [NSNumber numberWithInt:25], HttpString];
+        
+    }
+    else{
+        [[SJKHEngine Instance] JBZLCustomAlertViewXYZRS:NO htmlString:nil];
+        [SJKHEngine Instance]->_customAlertView = nil;
+    }
+}
+#pragma mark Upsite_____________________________________________________HaoyeeAlert
+#pragma mark
+
+- (void)didReceiveMemoryWarning
+{
+    [super didReceiveMemoryWarning];
+    // Dispose of any resources that can be recreated.
+}
+
+- (IBAction)openEditor:(id)sender
+{
+    [self performSelector:@selector(SetWindowShow) withObject:nil afterDelay:0.2];
+//    [[SJKHEngine Instance] setWindowHeaderView:NO];
+    
+    UINavigationController *navigationController = [[UINavigationController alloc] initWithRootViewController:controller];
+    
+    if (UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad) {
+        navigationController.modalPresentationStyle = UIModalPresentationFormSheet;
+    }
+    
+    [self presentViewController:navigationController animated:YES completion:NULL];
+}
+
+- (void)cropViewControllerDidCancel:(PECropViewController *)_controller{
+    [controller dismissViewControllerAnimated:YES completion:NULL];
+    controller = nil;
+}
+
+- (void)cropViewController:(PECropViewController *)_controller didFinishCroppingImage:(UIImage *)croppedImage
+{
+    if(!bImagePickerCropOK){
+        return ;
+    }
+    
+    bImagePickerCropOK = NO;
+    
+    [controller dismissViewControllerAnimated:YES completion:^{
+        UIImageView * btn =((UIImageView *)[self.view viewWithTag:currentCameraIndex]);
+        [btn setImage:nil];
+        [btn setImage:[croppedImage createGrayImage]];
+        [self cropFinishToCompressImage:croppedImage];
+    }];
+    
+    controller = nil;
+}
+
+- (NSData *)reduceImageSize:(UIImage *)croppedImage{
+    NSData * cropImageData = UIImageJPEGRepresentation(croppedImage, 1);
+    float size = cropImageData.length / 1024.0;
+    
+    if(size > 3000){
+        cropImageData = UIImageJPEGRepresentation(croppedImage, 0.01);
+    }
+    else if(size > 1000 && size <= 3000){
+        cropImageData = UIImageJPEGRepresentation(croppedImage, 0.05);
+    }
+    else if(size > 500 && size <= 1000){
+        cropImageData = UIImageJPEGRepresentation(croppedImage, 0.1);
+    }
+    else if(size > 150 && size <= 500){
+        cropImageData = UIImageJPEGRepresentation(croppedImage, 0.2);
+    }
+    else{
+        cropImageData = UIImageJPEGRepresentation(croppedImage, 0.5);
+    }
+    
+    return cropImageData;
+}
+
+- (IBAction)cameraButtonAction:(id)sender
+{
+    UIActionSheet *actionSheet = [[UIActionSheet alloc] initWithTitle:nil
+                                                             delegate:self
+                                                    cancelButtonTitle:nil
+                                               destructiveButtonTitle:nil
+                                                    otherButtonTitles:NSLocalizedString(@"Photo Album", nil), nil];
+    if ([UIImagePickerController isSourceTypeAvailable:UIImagePickerControllerSourceTypeCamera]) {
+        [actionSheet addButtonWithTitle:NSLocalizedString(@"Camera", nil)];
+    }
+    
+    [actionSheet addButtonWithTitle:NSLocalizedString(@"Cancel", nil)];
+    actionSheet.cancelButtonIndex = actionSheet.numberOfButtons - 1;
+    
+    if (UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad) {
+        //        [actionSheet showFromBarButtonItem:self.cameraButton animated:YES];
+    } else {
+        [actionSheet showFromToolbar:self.navigationController.toolbar];
+    }
+}
+
+- (void)showCamera
+{
+    UIImagePickerController *controller = [[UIImagePickerController alloc] init];
+    controller.delegate = self;
+    controller.sourceType = UIImagePickerControllerSourceTypeCamera;
+    
+    [self performSelector:@selector(SetWindowShow) withObject:nil afterDelay:0.2];
+    
+    if (UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad) {
+        //        if (self.popover.isPopoverVisible) {
+        //            [self.popover dismissPopoverAnimated:NO];
+        //        }
+        //
+        //        self.popover = [[UIPopoverController alloc] initWithContentViewController:controller];
+        //        [self.popover presentPopoverFromBarButtonItem:self.cameraButton
+        //                             permittedArrowDirections:UIPopoverArrowDirectionAny
+        //                                             animated:YES];
+    }
+    else {
+        [self presentViewController:controller animated:YES completion:NULL];
+    }
+}
+
+- (void) SetWindowShow{
+    [[SJKHEngine Instance] setWindowHeaderView:NO];
+}
+
+- (void)openPhotoAlbum
+{
+    UIImagePickerController *controller = [[UIImagePickerController alloc] init];
+    controller.delegate = self;
+    controller.sourceType = UIImagePickerControllerSourceTypePhotoLibrary;
+//    controller.modalTransitionStyle = UIModalTransitionStylePartialCurl;
+
+    [self performSelector:@selector(SetWindowShow) withObject:nil afterDelay:0.2];
+    
+    if (UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad) {
+        //        if (self.popover.isPopoverVisible) {
+        //            [self.popover dismissPopoverAnimated:NO];
+        //        }
+        //
+        //        self.popover = [[UIPopoverController alloc] initWithContentViewController:controller];
+        //        [self.popover presentPopoverFromBarButtonItem:self.cameraButton
+        //                             permittedArrowDirections:UIPopoverArrowDirectionAny
+        //                                             animated:YES];
+    } else {
+//        [[SJKHEngine Instance]->rootVC vcOperation:controller];
+        [self presentViewController:controller animated:YES completion:NULL];
+    }
+}
+
+#pragma mark -
+- (void)actionSheet:(UIActionSheet *)actionSheet clickedButtonAtIndex:(NSInteger)buttonIndex
+{
+    NSString * titleInIndex = [actionSheet buttonTitleAtIndex:buttonIndex];
+    if([titleInIndex isEqualToString:@"打开相册"]){
+        [self openPhotoAlbum];
+    }
+    else if ([titleInIndex isEqualToString:@"拍照"]){
+        [self showCamera];
+    }
+    else if([titleInIndex isEqualToString:@"重新上传"]){
+        [self ServerAuthenticate:TPSC_REQUEST];
+    }
+}
+
+- (void) imagePickerControllerDidCancel: (UIImagePickerController *) picker1 {
+    [picker1 dismissModalViewControllerAnimated:YES];
+//    picker1 = nil;
+}
+
+- (void)imagePickerController:(UIImagePickerController *)picker didFinishPickingMediaWithInfo:(NSDictionary *)info
+{
+    if(controller == Nil){
+        controller = [[PECropViewController alloc] init];
+        controller.delegate = self;
+        controller.image = [UIImage imageWithColor:[UIColor whiteColor] size:CGSizeMake(autoWidth(280), autoHeight(373))];
+    }
+    if (UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad) {
+        [self openEditor:nil];
+    }
+    else {
+        [picker dismissViewControllerAnimated:YES completion:^{
+            [self openEditor:nil];
+        }];
+    }
+    [controller.navigationItem.rightBarButtonItem setEnabled:NO];
+    
+    while (!controller.cropView) {
+        [[NSRunLoop currentRunLoop] runMode:NSDefaultRunLoopMode beforeDate:[NSDate distantFuture]];
+    }
+    
+    [self cropImage:info[UIImagePickerControllerOriginalImage]];
+}
+
+- (BOOL)cropImage:(UIImage *)image
+{
+    @autoreleasepool {
+        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+            NSData * imgData = UIImageJPEGRepresentation(image, 1);
+            NSLog(@"size =%f",imgData.length/1024.0);
+            
+            imgData = [self reduceImageSize:image];
+            
+            NSLog(@"size 1=%f",imgData.length/1024.0);
+            
+            NSString * selectImagePath = [PublicMethod getFilePath:DOCUMENT_CACHE fileName:SelectedImageData];
+            if([[NSFileManager defaultManager]fileExistsAtPath:selectImagePath]){
+                NSError * er = nil;
+                [[NSFileManager defaultManager]removeItemAtPath:selectImagePath error:&er];
+            }
+            [imgData writeToFile:selectImagePath atomically:YES];
+            
+            dispatch_async(dispatch_get_main_queue(), ^{
+                //            [self activityIndicate:NO tipContent:nil MBProgressHUD:nil target:nil];
+                //            UIImage * image = [UIImage imageWithContentsOfFile:[PublicMethod getFilePath:DOCUMENT_CACHE fileName:SelectedImageData]];
+                
+                UIImage * image = [UIImage imageWithData:imgData];
+                controller.image = image;
+                controller.cropView.image = image;
+                [controller.navigationItem.rightBarButtonItem setEnabled:YES];
+                bImagePickerCropOK = YES;
+                NSLog(@"controller cropview =%@,%@,%@",controller,controller.cropView,image);
+            });
+        });
+    }
+    return YES;
+}
+
+- (void)cropFinishToCompressImage:(UIImage *)image
+{
+    @autoreleasepool {
+        [self activityIndicate:YES tipContent:@"裁剪图片..." MBProgressHUD:nil target:self.navigationController.view];
+        
+        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+            NSData * postImageData = UIImageJPEGRepresentation(image, 1);
+            
+            postImageData = [self reduceImageSize:image];
+            
+            NSLog(@"postImageData =%f",postImageData.length / 1024.0);
+            postImageData = [self reduceImageSize:[UIImage imageWithData:postImageData]];
+            NSLog(@"postImageData after =%f",postImageData.length / 1024.0);
+            
+            UIImage * scaleImage = [UIImage imageWithData:postImageData];
+            float size = postImageData.length / 1024.0;
+            if(size > 500){
+                scaleImage = [scaleImage imageByResizingToSize:CGSizeMake(200, 200)];
+                postImageData = UIImageJPEGRepresentation(scaleImage, 0.2);
+            }
+            else if(size <= 500 && size > 300){
+                scaleImage = [scaleImage imageByResizingToSize:CGSizeMake(200, 200)];
+                postImageData = UIImageJPEGRepresentation(scaleImage, 0.5);
+            }
+            else if (size<= 300 && size >100){
+                scaleImage = [scaleImage imageByResizingToSize:CGSizeMake(200, 200)];
+                postImageData = UIImageJPEGRepresentation(scaleImage, 0.6);
+            }
+            else if (size<= 100 && size >20){
+                scaleImage = [scaleImage imageByResizingToSize:CGSizeMake(200, 200)];
+                postImageData = UIImageJPEGRepresentation(scaleImage, 0.7);
+            }
+            
+            NSString * selectImagePath = [PublicMethod getFilePath:DOCUMENT_CACHE fileName:CropImageData];
+            if([[NSFileManager defaultManager]fileExistsAtPath:selectImagePath]){
+                NSError * er = nil;
+                [[NSFileManager defaultManager]removeItemAtPath:selectImagePath error:&er];
+                NSLog(@"存在,ER=%@",er);
+            }
+            BOOL ok = [postImageData writeToFile:[PublicMethod getFilePath:DOCUMENT_CACHE fileName:CropImageData] atomically:YES];
+            NSLog(@"postImageData after1 =%f,%i",postImageData.length / 1024.0,ok);
+            //        postImageFileData = postImageData;
+            
+            //        sleep(1);
+            dispatch_async(dispatch_get_main_queue(), ^{
+                [self activityIndicate:NO tipContent:nil MBProgressHUD:nil target:nil];
+                [self ServerAuthenticate:TPSC_REQUEST];
+            });
+        });
+    }
+}
+
+- (void)dealloc{
+    NSLog(@"图片上传回收");
+}
+
+- (void)onButtonClick:(UIButton *)btn{
+    //阅读责任书按钮
+    if(btn.tag == 2015){
+        UIButton * markBtn = (UIButton *)[btn viewWithTag:MarkBtnTag];
+        if(!markBtn.isSelected){
+            NSError * error = nil;
+            NSString * htmlString = [NSString stringWithContentsOfFile:
+                                     [PublicMethod getFilePath:DOCUMENT_CACHE fileName:XYZRS_NAME]
+                                                              encoding:[SJKHEngine Instance]->stringEncode
+                                                                 error:&error];
+            if(htmlString == nil || htmlString.length == 0){
+                [self showCustomAlertViewContent:YES htmlString:nil];
+                
+                [self loadTaskBook];
+            }
+            else{
+                [self showCustomAlertViewContent:YES htmlString:htmlString];
+            }
+            
+            [markBtn setBackgroundImage:[UIImage imageNamed:@"checkBox_checked"] forState:UIControlStateNormal];
+            [markBtn setSelected:YES];
+            [self chageNextStepButtonStype:YES];
+        }
+        else{
+            [markBtn setBackgroundImage:[UIImage imageNamed:@"checkBox_default"] forState:UIControlStateNormal];
+            [markBtn setSelected:NO];
+            [self chageNextStepButtonStype:NO];
+        }
+        return;
+    }
+    
+    
+    else if(btn.tag == MarkBtnTag){
+        if(!btn.selected){
+            [self chageNextStepButtonStype:YES];
+        }
+        else{
+            [self chageNextStepButtonStype:NO];
+        }
+        btn.selected = !btn.selected;
+        return;
+    }
+    __autoreleasing UIActionSheet *actionSheet = nil;
+    if(bUploadFail && btn.tag == uploadFailBtnTag){
+        actionSheet = [[UIActionSheet alloc]
+                       initWithTitle: Nil
+                       delegate: self
+                       cancelButtonTitle: @"取消"
+                       destructiveButtonTitle: Nil
+                       otherButtonTitles:@"重新上传",@"打开相册",@"拍照",Nil];
+    }
+    else{
+        actionSheet = [[UIActionSheet alloc]
+                       initWithTitle: Nil
+                       delegate: self
+                       cancelButtonTitle: @"取消"
+                       destructiveButtonTitle: Nil
+                       otherButtonTitles:@"打开相册",@"拍照",Nil];
+    }
+    
+    if(btn.tag <= [SJKHEngine Instance]->yxData.count - 1 + SFZBUTTONTAG && btn.tag > 0){
+        btn.selected = !btn.selected;
+        NSLog(@"%D",btn.tag);
+        UIButton *anotherBtn = (UIButton *)[scrollView viewWithTag:(btn.tag == SFZBUTTONTAG ? SFZBUTTONTAG + 1 : SFZBUTTONTAG)];
+        if (btn.selected) {
+            btn.layer.borderColor = TEXTFEILD_BOLD_HIGHLIGHT_COLOR.CGColor;
+            anotherBtn .layer.borderColor = TEXTFEILD_BOLD_DEFAULT_COLOR.CGColor;
+            anotherBtn.selected = !btn.selected;
+        }else{
+            btn.layer.borderColor = TEXTFEILD_BOLD_DEFAULT_COLOR.CGColor;
+            anotherBtn .layer.borderColor = TEXTFEILD_BOLD_HIGHLIGHT_COLOR.CGColor;
+        }
+        currentCameraIndex = btn.tag + SFZBUTTONTAG;
+        [actionSheet showInView:self.view];
+    }
+    //下一步
+    else {
+        NSEnumerator* keyEnumerator = [imageUploadSign keyEnumerator];
+        id key;
+        bool upload_all_image = YES;
+        
+        while ((key = [keyEnumerator nextObject]) != nil)
+        {
+            if([[imageUploadSign objectForKey:key] isEqualToString:@"0"]){
+                upload_all_image = NO;
+            }
+        }
+        if([imageUploadSign objectForKey:@"0"]){
+            upload_all_image = NO;
+            UIAlertView * alertview = [[UIAlertView alloc] initWithTitle:@"提示" message:@"身份证正面未上传" delegate:self cancelButtonTitle:nil otherButtonTitles:@"确定", nil];
+            [alertview show];
+        }else if ([imageUploadSign objectForKey:@"1"]){
+            upload_all_image = NO;
+            UIAlertView * alertview = [[UIAlertView alloc] initWithTitle:@"提示" message:@"身份证背面未上传" delegate:self cancelButtonTitle:nil otherButtonTitles:@"确定", nil];
+            [alertview show];
+        }else{
+            [self ServerAuthenticate:BCDQBZKEY_REQUEST];
+        }
+    }
+    
+}
+
+- (void) ServerAuthenticate:(REQUEST_TYPE)request_type{
+    @autoreleasepool {
+        NSString * urlComponent = nil;
+        
+        switch (request_type) {
+            case TPSC_REQUEST:
+                urlComponent= [NSString stringWithFormat:@"%@://%@:%d%@", [SJKHEngine Instance]->isHttps?@"https":@"http",[SJKHEngine Instance]->doMain,[SJKHEngine Instance]->port,TPSH];
+                break;
+                
+            case BCDQBZKEY_REQUEST:
+                urlComponent= [NSString stringWithFormat:@"%@://%@:%d%@", [SJKHEngine Instance]->isHttps?@"https":@"http",[SJKHEngine Instance]->doMain,[SJKHEngine Instance]->port,BCDQBZKEY];
+                break;
+                
+            default:
+                break;
+        }
+        NSURL * URL = [NSURL URLWithString:urlComponent];
+        
+        ASIFormDataRequest * theRequest = [ASIFormDataRequest requestWithURL:[PublicMethod suburlString:URL]];
+        [theRequest setValidatesSecureCertificate:NO];
+        [theRequest setClientCertificateIdentity:[SJKHEngine Instance]->identify];
+        [theRequest setRequestMethod:@"POST"];
+//        [theRequest setAllowCompressedResponse:NO];
+        [theRequest setTimeOutSeconds:15];
+        switch (request_type) {
+            case BCDQBZKEY_REQUEST:{
+                if (!HTXYID || !((UIButton *)[requestZRS viewWithTag:MarkBtnTag]).selected) {
+                    NSLog(@"%d",((UIButton *)[requestZRS viewWithTag:MarkBtnTag]).selected);
+                    NSLog(@"%@",HTXYID);
+                    UIAlertView * alertview = [[UIAlertView alloc] initWithTitle:Nil message:@"请先阅读下方责任书" delegate:self cancelButtonTitle:nil otherButtonTitles:@"确定", nil];
+                    [alertview show];
+                    break;
+                }
+                [self activityIndicate:YES tipContent:@"加载客户信息..." MBProgressHUD:nil target:self.navigationController.view];
+                ClientInfoViewCtrl * clientInfoCtrl = [[ClientInfoViewCtrl alloc]init];
+                
+                dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+                    [self goJBJLPage:clientInfoCtrl];
+                    
+                    if ([SJKHEngine Instance]->jbzl_step_Dic != nil &&
+                        clientInfoCtrl->jbzl_step_OCR_Dic != nil)
+                    {
+                        dispatch_async(dispatch_get_main_queue(), ^{
+                            [clientInfoCtrl updateUI];
+                        });
+                    }
+                });
+            }
+                break;
+            case TPSC_REQUEST:{
+                
+                NSArray *ar = [PublicMethod convertURLToArray:[URL absoluteString]];
+                NSArray * arr = [[SJKHEngine Instance]->jbzl_step_Dic objectForKey:SZZRSARR];
+                if (arr.count > 0) {
+                    NSDictionary * dic = [arr objectAtIndex:0];
+                    HTXYID= [dic objectForKey:ID];
+                }
+                [self activityIndicate:YES tipContent:@"正在上传图片..." MBProgressHUD:nil target:self.navigationController.view];
+                theRequest.request_type = TPSC_REQUEST;
+                [theRequest setPostValue:[SJKHEngine Instance]->SJHM forKey:[ar firstObject]];
+                
+                [theRequest setFile:[PublicMethod getFilePath:DOCUMENT_CACHE fileName:CropImageData] forKey:[ar objectAtIndex:1]];
+                
+                NSLog(@"data =%@,%@",[[[SJKHEngine Instance]->yxData objectAtIndex:currentCameraIndex - SFZBUTTONTAG*2] objectForKey:YXLX_KEY],[[[SJKHEngine Instance]->yxData objectAtIndex:currentCameraIndex - SFZBUTTONTAG*2] objectForKey:YXLXMC_KEY]);
+                
+                [theRequest setPostValue:[[[SJKHEngine Instance]->yxData objectAtIndex:currentCameraIndex - SFZBUTTONTAG*2] objectForKey:YXLX_KEY] forKey:[ar objectAtIndex:2]];
+                [theRequest setPostValue:[[[SJKHEngine Instance]->yxData objectAtIndex:currentCameraIndex - SFZBUTTONTAG*2] objectForKey:YXLXMC_KEY] forKey:[ar objectAtIndex:3]];
+                
+                [theRequest setShouldAttemptPersistentConnection:NO];
+                [theRequest setShouldStreamPostDataFromDisk:YES];
+                [theRequest setPostValue:HTXYID forKey:@"htxy"];
+                [theRequest setDelegate:self];
+                [theRequest setUploadProgressDelegate:self];
+                [theRequest setDidFailSelector:@selector(httpFailed:)];
+                [theRequest setDidFinishSelector:@selector(httpFinished:)];
+                
+                bUploadFail = NO;
+                [theRequest startAsynchronous];
+            }
+                break;
+                
+            default:
+                
+                break ;
+        }
+    }
+}
+
+- (BOOL) connection: (NSURLConnection *)connection canAuthenticateAgainstProtectionSpace: (NSURLProtectionSpace *)protectionSpace
+{
+    NSLog(@"protectionSpace =%@",protectionSpace);
+    return [protectionSpace.authenticationMethod isEqualToString: NSURLAuthenticationMethodServerTrust] ||
+           [protectionSpace.authenticationMethod isEqualToString: NSURLAuthenticationMethodClientCertificate] ;
+}
+
+- (void) connection: (NSURLConnection *)connection didReceiveAuthenticationChallenge: (NSURLAuthenticationChallenge *)challenge
+{
+    if ([challenge.protectionSpace.authenticationMethod isEqualToString:NSURLAuthenticationMethodServerTrust])
+	{
+		[challenge.sender useCredential: [NSURLCredential credentialForTrust: challenge.protectionSpace.serverTrust]
+			 forAuthenticationChallenge: challenge];
+    }
+    //为服务器信任客户端所做的操作。只写了代码,待调试
+    else if([challenge.protectionSpace.authenticationMethod isEqualToString:NSURLAuthenticationMethodClientCertificate]){
+        
+        SecIdentityRef * outIdentity = Nil ;
+        SecTrustRef* outTrust = nil;
+        NSData * PKCS12Data = [NSData dataWithContentsOfFile:[[NSBundle mainBundle] pathForResource:@"custom" ofType:@"p12"]];
+        
+        OSStatus securityError = errSecSuccess;
+        CFStringRef password = CFSTR("123456"); //证书密码
+        const void *keys[] =   { kSecImportExportPassphrase };
+        const void *values[] = { password };
+        
+        CFDictionaryRef optionsDictionary = CFDictionaryCreate(NULL, keys,values, 1,NULL, NULL);
+        
+        CFArrayRef items = CFArrayCreate(NULL, 0, 0, NULL);
+        securityError = SecPKCS12Import((__bridge CFDataRef)PKCS12Data,(CFDictionaryRef)optionsDictionary,&items);
+        
+        if (securityError == 0) {
+            CFDictionaryRef myIdentityAndTrust = CFArrayGetValueAtIndex (items, 0);
+            const void *tempIdentity = NULL;
+            tempIdentity = CFDictionaryGetValue (myIdentityAndTrust, kSecImportItemIdentity);
+            *outIdentity = (SecIdentityRef)tempIdentity;
+            const void *tempTrust = NULL;
+            tempTrust = CFDictionaryGetValue (myIdentityAndTrust, kSecImportItemTrust);
+            *outTrust = (SecTrustRef)tempTrust;
+        }
+        
+        //两种方式，看哪种可用。
+//        SecCertificateRef myCert = SecCertificateCreateWithData(NULL, (__bridge CFDataRef)PKCS12Data);
+        SecCertificateRef myCert = nil;
+        SecIdentityCopyCertificate(*outIdentity, &myCert);
+        SecCertificateRef certArray[1] = { myCert };
+        CFArrayRef myCerts = CFArrayCreate(NULL, (void *)certArray, 1, NULL);
+        CFRelease(myCert);
+        NSURLCredential *credential = [NSURLCredential credentialWithIdentity:*outIdentity
+                                                                 certificates:(__bridge NSArray *)myCerts
+                                                                  persistence:NSURLCredentialPersistencePermanent];
+        CFRelease(myCerts);
+        
+        [challenge.sender useCredential: credential forAuthenticationChallenge: challenge];
+    }
+    [challenge.sender continueWithoutCredentialForAuthenticationChallenge: challenge];
+}
+
+-(void)connection:(NSURLConnection *)connection didReceiveData:(NSData *)data{
+    NSLog(@"receive data=%@",[[NSString alloc]initWithData:data encoding:NSUTF8StringEncoding] );
+}
+
+-(void)connectionDidFinishLoading:(NSURLConnection *)connection{
+    [imageUploadSign setObject:@"1" forKey:[NSString stringWithFormat:@"%i",currentCameraIndex]];
+    UIImageView * btn =((UIImageView *)[self.view viewWithTag:currentCameraIndex]);
+    UIImage * cropImage = [UIImage imageWithContentsOfFile:[PublicMethod getFilePath:DOCUMENT_CACHE fileName:CropImageData]];
+    btn.image = cropImage;
+    [self activityIndicate:NO tipContent:Nil MBProgressHUD:hud target:self.navigationController.view];
+}
+
+-(void)connection:(NSURLConnection *)connection didFailWithError:(NSError *)error{
+    UIImageView * btn =((UIImageView *)[self.view viewWithTag:currentCameraIndex]);
+    btn.image = nil;
+    [btn setImage:[images objectAtIndex:currentCameraIndex - SFZBUTTONTAG*2]];
+    [self activityIndicate:NO tipContent:@"上传失败,您可重新上传" MBProgressHUD:hud target:self.navigationController.view];
+}
+
+
+-(BOOL)dataIsValidJPEG:(NSData *)data
+{
+    if (!data || data.length < 2) return NO;
+    
+    NSInteger totalBytes = data.length;
+    const char *bytes = (const char*)[data bytes];
+    
+    return (bytes[0] == (char)0xff &&
+            bytes[1] == (char)0xd8 &&
+            bytes[totalBytes-2] == (char)0xff &&
+            bytes[totalBytes-1] == (char)0xd9);
+}
+
+- (void)goJBJLPage:(ClientInfoViewCtrl *)vc{
+    NSDictionary * stepDictionary = nil;
+    if([self sendSaveCurrentStepKey:JBZL_STEP dataDictionary:&stepDictionary]){
+        BOOL ok = [self sendGoToStep:JBZL_STEP dataDictionary:&stepDictionary];
+        if(ok){
+            [SJKHEngine Instance]->jbzl_step_Dic = [stepDictionary mutableCopy];
+            
+            dispatch_async(dispatch_get_main_queue(), ^{
+                [self activityIndicate:NO tipContent:nil MBProgressHUD:nil target:nil];
+                [self.navigationController pushViewController:vc animated:YES];
+            });
+                           
+            if([self sendOCRInfo: &stepDictionary]){
+                NSLog(@"stepDic 0=%@",stepDictionary);
+                vc->jbzl_step_OCR_Dic = [stepDictionary mutableCopy];
+            }
+            else{
+                NSLog(@"stepDic 1 =%@,%@",stepDictionary,[stepDictionary objectForKey:NOTE]);
+                [[SJKHEngine Instance] dispatchMessage:GET_OCR_FAIL_POP_MESSAGE];
+            }
+        }
+        else {
+            [self activityIndicate:NO tipContent:@"加载客户页面失败" MBProgressHUD:nil target:nil];
+            [[SJKHEngine Instance] dispatchMessage:POP_MESSAGE];
+        }
+    }
+}
+
+//上传失败时发生的情况，一是出现两次newLength方法；一个是上传的bytes为负数。
+- (void) httpFailed:(ASIHTTPRequest *)http{
+    [super httpFailed:http];
+    NSData *responseData = [http responseData];
+    NSString *response = [[NSString alloc] initWithData:responseData encoding:NSUTF8StringEncoding];
+    NSLog(@"Server response:%@", response);
+    NSLog(@"http fail =%@,%@",http,http.error);
+    bUploadFail = YES;
+    uploadFailBtnTag = [scrollView viewWithTag:currentCameraIndex].tag;
+    
+    if(http.request_type == TPSC_REQUEST){
+        if([[responseDictionary objectForKey:SUCCESS] intValue] == 0){
+            NSLog(@"[responseDictionary objectForKey:NOTE] =%@",[responseDictionary objectForKey:NOTE]);
+            [self activityIndicate:NO tipContent:@"上传失败,您可重新上传" MBProgressHUD:hud target:self.navigationController.view];
+        }
+        
+        if(http.responseData.length == 0){
+            [self activityIndicate:NO tipContent:@"上传失败,您可重新上传" MBProgressHUD:hud target:self.navigationController.view];
+        }
+    }
+}
+
+- (void) httpFinished:(ASIHTTPRequest *)http{
+    [super httpFinished:http];
+    NSLog(@"http finish =%@,%@",http,http.error);
+    if(http.request_type == TPSC_REQUEST){
+        if([[responseDictionary objectForKey:SUCCESS] intValue] == 1){
+            [imageUploadSign setObject:@"1" forKey:[NSString stringWithFormat:@"%i",currentCameraIndex]];
+            UIImageView * btn =((UIImageView *)[self.view viewWithTag:currentCameraIndex]);
+            UIImage * cropImage = [UIImage imageWithContentsOfFile:[PublicMethod getFilePath:DOCUMENT_CACHE fileName:CropImageData]];
+            [btn setImage:nil];
+            [btn setImage:cropImage];
+            [self activityIndicate:NO tipContent:Nil MBProgressHUD:hud target:self.navigationController.view];
+        }
+        else{
+            UIImageView * btn =((UIImageView *)[self.view viewWithTag:currentCameraIndex]);
+            [btn setImage:nil];
+            [btn setImage:[images objectAtIndex:currentCameraIndex - SFZBUTTONTAG*2]];
+            [self activityIndicate:NO tipContent:@"上传失败,您可重新上传" MBProgressHUD:hud target:self.navigationController.view];
+        }
+    }
+    
+    http = nil;
+}
+
+- (void)navigationController:(UINavigationController *)navigationController willShowViewController:(UIViewController *)viewController animated:(BOOL)animated {
+//    UINavigationItem *ipcNavBarTopItem;
+//
+//    UIBarButtonItem *doneButton = [[UIBarButtonItem alloc] initWithTitle:@"Photos"
+//                                                                   style:UIBarButtonItemStylePlain
+//                                                                  target:self
+//                                                                  action:@selector(saveImages:)];
+//    
+//    UINavigationBar *bar = navigationController.navigationBar;
+//    [bar setHidden:NO];
+//    ipcNavBarTopItem = bar.topItem;
+//    ipcNavBarTopItem.title = @"Photos";
+//    ipcNavBarTopItem.rightBarButtonItem = doneButton;
+    
+//    if([viewController isMemberOfClass:[UIImagePickerController class]]){
+    
+    //对相机的自定义顶部栏的操作，以后再做
+//    UINavigationBar *bar = navigationController.navigationBar;
+//    for(UINavigationItem *item in bar.items){
+//        NSLog(@"title view =%@,%@", item.title,item.titleView);
+//        [item.rightBarButtonItem setTitleTextAttributes:@{
+//                                                                    UITextAttributeFont:TipFont,
+//                                                                    UITextAttributeTextColor:[UIColor whiteColor],
+//                                                                    UITextAttributeTextShadowOffset:[NSValue valueWithUIOffset:UIOffsetZero]
+//                                                                    }
+//                                                                forState:UIControlStateNormal];
+//        [item.leftBarButtonItem setTitleTextAttributes:@{
+//                                                          UITextAttributeFont:TipFont,
+//                                                          UITextAttributeTextColor:[UIColor whiteColor],
+//                                                          UITextAttributeTextShadowOffset:[NSValue valueWithUIOffset:UIOffsetZero]
+//                                                          }
+//                                               forState:UIControlStateNormal];
+//    }
+}
+
+- (void)request:(ASIHTTPRequest *)request didSendBytes:(long long)bytes{
+    NSLog(@"上传bytes = %lli",bytes);
+}
+
+// Called when a request needs to change the length of the content to upload
+// newLength may be less than zero when a request needs to remove the size of the internal buffer from progress tracking
+- (void)request:(ASIHTTPRequest *)request incrementUploadSizeBy:(long long)newLength{
+    NSLog(@"newlength =%lli",newLength);
+}
+
+
+@end
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,286 @@
+Index: blapi.h
+===================================================================
+--- blapi.h	(版本 235644)
++++ blapi.h	(工作副本)
+@@ -1230,6 +1230,174 @@
+ extern SHA384Context * SHA384_Resurrect(unsigned char *space, void *arg);
+ extern void SHA384_Clone(SHA384Context *dest, SHA384Context *src);
+ 
++
++/******************************************/
++
++//add by liqiangqiang from
++/******************************************/
++/*
++ ** SM4 symmetric block cypher
++ */
++
++/*
++ ** Create a new SM4 context suitable for SM4 encryption/decryption.
++ ** 	"key" raw key data
++ ** 	"len" the number of bytes of key data
++ ** 	"iv" is the CBC initialization vector (if mode is NSS_SM4 or
++ ** 	   mode is NSS_SM4_CBC)
++ ** 	"mode" one of NSS_SM4 or NSS_SM4_CBC
++ **	"encrypt" is PR_TRUE if the context will be used for encryption
++ **
++ ** When mode is set to NSS_SM4_CBC then the SM4
++ ** cipher is run in "cipher block chaining" mode.
++ */
++extern SM4Context *SM4_CreateContext(const unsigned char *key,
++                                     const unsigned char *iv,
++                                     int mode, PRBool encrypt);
++extern SM4Context *SM4_AllocateContext(void);
++extern SECStatus   SM4_InitContext(SM4Context *cx,
++                                   const unsigned char *key,
++                                   unsigned int keylen,
++                                   const unsigned char *iv,
++                                   int mode,
++                                   unsigned int encrypt,
++                                   unsigned int );
++
++/*
++ ** Destroy an SM4 encryption/decryption context.
++ **	"cx" the context
++ **	"freeit" if PR_TRUE then free the object as well as its sub-objects
++ */
++extern void SM4_DestroyContext(SM4Context *cx, PRBool freeit);
++
++/*
++ ** Perform SM4 encryption.
++ **	"cx" the context
++ **	"output" the output buffer to store the encrypted data.
++ **	"outputLen" how much data is stored in "output". Set by the routine
++ **	   after some data is stored in output.
++ **	"maxOutputLen" the maximum amount of data that can ever be
++ **	   stored in "output"
++ **	"input" the input data
++ **	"inputLen" the amount of input data
++ **
++ ** NOTE: the inputLen must be a multiple of SM4_KEY_LENGTH
++ */
++extern SECStatus SM4_Encrypt(SM4Context *cx, unsigned char *output,
++                             unsigned int *outputLen, unsigned int maxOutputLen,
++                             const unsigned char *input, unsigned int inputLen);
++
++/*
++ ** Perform SM4 decryption.
++ **	"cx" the context
++ **	"output" the output buffer to store the decrypted data.
++ **	"outputLen" how much data is stored in "output". Set by the routine
++ **	   after some data is stored in output.
++ **	"maxOutputLen" the maximum amount of data that can ever be
++ **	   stored in "output"
++ **	"input" the input data
++ **	"inputLen" the amount of input data
++ **
++ ** NOTE: the inputLen must be a multiple of SM4_KEY_LENGTH
++ */
++extern SECStatus SM4_Decrypt(SM4Context *cx, unsigned char *output,
++                             unsigned int *outputLen, unsigned int maxOutputLen,
++                             const unsigned char *input, unsigned int inputLen);
++
++
++/******************************************/
++/*
++ ** SM1 symmetric block cypher
++ */
++
++/*
++ ** Create a new SM1 context suitable for SM1 encryption/decryption.
++ ** 	"key" raw key data
++ ** 	"len" the number of bytes of key data
++ ** 	"iv" is the CBC initialization vector (if mode is NSS_SM1 or
++ ** 	   mode is NSS_SM1_CBC)
++ ** 	"mode" one of NSS_SM1 or NSS_SM1_CBC
++ **	"encrypt" is PR_TRUE if the context will be used for encryption
++ **
++ ** When mode is set to NSS_SM1_CBC then the SM1
++ ** cipher is run in "cipher block chaining" mode.
++ */
++extern SM1Context *SM1_CreateContext(const unsigned char *key,
++                                     const unsigned char *iv,
++                                     int mode, PRBool encrypt);
++extern SM1Context *SM1_AllocateContext(void);
++extern SECStatus   SM1_InitContext(SM1Context *cx,
++                                   const unsigned char *key,
++                                   unsigned int keylen,
++                                   const unsigned char *iv,
++                                   int mode,
++                                   unsigned int encrypt,
++                                   unsigned int );
++
++/*
++ ** Destroy an SM1 encryption/decryption context.
++ **	"cx" the context
++ **	"freeit" if PR_TRUE then free the object as well as its sub-objects
++ */
++extern void SM1_DestroyContext(SM1Context *cx, PRBool freeit);
++
++/*
++ ** Perform SM1 encryption.
++ **	"cx" the context
++ **	"output" the output buffer to store the encrypted data.
++ **	"outputLen" how much data is stored in "output". Set by the routine
++ **	   after some data is stored in output.
++ **	"maxOutputLen" the maximum amount of data that can ever be
++ **	   stored in "output"
++ **	"input" the input data
++ **	"inputLen" the amount of input data
++ **
++ ** NOTE: the inputLen must be a multiple of SM1_KEY_LENGTH
++ */
++extern SECStatus SM1_Encrypt(SM1Context *cx, unsigned char *output,
++                             unsigned int *outputLen, unsigned int maxOutputLen,
++                             const unsigned char *input, unsigned int inputLen);
++
++/*
++ ** Perform SM1 decryption.
++ **	"cx" the context
++ **	"output" the output buffer to store the decrypted data.
++ **	"outputLen" how much data is stored in "output". Set by the routine
++ **	   after some data is stored in output.
++ **	"maxOutputLen" the maximum amount of data that can ever be
++ **	   stored in "output"
++ **	"input" the input data
++ **	"inputLen" the amount of input data
++ **
++ ** NOTE: the inputLen must be a multiple of SM1_KEY_LENGTH
++ */
++extern SECStatus SM1_Decrypt(SM1Context *cx, unsigned char *output,
++                             unsigned int *outputLen, unsigned int maxOutputLen,
++                             const unsigned char *input, unsigned int inputLen);
++//add by liqiangqiang to
++
++
++
++//add by liqiangqiang from
++extern SM3Context *SM3_NewContext(void);
++extern void SM3_DestroyContext(SM3Context *cx, PRBool freeit);
++extern void SM3_Begin(SM3Context *cx);
++extern void SM3_Update(SM3Context *cx, const unsigned char *input,
++                          unsigned int inputLen);
++extern void SM3_End(SM3Context *cx, unsigned char *digest,
++                       unsigned int *digestLen, unsigned int maxDigestLen);
++extern void SM3_EndRaw(SM3Context *cx, unsigned char *digest,
++                          unsigned int *digestLen, unsigned int maxDigestLen);
++extern SECStatus SM3_HashBuf(unsigned char *dest, const unsigned char *src,
++                                PRUint32 src_length);
++extern SECStatus SM3_Hash(unsigned char *dest, const char *src);
++extern void SM3_TraceState(SM3Context *cx);
++extern unsigned int SM3_FlattenSize(SM3Context *cx);
++extern SECStatus SM3_Flatten(SM3Context *cx,unsigned char *space);
++extern SM3Context * SM3_Resurrect(unsigned char *space, void *arg);
++extern void SM3_Clone(SM3Context *dest, SM3Context *src);
++//add by liqiangqiang to
++
+ /****************************************
+  * implement TLS 1.0 Pseudo Random Function (PRF) and TLS P_hash function
+  */
+Index: blapit.h
+===================================================================
+--- blapit.h	(版本 235644)
++++ blapit.h	(工作副本)
+@@ -224,6 +224,30 @@
+ struct SEEDContextStr       ;	
+ struct ChaCha20Poly1305ContextStr;
+ 
++
++
++//add by liqiangqiang from
++/* SM4 operation modes */
++#define NSS_SM4			0
++#define NSS_SM4_CBC		1
++
++#define NSS_SM1			0
++#define NSS_SM1_CBC		1
++
++#define SM3_LENGTH 			    32 	/* bytes */			
++#define SM3_BLOCK_LENGTH 		64 	/* bytes */		
++
++struct SM4ContextStr        ;		
++struct SM3ContextStr		;		
++struct SM1ContextStr        ;
++
++typedef struct SM4ContextStr        SM4Context;
++typedef struct SM1ContextStr        SM1Context;
++typedef struct SM3ContextStr		SM3Context;		
++
++//add by liqiangqiang to
++
++
+ typedef struct DESContextStr        DESContext;
+ typedef struct RC2ContextStr        RC2Context;
+ typedef struct RC4ContextStr        RC4Context;
+Index: ecl/ecl-curve.h
+===================================================================
+--- ecl/ecl-curve.h	(版本 235644)
++++ ecl/ecl-curve.h	(工作副本)
+@@ -21,7 +21,17 @@
+ 	"4FE342E2FE1A7F9B8EE7EB4A7C0F9E162BCE33576B315ECECBB6406837BF51F5",
+ 	"FFFFFFFF00000000FFFFFFFFFFFFFFFFBCE6FAADA7179E84F3B9CAC2FC632551", 1
+ };
+-
++//add by liqiangqiang from
++static const ECCurveParams ecCurve_NIST_P256_SM2 = {
++	"NIST_P256_SM2", ECField_GFp, 256,
++	"FFFFFFFEFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF00000000FFFFFFFFFFFFFFFF",
++	"FFFFFFFEFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF00000000FFFFFFFFFFFFFFFC",
++	"28E9FA9E9D9F5E344D5A9E4BCF6509A7F39789F515AB8F92DDBCBD414D940E93",
++	"32C4AE2C1F1981195F9904466A39C9948FE30BBFF2660BE1715A4589334C74C7",
++	"BC3736A2F4F6779C59BDCEE36B692153D0A9877CC62A474002DF32E52139F0A0",
++	"FFFFFFFEFFFFFFFFFFFFFFFFFFFFFFFF7203DF6B21C6052B53BBF40939D54123", 1
++};
++//add by liqiangqiang to
+ static const ECCurveParams ecCurve_NIST_P384 = {
+ 	"NIST-P384", ECField_GFp, 384,
+ 	"FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFEFFFFFFFF0000000000000000FFFFFFFF",
+@@ -104,6 +114,7 @@
+ 	NULL,			/* ECCurve_WTLS_1 */
+ 	NULL,			/* ECCurve_WTLS_8 */
+ 	NULL,			/* ECCurve_WTLS_9 */
++    &ecCurve_NIST_P256_SM2,   /* ECCurve_NIST_P256_SM2 */   //add by liqiangqiang from
+ 	NULL			/* ECCurve_pastLastCurve */
+ };
+ 
+Index: ecl/ecl-exp.h
+===================================================================
+--- ecl/ecl-exp.h	(版本 235644)
++++ ecl/ecl-exp.h	(工作副本)
+@@ -128,6 +128,7 @@
+ 	/* ECCurve_WTLS_11 == ECCurve_NIST_B233 */
+ 	/* ECCurve_WTLS_12 == ECCurve_NIST_P224 */
+ 
++    ECCurve_NIST_P256_SM2,   //add by liqiangqiang from
+ 	ECCurve_pastLastCurve
+ } ECCurveName;
+ 
+Index: rawhash.c
+===================================================================
+--- rawhash.c	(版本 235644)
++++ rawhash.c	(工作副本)
+@@ -148,6 +148,24 @@
+     (void (*)(void *, unsigned char *, unsigned int *,
+ 	      unsigned int)) SHA224_EndRaw
+   },
++
++    
++    ///add by liqiangqiang from
++    { SM3_LENGTH,
++        (void * (*)(void)) SM3_NewContext,
++        (void * (*)(void *)) null_hash_clone_context,
++        (void (*)(void *, PRBool)) SM3_DestroyContext,
++        (void (*)(void *)) SM3_Begin,
++        (void (*)(void *, const unsigned char *, unsigned int)) SM3_Update,
++        (void (*)(void *, unsigned char *, unsigned int *,
++                  unsigned int)) SM3_End,
++        SM3_BLOCK_LENGTH,
++        HASH_AlgSM3,
++        (void (*)(void *, unsigned char *, unsigned int *,
++                  unsigned int)) SM3_EndRaw
++    },
++    //add by liqiangqiang to
++
+ };
+ 
+ const SECHashObject *

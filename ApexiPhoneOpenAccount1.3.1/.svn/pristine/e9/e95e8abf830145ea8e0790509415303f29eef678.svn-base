@@ -1,0 +1,332 @@
+/*
+ *  sm4blapi.c
+ *
+ *  caowei add sm4 
+ *  2013.04.26
+ */
+
+#ifdef FREEBL_NO_DEPEND
+#include "stubs.h"
+#endif
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <time.h>
+#include <stdarg.h>
+#include <stddef.h>
+#include "secerr.h"
+#include "sms4.h"
+
+unsigned long WT_Test();
+
+#define LOG_FILE_PATH		"d:/sm4.log"
+
+void LOG_PRINTF_SM4(char *szMsg, ...)
+{
+#ifdef _DEBUG
+	va_list		vlArgs;
+	FILE		*fp;
+	time_t		lTime;	
+	struct tm	*pstTime;
+	char		szFormat[500];
+		
+	fp = NULL;
+	pstTime = NULL;
+	memset(szFormat, 0, sizeof(szFormat));
+			
+	//日志文件需要手工建立,没有文件,创建
+	fp = fopen((char*)LOG_FILE_PATH, "r");	
+	if( NULL == fp )
+	{
+		fp = fopen(LOG_FILE_PATH, "wb");	
+		if(NULL == fp)
+		{
+			return;
+		}
+	}
+	fclose(fp);
+
+	fp = fopen((char*)LOG_FILE_PATH, "at");
+	if( NULL == fp )
+	{
+		return;
+	}
+#if 1		
+	time(&lTime);
+	pstTime = localtime(&lTime);
+	sprintf(szFormat, "%.2d/%.2d %.2d:%.2d:%.2d , %s", 
+		pstTime->tm_mday, 
+		pstTime->tm_mon+1, 
+		pstTime->tm_hour, 
+		pstTime->tm_min, 
+		pstTime->tm_sec,						
+		szMsg);
+#else	
+	sprintf(szFormat, ">>>>1, %s", szMsg);
+#endif
+	va_start(vlArgs, szMsg);
+	vfprintf(fp, szFormat, vlArgs);
+	va_end(vlArgs);
+	
+	fputs("\n", fp);	
+	fclose(fp);	
+#endif	//_DEBUG
+	return;
+}
+
+
+void LOG_PRINTF_HEX_SM4(void *pbData, int nDataLen)
+{
+#ifdef _DEBUG
+	unsigned char		*pbTemp;
+	int			i;	
+	FILE		*fp;
+	
+	
+	pbTemp = NULL;
+	fp = NULL;		
+	
+	//日志文件需要手工建立,没有文件,创建
+	fp = fopen((char*)LOG_FILE_PATH, "r");	
+	if( NULL == fp )
+	{
+		fp = fopen(LOG_FILE_PATH, "wb");	
+		if(NULL == fp)
+		{
+			return;
+		}
+	}
+	fclose(fp);
+
+	fp = fopen((char*)LOG_FILE_PATH, "at");
+	if( NULL == fp )
+	{
+		return;
+	}
+	
+	pbTemp = (unsigned char*)pbData;	
+	if( pbTemp )
+	{
+		for(i=0; i<nDataLen; i++)
+		{
+			if( (i>0) && (0==i%16) )
+			{
+				fputs("\n", fp);
+			}
+			fprintf(fp, " %02x", pbTemp[i]);		
+		}
+	}
+	fputs("\n", fp);
+	fputs("\n", fp);
+	fclose(fp);
+#endif	//_DEBUG
+
+	return;
+}
+
+
+static void 
+SM4_ENCRYPT_ECB(SM4Context *cx, BYTE *out, const BYTE *in, unsigned int len)
+{    
+	SMS4EncryptECB(cx->pbKey, (unsigned char*)in, len, out);
+}
+
+static void 
+SM4_DECRYPT_ECB(SM4Context *cx, BYTE *out, const BYTE *in, unsigned int len)
+{ 
+	SMS4DecryptECB(cx->pbKey, (unsigned char*)in, len, out);	
+}
+
+static void 
+SM4_ENCRYPT_CBC(SM4Context *cx, BYTE *out, const BYTE *in, unsigned int len)
+{
+    tcm_sms4_encrypt(cx->pbIV, (unsigned char*)in, len, out, cx->pbKey);
+    memcpy(cx->pbIV, out+len-SMS4_BLOCK_LEN, SMS4_BLOCK_LEN);
+}
+
+static void 
+SM4_DECRYPT_CBC(SM4Context *cx, BYTE *out, const BYTE *in, unsigned int len)
+{
+	BYTE pbTmp[SMS4_BLOCK_LEN] = {0};
+	 
+	memcpy(pbTmp, in+len-SMS4_BLOCK_LEN, SMS4_BLOCK_LEN);
+	tcm_sms4_decrypt(cx->pbIV, (unsigned char*)in, len, out, cx->pbKey);
+	memcpy(cx->pbIV, pbTmp, SMS4_BLOCK_LEN);
+}
+
+
+SM4Context *
+SM4_AllocateContext(void)
+{
+    return PORT_ZNew(SM4Context);
+}
+
+SECStatus   
+SM4_InitContext(SM4Context *cx, const unsigned char *key, unsigned int keylen,
+	        const unsigned char *iv, int mode, unsigned int encrypt,
+	        unsigned int unused)
+{   
+	unsigned long ulRet = 0;
+
+	//ulRet = WT_Test();
+	if(0 != ulRet)
+	{
+		return SECFailure;
+	}
+
+    if (!cx) {
+		PORT_SetError(SEC_ERROR_INVALID_ARGS);
+    	return SECFailure;
+    }
+
+	memset(cx, 0, sizeof(SM4Context));
+	
+    cx->direction = encrypt ? SM4_ENCRYPT : SM4_DECRYPT;
+	memcpy(cx->pbKey, key, SMS4_BLOCK_LEN);
+    switch (mode) {
+    case NSS_SM4:	/* SM4 ECB */	
+    	if(encrypt){
+			cx->worker = &SM4_ENCRYPT_ECB;
+		}
+		else{
+			cx->worker = &SM4_DECRYPT_ECB;
+		}
+		break;		    
+
+    case NSS_SM4_CBC:	/* SM4 CBC */
+		memcpy(cx->pbIV, iv, SMS4_BLOCK_LEN);
+		if(encrypt){
+			cx->worker = &SM4_ENCRYPT_CBC;			
+		}
+		else{
+			cx->worker = &SM4_DECRYPT_CBC;
+		}
+		break;	
+
+    default:
+	PORT_SetError(SEC_ERROR_INVALID_ARGS);
+	return SECFailure;
+    }
+
+	LOG_PRINTF_SM4("SM4_InitContext, cx=%08x", cx);
+	LOG_PRINTF_SM4("SM4Key:");
+	LOG_PRINTF_HEX_SM4(cx->pbKey, SMS4_BLOCK_LEN);
+	LOG_PRINTF_SM4("SM4IV:");
+	LOG_PRINTF_HEX_SM4(cx->pbIV, SMS4_BLOCK_LEN);
+	LOG_PRINTF_SM4("\n");
+    return SECSuccess;
+}
+
+SECStatus   
+SM4_ContextSetIV(SM4Context *cx, const unsigned char *iv)
+{    
+    if (!cx) {
+		PORT_SetError(SEC_ERROR_INVALID_ARGS);
+    	return SECFailure;
+    }
+	
+	LOG_PRINTF_SM4("SM4_ContextSetIV, cx=%08x", cx);
+	LOG_PRINTF_SM4("SM4 Old IV:");
+	LOG_PRINTF_HEX_SM4(cx->pbIV, SMS4_BLOCK_LEN);
+
+	memcpy(cx->pbIV, iv, SMS4_BLOCK_LEN);
+
+	LOG_PRINTF_SM4("SM4 New IV:");
+	LOG_PRINTF_HEX_SM4(cx->pbIV, SMS4_BLOCK_LEN);
+	LOG_PRINTF_SM4("\n");
+    return SECSuccess;
+}
+
+SM4Context *
+SM4_CreateContext(const BYTE * key, const BYTE *iv, int mode, PRBool encrypt)
+{
+    SM4Context *cx = PORT_ZNew(SM4Context);
+    SECStatus rv   = SM4_InitContext(cx, key, 0, iv, mode, encrypt, 0);
+
+    if (rv != SECSuccess) {
+    	PORT_ZFree(cx, sizeof *cx);
+		cx = NULL;
+    }
+    return cx;
+}
+
+void
+SM4_DestroyContext(SM4Context *cx, PRBool freeit)
+{
+    if (cx) {
+    	memset(cx, 0, sizeof *cx);
+	if (freeit)
+	    PORT_Free(cx);
+    }
+}
+
+SECStatus
+SM4_Encrypt(SM4Context *cx, BYTE *out, unsigned int *outLen,
+            unsigned int maxOutLen, const BYTE *in, unsigned int inLen)
+{
+
+    if ((inLen % SMS4_BLOCK_LEN) != 0 || maxOutLen < inLen || !cx || 
+        cx->direction != SM4_ENCRYPT) {
+    	PORT_SetError(SEC_ERROR_INVALID_ARGS);
+		return SECFailure;
+    }
+
+	//仅设置IV
+	if( (0 == inLen) && (0 == maxOutLen) && (in != NULL) ){
+		return SM4_ContextSetIV(cx, in);
+	}
+
+	LOG_PRINTF_SM4("SM4_Encrypt, cx=%08x", cx);
+	LOG_PRINTF_SM4("SM4Key:");
+	LOG_PRINTF_HEX_SM4(cx->pbKey, SMS4_BLOCK_LEN);
+	LOG_PRINTF_SM4("SM4IV:");
+	LOG_PRINTF_HEX_SM4(cx->pbIV, SMS4_BLOCK_LEN);
+
+	LOG_PRINTF_SM4("in:");
+	LOG_PRINTF_HEX_SM4(( BYTE *)in, inLen);
+
+    cx->worker(cx, out, in, inLen);
+    if (outLen)
+	*outLen = inLen;	
+
+	LOG_PRINTF_SM4("out:");
+	LOG_PRINTF_HEX_SM4(out, inLen);
+	LOG_PRINTF_SM4("\n");
+
+    return SECSuccess;
+}
+
+SECStatus
+SM4_Decrypt(SM4Context *cx, BYTE *out, unsigned int *outLen,
+            unsigned int maxOutLen, const BYTE *in, unsigned int inLen)
+{
+
+    if ((inLen % SMS4_BLOCK_LEN) != 0 || maxOutLen < inLen || !cx || 
+        cx->direction != SM4_DECRYPT) {
+    	PORT_SetError(SEC_ERROR_INVALID_ARGS);
+		return SECFailure;
+    }
+
+	//仅设置IV
+	if( (0 == inLen) && (0 == maxOutLen) && (in != NULL) ){
+		return SM4_ContextSetIV(cx, in);
+	}
+
+	LOG_PRINTF_SM4("SM4_Decrypt, cx=%08x", cx);
+	LOG_PRINTF_SM4("SM4Key:");
+	LOG_PRINTF_HEX_SM4(cx->pbKey, SMS4_BLOCK_LEN);
+	LOG_PRINTF_SM4("SM4IV:");
+	LOG_PRINTF_HEX_SM4(cx->pbIV, SMS4_BLOCK_LEN);
+
+	LOG_PRINTF_SM4("in:");
+	LOG_PRINTF_HEX_SM4(( BYTE *)in, inLen);
+
+    cx->worker(cx, out, in, inLen);
+    if (outLen)
+	*outLen = inLen;
+	
+	LOG_PRINTF_SM4("out:");
+	LOG_PRINTF_HEX_SM4(out, inLen);
+	LOG_PRINTF_SM4("\n");
+    return SECSuccess;
+}

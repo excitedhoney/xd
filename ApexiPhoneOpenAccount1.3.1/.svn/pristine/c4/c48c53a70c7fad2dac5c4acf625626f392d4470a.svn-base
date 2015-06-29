@@ -1,0 +1,18 @@
+//
+//  main.m
+//  ApexiPhoneOpenAccount
+//
+//  Created by mac  on 14-3-2.
+//  Copyright (c) 2014年 mac . All rights reserved.
+//
+
+#import <UIKit/UIKit.h>
+
+#import "SJKHAppDelegate.h"
+
+int main(int argc, char * argv[])
+{
+    @autoreleasepool {
+        return UIApplicationMain(argc, argv, nil, NSStringFromClass([SJKHAppDelegate class]));
+    }
+}

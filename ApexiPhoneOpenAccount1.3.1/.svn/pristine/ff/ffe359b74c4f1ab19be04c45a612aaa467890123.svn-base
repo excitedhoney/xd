@@ -1,0 +1,54 @@
+//
+//  NoticeTimer.m
+//  O_All
+//
+//  Created by YXCD on 14-3-11.
+//  Copyright (c) 2014年 YXCD. All rights reserved.
+//
+
+#import "NoticeTimer.h"
+#import <UIKit/UIKit.h>
+
+@implementation NoticeTimer
+
+-(void)timerFireMethod:(NSTimer*)theTimer
+{
+    UIAlertView *promptAlert = (UIAlertView*)[theTimer userInfo];
+    [promptAlert dismissWithClickedButtonIndex:0 animated:NO];
+    
+    promptAlert =NULL;
+}
+
+-(void)showAlert:(NSTimer*)theTimer
+{
+    UIAlertView *promptAlert = [[UIAlertView alloc] initWithTitle:@"提醒" message:@"当前您使用的是测试授权，用于开发调试及演示，如需正式商用版本，请与天威诚信电子商务服务有限公司联系，联系方式13911678732!" delegate:nil cancelButtonTitle:nil otherButtonTitles:nil];
+    
+    float timerRemain = iTimerRemain;
+    
+    iTimerShow = [NSTimer scheduledTimerWithTimeInterval:timerRemain
+                                     target:self
+                                   selector:@selector(timerFireMethod:)
+                                   userInfo:promptAlert
+                                    repeats:NO];
+    
+    [promptAlert show];
+}
+
+
+-(void)startTimer:(float)timerSpace withTimeRemain:(float)timerRemain
+{
+    iTimerRemain = timerRemain;
+    iTimerRepeat = [NSTimer scheduledTimerWithTimeInterval:timerSpace
+                                                    target:self
+                                                  selector:@selector(showAlert:)
+                                                  userInfo:nil
+                                                   repeats:YES];
+}
+
+
+-(void)endTimer
+{
+    [iTimerRepeat invalidate];
+}
+
+@end

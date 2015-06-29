@@ -1,0 +1,659 @@
+//
+//  PublicMethod.m
+//  PhoneOpenAccountTest
+//
+//  Created by mac  on 14-3-6.
+//  Copyright (c) 2014年 mac . All rights reserved.
+//
+
+#import "PublicMethod.h"
+#import <CommonCrypto/CommonDigest.h>
+#import <ifaddrs.h>
+#import <arpa/inet.h>
+#import <mach/mach_init.h>
+#import <mach/mach_host.h>
+#import "UIImage+custom_.h"
+#import "SJKHEngine.h"
+#import "UIImage+custom_.h"
+#import "TTTAttributedLabel.h"
+//#import "CustomTestField.h"
+
+
+@implementation PublicMethod
+
+//把数组转换为字符串。
++ (NSString *)convertArrayToString:(NSArray *)array{
+    NSMutableString *string = [NSMutableString stringWithCapacity:0];
+    for( NSInteger i=0;i<[array count];i++ ){
+        [string appendFormat:@"%@%@",(NSString *)array[i], (i<([array count]-1))?@",":@""];
+    }
+    return string;
+}
+
+//将url的传入参数截取出来
++ (NSArray *)convertURLToArray:(NSString *)string{
+    if([string rangeOfString:@"?"].length != 0){
+        int i = [string rangeOfString:@"?"].location;
+        NSString *newString = [string substringFromIndex:i+1];
+        return [newString componentsSeparatedByString:@"&"];
+    }
+    else{
+        return  nil;
+    }
+}
+
+//将?后面的字符串截掉
++ (NSURL *)suburlString:(NSURL *)urlString{
+    return [NSURL URLWithString: [urlString.absoluteString substringToIndex:[urlString.absoluteString rangeOfString:@"?"].location]];
+}
+
+//把字符串转换为数组。
++ (NSArray *)convertStringToArray:(NSString *)string{
+    return [string componentsSeparatedByString:@","];
+}
+
+//匹配是否为email地址。
++ (BOOL)validateEmail:(NSString *)candidate{
+    NSString *emailRegex = @"[A-Z0-9a-z._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,4}";
+    NSPredicate *emailTest = [NSPredicate predicateWithFormat:@"SELF MATCHES %@", emailRegex];
+    return [emailTest evaluateWithObject:candidate];
+}
+
++ (BOOL)validateCellPhone:(NSString *)candidate{
+    NSString *phoneRegex = @"((\\d{11})|^((\\d{7,8})|(\\d{4}|\\d{3})-(\\d{7,8})|(\\d{4}|\\d{3})-(\\d{7,8})-(\\d{4}|\\d{3}|\\d{2}|\\d{1})|(\\d{7,8})-(\\d{4}|\\d{3}|\\d{2}|\\d{1}))$)";
+    NSPredicate *phoneTest = [NSPredicate predicateWithFormat:@"SELF MATCHES %@", phoneRegex];
+    return [phoneTest evaluateWithObject:candidate];
+}
+
+//获取文件的大小。
++ (long)getDocumentSize:(NSString *)documentsDirectory
+{
+    NSFileManager *fileManager = [NSFileManager defaultManager];
+//    NSArray *paths = NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, YES);
+//    NSString *documentsDirectory = paths[0];
+//    documentsDirectory = [documentsDirectory stringByAppendingPathComponent:[NSString stringWithFormat: @"/%@/", folderName]];
+    //    NSDictionary *fileAttributes = [fileManager attributesOfFileSystemForPath:documentsDirectory error:nil];
+    NSDictionary *fileAttributes = [fileManager attributesOfItemAtPath:documentsDirectory error:nil];
+    
+    long size = 0;
+    if(fileAttributes != nil)
+    {
+        NSNumber *fileSize = fileAttributes[NSFileSize];
+        size = [fileSize longValue];
+    }
+    return size;
+}
+
+//得到小写字母。
++ (NSArray *)getLetters
+{
+    return @[@"a",@"b",@"c",@"d",@"e",@"f",@"g",@"h",@"i",@"j",@"k",@"l",@"m",@"n",@"o",@"p",@"q",@"r",@"s",@"t",@"u",@"v",@"w",@"x",@"y",@"z"];
+}
+
+//得到大写字母
++ (NSArray *)getUpperLetters
+{
+    return @[@"A",@"B",@"C",@"D",@"E",@"F",@"G",@"H",@"I",@"J",@"K",@"L",@"M",@"N",@"O",@"P",@"Q",@"R",@"S",@"T",@"U",@"V",@"W",@"X",@"Y",@"Z"];
+}
+
+//得到ip地址。
++ (NSString *)getIPAddress
+{
+    NSString *address = @"Unknown";
+    struct ifaddrs *interfaces = NULL;
+    struct ifaddrs *temp_addr = NULL;
+    int success = 0;
+    
+    // retrieve the current interfaces - returns 0 on success
+    success = getifaddrs(&interfaces);
+    if (success == 0)
+    {
+        // Loop through linked list of interfaces
+        temp_addr = interfaces;
+        while(temp_addr != NULL)
+        {
+            if(temp_addr->ifa_addr->sa_family == AF_INET)
+            {
+                // Check if interface is en0 which is the wifi connection on the iPhone
+                //                address = [NSString stringWithUTF8String:inet_ntoa(((struct sockaddr_in *)temp_addr->ifa_addr)->sin_addr)];
+                //                NSLog(@"address: %@", [NSString stringWithUTF8String:temp_addr->ifa_name]);
+                if([@(temp_addr->ifa_name) isEqualToString:@"en0"])
+                {
+                    // Get NSString from C String
+                    address = @(inet_ntoa(((struct sockaddr_in *)temp_addr->ifa_addr)->sin_addr));
+                }
+            }
+            
+            temp_addr = temp_addr->ifa_next;
+        }
+    }
+    
+    // Free memory
+    freeifaddrs(interfaces);
+    
+    return address;
+}
+
+//得到空闲的内存。
++ (NSString *)getFreeMemory{
+    mach_port_t host_port;
+    mach_msg_type_number_t host_size;
+    vm_size_t pagesize;
+    
+    host_port = mach_host_self();
+    host_size = sizeof(vm_statistics_data_t) / sizeof(integer_t);
+    host_page_size(host_port, &pagesize);
+    
+    vm_statistics_data_t vm_stat;
+    
+    if (host_statistics(host_port, HOST_VM_INFO, (host_info_t)&vm_stat, &host_size) != KERN_SUCCESS)
+        NSLog(@"Failed to fetch vm statistics");
+    
+    /* Stats in bytes */
+    natural_t mem_used = (vm_stat.active_count +
+                          vm_stat.inactive_count +
+                          vm_stat.wire_count) * pagesize;
+    natural_t mem_free = vm_stat.free_count * pagesize;
+    //  natural_t mem_total = mem_used + mem_free;
+    return [NSString stringWithFormat:@"%0.1f MB used/%0.1f MB free", mem_used/1048576.f, mem_free/1048576.f];
+    //    NSLog(@"used: %u free: %u total: %u", mem_used, mem_free, mem_total);
+}
+
+//获取硬盘空闲的空间。
++ (NSString *)getDiskUsed
+{
+    NSDictionary *fsAttr = [[NSFileManager defaultManager] attributesOfFileSystemForPath:NSHomeDirectory() error:nil];
+    float diskSize = [fsAttr[NSFileSystemSize] doubleValue] / 1073741824.f;
+    float diskFreeSize = [fsAttr[NSFileSystemFreeSize] doubleValue] / 1073741824.f;
+    float diskUsedSize = diskSize - diskFreeSize;
+    return [NSString stringWithFormat:@"%0.1f GB of %0.1f GB", diskUsedSize, diskSize];
+}
+
++ (NSString *)getStringValue:(id)value
+{
+    if ([value isKindOfClass:[NSNull class]]) {
+        return nil;
+    }
+    
+    if ([value isKindOfClass:[NSString class]]) {
+        if ([@"" isEqualToString:value]) {
+            return nil;
+        }
+        return value;
+    }
+    else
+    {
+        return [value stringValue];
+    }
+}
+
+//创建某个路径是否成功。
++ (BOOL)createDirectorysAtPath:(NSString *)path{
+    @synchronized(self){
+        NSFileManager* manager = [NSFileManager defaultManager];
+        if (![manager fileExistsAtPath:path]) {
+            NSError *error = nil;
+            if (![manager createDirectoryAtPath:path withIntermediateDirectories:YES attributes:nil error:&error]) {
+                return NO;
+            }
+        }
+    }
+    return YES;
+}
+
+//获取文件路径。
++ (NSString*)getDirectoryPathByFilePath:(NSString *)filepath{
+    
+    if(!filepath || [filepath length] == 0){
+        return @"";
+    }
+    
+    int pathLength = [filepath length];
+    int fileLength = [[filepath lastPathComponent] length];
+    return [filepath substringToIndex:(pathLength - fileLength - 1)];
+}
+
++ (NSString *)getFilePath:(CACHE_PATH_TYPE)type fileName:(NSString *)fileName{
+    NSString *totalPath=nil;
+    switch (type) {
+        case DOCUMENT_CACHE:
+        {
+            NSArray* ar = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask,YES);
+            totalPath = [[ar objectAtIndex:0]stringByAppendingPathComponent:fileName];
+        }
+            break ;
+        case CACHESDIRECTORY:
+        {
+            NSArray* ar = NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, YES);
+            totalPath = [[ar lastObject] stringByAppendingPathComponent:fileName];
+        }
+            break ;
+    }
+    return totalPath;
+    
+}
+
++ (UIFont *) GetSysFont
+{
+	return [UIFont systemFontOfSize:20];
+}
+
++ (UIFont *) GetIndexBarFont
+{
+	return [UIFont boldSystemFontOfSize:12];
+}
+
++ (int) GetSysFontHeight
+{
+	UIFont *font = [PublicMethod GetSysFont];
+    
+	NSLog(@"xHeight capHeight =%f,%f",font.xHeight,font.capHeight);
+    
+	return font.xHeight + font.capHeight;
+}
+
++ (NSString *)GetImageIdentify{
+    CFUUIDRef theUUID=CFUUIDCreate(NULL);
+    CFStringRef str=CFUUIDCreateString(NULL, theUUID);
+    CFRelease(theUUID);
+    return (__bridge NSString*)str;
+}
+
++ (NSString *)getNSStringFromCstring:(const char *)cString{
+    return [NSString stringWithCString:cString encoding:[SJKHEngine Instance]->stringEncode];
+}
+
++ (NSString *)MD5:(NSString *)srcString{
+    const char *cStr = [srcString UTF8String];
+    unsigned char result[16];
+    CC_MD5( cStr, strlen(cStr), result );
+    NSString *md5Result = [NSString stringWithFormat:
+                           @"%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x",
+                           result[0], result[1], result[2], result[3],
+                           result[4], result[5], result[6], result[7],
+                           result[8], result[9], result[10], result[11],
+                           result[12], result[13], result[14], result[15]
+                           ];
+    return md5Result;
+}
+
++ (UIView *)getSepratorLine:(CGRect )rect alpha:(CGFloat)alpha{
+    __autoreleasing UIView *subView=[[UIView alloc]initWithFrame:rect];
+    subView.tag = SeperateLineTag;
+    [subView setBackgroundColor:[UIColor colorWithWhite:0.76 alpha:alpha]];
+    return subView;
+}
+
++ (void) trimText:(NSString **)srcString{
+    *srcString = [*srcString stringByReplacingOccurrencesOfString:@" " withString:@""];
+}
+
++ (float) getWidth:(UIFont *)font{
+    return font.leading;
+}
+
++ (float) getStringWidth:(NSString *)str font:(UIFont *)font{
+    CGSize size=[(str?str: @"") sizeWithFont:font constrainedToSize:CGSizeMake(320, 9999)
+                               lineBreakMode:NSLineBreakByWordWrapping];
+    return size.width;
+}
+
++ (float) getStringHeight:(NSString *)str font:(UIFont *)font{
+    CGSize size=[(str?str: @"") sizeWithFont:font constrainedToSize:CGSizeMake(320, 9999)
+                               lineBreakMode:NSLineBreakByWordWrapping];
+    return size.height;
+}
+
++ (CGSize) getStringSize:(NSString *)str font:(UIFont *)font{
+    CGSize size=[(str?str: @"") sizeWithFont:font constrainedToSize:CGSizeMake(320, 9999)
+                               lineBreakMode:NSLineBreakByWordWrapping];
+    return size;
+}
+
++ (UIButton *) InitReadXY:(NSString *)title withFrame:(CGRect)frame tag:(int)tag target:(id)target{
+    //生成数字证书申请责任书/协议书
+    UIButton * requestZRS = [[UIButton alloc]initWithFrame:frame];
+    [requestZRS setImage:[UIImage imageNamed:@""] forState:UIControlStateNormal];
+    
+    UIButton * markButton = [UIButton buttonWithType:UIButtonTypeCustom];
+    [markButton setFrame:CGRectMake(7, 7, ButtonHeight - 7*2, ButtonHeight - 7*2)];
+    [markButton setBackgroundImage:[UIImage imageNamed:@"checkBox_default"] forState:UIControlStateNormal];
+    [markButton setBackgroundImage:[UIImage imageNamed:@"checkBox_active"] forState:UIControlStateHighlighted];
+    markButton.tag = MarkBtnTag;
+    [markButton addTarget: target action: @selector(onButtonClick:) forControlEvents: UIControlEventTouchUpInside];
+    [markButton setUserInteractionEnabled:YES];
+    [requestZRS addSubview:markButton];
+    
+    requestZRS.tag = tag;
+    [requestZRS addTarget: target action: @selector(onButtonClick:) forControlEvents: UIControlEventTouchUpInside];
+    [requestZRS setTitleColor:GrayTipColor_Wu forState:UIControlStateNormal];
+    [requestZRS setTitleEdgeInsets:UIEdgeInsetsMake(0, ButtonHeight - 7+5, 0, 0)];
+    [requestZRS setTitle:title forState:UIControlStateNormal];
+    requestZRS.titleLabel.font = TipFont;
+    [requestZRS setContentHorizontalAlignment:UIControlContentHorizontalAlignmentLeft];
+    
+    return requestZRS;
+}
+
++ (UIButton *) InitReadXYWithAttributeLabel:(NSString *)title withFrame:(CGRect)frame tag:(int)tag target:(id)target options:(NSArray *)options superView:(UIView *)superView{
+    //生成数字证书申请责任书/协议书
+    UIButton * requestZRS = [[UIButton alloc]initWithFrame:frame];
+    [requestZRS setImage:[UIImage imageNamed:@""] forState:UIControlStateNormal];
+    
+    UIButton * markButton = [UIButton buttonWithType:UIButtonTypeCustom];
+    [markButton setFrame:CGRectMake(7, 7, ButtonHeight - 7*2, ButtonHeight - 7*2)];
+    [markButton setBackgroundImage:[UIImage imageNamed:@"checkBox_default"] forState:UIControlStateNormal];
+    [markButton setBackgroundImage:[UIImage imageNamed:@"checkBox_active"] forState:UIControlStateHighlighted];
+    markButton.tag = MarkBtnTag;
+    [markButton addTarget: target action: @selector(onButtonClick:) forControlEvents: UIControlEventTouchUpInside];
+    [markButton setUserInteractionEnabled:YES];
+    [requestZRS addSubview:markButton];
+    
+    TTTAttributedLabel *la=[[TTTAttributedLabel alloc]initWithFrame: CGRectMake(ButtonHeight, 0, frame.size.width - ButtonHeight , frame.size.height)];
+    la.font = TipFont;
+    la.textColor = [UIColor darkGrayColor];
+    la.lineBreakMode = NSLineBreakByWordWrapping;
+    la.numberOfLines = 0;
+    la.linkAttributes = [NSDictionary dictionaryWithObject:[NSNumber numberWithBool:YES] forKey:(NSString *)kCTUnderlineStyleAttributeName];
+    
+    la.highlightedTextColor = [UIColor whiteColor];
+    la.shadowColor = [UIColor colorWithWhite:0.87 alpha:1.0];
+    la.shadowOffset = CGSizeMake(0.0f, 1.0f);
+    la.verticalAlignment = TTTAttributedLabelVerticalAlignmentTop;
+    la.tag = TTTLabelTag;
+    
+    NSMutableArray * underlineTexts = [NSMutableArray array];
+    NSMutableArray * underlineRanges = [NSMutableArray array];
+    [la setText:title afterInheritingLabelAttributesAndConfiguringWithBlock:^NSMutableAttributedString *(NSMutableAttributedString *mutableAttributedString) {
+        NSMutableString * sMessage = [NSMutableString stringWithString:[mutableAttributedString string]];
+        NSRange range =[sMessage rangeOfString:@"<<"] ;
+        NSString * subString = nil;
+        while (range.location != NSNotFound) {
+//            NSLog(@"options:NSForcedOrderingSearch].location =%@",NSStringFromRange([sMessage rangeOfString:@">>" options:NSForcedOrderingSearch]));
+            int length = [sMessage rangeOfString:@">>" options:NSForcedOrderingSearch].location - range.location - 2;
+            range = NSMakeRange(range.location + 2, length);
+            subString = [sMessage substringWithRange:range];
+            [sMessage deleteCharactersInRange:NSMakeRange(0, range.location + range.length + 2)];
+//            NSLog(@"subString =%@,%@",subString,NSStringFromRange(range));
+            [underlineTexts addObject:subString];
+            
+            range =[sMessage rangeOfString:@"<<"] ;
+        }
+        
+        NSRange preRange = NSMakeRange(0, [mutableAttributedString string].length);
+        for (NSString * text in underlineTexts) {
+            range = [[mutableAttributedString string] rangeOfString:text options:NSCaseInsensitiveSearch range:preRange];
+            
+            UIFont *italicSystemFont = [UIFont italicSystemFontOfSize:17];
+            CTFontRef italicFont = CTFontCreateWithName((CFStringRef)italicSystemFont.fontName, italicSystemFont.pointSize, NULL);
+            
+            if (italicFont) {
+                [mutableAttributedString addAttribute:NSUnderlineStyleAttributeName value:[NSNumber numberWithInteger:NSUnderlineStyleSingle] range:range];
+                [mutableAttributedString addAttribute:(NSString *)kCTFontAttributeName value:(__bridge id)italicFont range:range];
+                CFRelease(italicFont);
+                
+                [mutableAttributedString addAttribute:(NSString*)kCTForegroundColorAttributeName value:(id)[ButtonColorNormal_Wu CGColor] range:range];
+                [underlineRanges addObject:NSStringFromRange(range)];
+            }
+            
+            preRange = NSMakeRange(range.location + range.length, [mutableAttributedString string].length - range.location - range.length);
+        }
+        
+        return mutableAttributedString;
+    }];
+    
+    for (int i =0 ;i < underlineRanges.count;i++) {
+        [la addLinkToURL:[NSURL URLWithString:[options objectAtIndex:i]] withRange:NSRangeFromString([underlineRanges objectAtIndex:i])];
+    }
+    
+    la.delegate = target;
+    [requestZRS addSubview:la];
+    [superView addSubview:requestZRS];
+    
+    return requestZRS;
+}
+
++ (UIButton *) CreateButton:(NSString *)title withFrame:(CGRect)frame tag:(int)tag target:(id)target{
+    UIButton * btn = [[UIButton alloc]initWithFrame:frame];
+//    [btn setImage:[UIImage imageNamed:@""] forState:UIControlStateNormal];
+//    [btn setBackgroundColor:buttonColor];
+    [btn setBackgroundColor:BTN_DEFAULT_REDBG_COLOR];
+    
+    btn.tag = tag;
+    [btn setTitle:title forState:UIControlStateNormal];
+    [btn setTitleColor:TITLE_WHITE_COLOR forState:UIControlStateNormal];
+    [btn setTitleColor:WARN_TITLE_COLOR forState:UIControlStateHighlighted];
+    [target addSubview:btn];
+    
+    return btn;
+}
+
++ (UITextField *) CreateField:(NSString *)title withFrame:(CGRect)frame tag:(int)tag target:(id)target{
+//    CustomTestField * phoneEditor = [[CustomTestField alloc] initWithFrame: frame];
+    UITextField * phoneEditor = [[UITextField alloc]initWithFrame:frame];
+	phoneEditor.backgroundColor = [UIColor clearColor];
+    phoneEditor.tag = tag;
+	phoneEditor.borderStyle = UITextBorderStyleNone;
+//    [phoneEditor setBackground:[[UIImage imageNamed:@"bg_editText_normal"]imageWithRenderingMode:UIImageRenderingModeAlwaysOriginal ]];
+    phoneEditor.layer.borderColor = TEXTFEILD_BOLD_DEFAULT_COLOR.CGColor;
+    phoneEditor.layer.cornerRadius = 2;
+    phoneEditor.layer.masksToBounds = YES;
+    phoneEditor.layer.borderWidth = 0.5;
+	phoneEditor.keyboardType = UIKeyboardTypeNumberPad;
+    phoneEditor.clearButtonMode = UITextFieldViewModeWhileEditing;
+    phoneEditor.contentVerticalAlignment = UIControlContentVerticalAlignmentCenter;
+    [phoneEditor setTextAlignment:NSTextAlignmentLeft];
+	[phoneEditor setFont: FieldFont];
+    [phoneEditor setPlaceholder:title];
+	[phoneEditor setTextColor: FieldFontColor];
+//    if([SJKHEngine Instance]->systemVersion >= 7){
+        [target addSubview:phoneEditor];
+//    }
+    
+    return phoneEditor;
+}
+
++ (void)publicCornerBorderStyle:(UIView *)view{
+    view.layer.borderColor = FieldNormalColor.CGColor;
+    view.layer.cornerRadius = 2;
+    view.layer.masksToBounds = YES;
+    view.layer.borderWidth = 0.5;
+}
+
++ (UIView *) CreateView:(CGRect)frame tag:(int)tag target:(id)target{
+    UIView * centerView = [[UIView alloc]initWithFrame:frame];
+    centerView.tag = tag;
+    [target addSubview:centerView];
+    return centerView;
+}
+
+//生成选择框。如风险评测中的。
++ (UIButton *) InitSelectTitle:(NSString *)title withFrame:(CGRect)frame tag:(int)tag target:(id)target{
+    UIButton * requestZRS = [[UIButton alloc]initWithFrame:frame];
+    [requestZRS setImage:[UIImage imageNamed:@""] forState:UIControlStateNormal];
+    [requestZRS setBackgroundColor:[UIColor clearColor]];
+    
+    UIButton * markButton = [UIButton buttonWithType:UIButtonTypeCustom];
+    [markButton setFrame:CGRectMake(0, frame.size.height/2-30/2 , 30, 30)];
+    [markButton setBackgroundImage:[UIImage imageNamed:@"radio_default"] forState:UIControlStateNormal];
+    markButton.tag = SelectBtnTag;
+    [markButton setUserInteractionEnabled:NO];
+    [requestZRS addSubview:markButton];
+    
+    requestZRS.tag = tag;
+//    [requestZRS addTarget: target action: @selector(onSelectClick:) forControlEvents: UIControlEventTouchDown];
+    [requestZRS setTitleColor:GrayTipColor_Wu forState:UIControlStateNormal];
+    [requestZRS setTitleEdgeInsets:UIEdgeInsetsMake(0, 30+3, 0, 0)];
+    [requestZRS setContentHorizontalAlignment:UIControlContentHorizontalAlignmentLeft];
+    [requestZRS setTitle:title forState:UIControlStateNormal];
+    
+    return requestZRS;
+}
+
+//生成多选选择框。如风险评测中的。
++ (UIButton *) InitDoubleSelectTitle:(NSString *)title withFrame:(CGRect)frame tag:(int)tag target:(id)target{
+    UIButton * requestZRS = [[UIButton alloc]initWithFrame:frame];
+    [requestZRS setImage:[UIImage imageNamed:@""] forState:UIControlStateNormal];
+    [requestZRS setBackgroundColor:[UIColor clearColor]];
+    
+    UIButton * markButton = [UIButton buttonWithType:UIButtonTypeCustom];
+    [markButton setFrame:CGRectMake(0, frame.size.height/2-30/2 , 30, 30)];
+    [markButton setBackgroundImage:[UIImage imageNamed:@"checkBox_default"] forState:UIControlStateNormal];
+    markButton.tag = SelectBtnTag;
+    [markButton setUserInteractionEnabled:NO];
+    [requestZRS addSubview:markButton];
+    
+    requestZRS.tag = tag;
+    //    [requestZRS addTarget: target action: @selector(onSelectClick:) forControlEvents: UIControlEventTouchDown];
+    [requestZRS setTitleColor:GrayTipColor_Wu forState:UIControlStateNormal];
+    [requestZRS setTitleEdgeInsets:UIEdgeInsetsMake(0, 30+3, 0, 0)];
+    [requestZRS setContentHorizontalAlignment:UIControlContentHorizontalAlignmentLeft];
+    [requestZRS setTitle:title forState:UIControlStateNormal];
+    
+    return requestZRS;
+}
+
+
++ (UILabel *) initLabelWithFrame:(CGRect)frame title:(NSString *)title target:(id)target{
+//    CGRectMake(levelSpace, 0, screenWidth - levelSpace, labelHeight)
+//    @"请您完成以下风险评测表";
+    UILabel *la=[[UILabel alloc]initWithFrame: frame];
+	la.backgroundColor = [UIColor clearColor];
+    [la setText:title];
+	[la setFont: TipFont];
+    la.textAlignment = NSTextAlignmentLeft;
+	[la setTextColor: GrayTipColor_Wu];
+    la.lineBreakMode = NSLineBreakByTruncatingTail;
+    [target addSubview:la];
+    return la;
+}
+
+//清理特列字符
++ (void) trimSpecialCharacters:(NSString **)unFilterString{
+    NSRegularExpression *expression = [NSRegularExpression regularExpressionWithPattern:@"[,\\.`\"!@#$%^&*()_+|＊*]"
+                                                                                options:0
+                                                                                  error:NULL];
+    [expression stringByReplacingMatchesInString:*unFilterString
+                                                                   options:0
+                                                                     range:NSMakeRange(0, (*unFilterString).length)
+                                                              withTemplate:@""];
+}
+
++ (void) saveToUserDefaults:(id) object key: (NSString *)key
+{
+    NSUserDefaults *standardUserDefaults = [NSUserDefaults standardUserDefaults];
+	if (standardUserDefaults) {
+		[standardUserDefaults setObject:object forKey:key];
+	}
+}
+
++ (id) userDefaultsValueForKey:(NSString*) key
+{
+    NSUserDefaults *standardUserDefaults = [NSUserDefaults standardUserDefaults];
+	if (standardUserDefaults) {
+        return [standardUserDefaults objectForKey:key];
+	}
+    return nil;
+}
+
++ (void) filterString:(NSString **)unfilteredString{
+    NSCharacterSet *notAllowedChars = [[NSCharacterSet characterSetWithCharactersInString:@"0123456789abcdefABCDEFxX"] invertedSet];
+    *unfilteredString = [[*unfilteredString componentsSeparatedByCharactersInSet:notAllowedChars] componentsJoinedByString:@""];
+}
+
++ (void) filterNumber:(NSString **)unfilteredString{
+    NSCharacterSet *notAllowedChars = [[NSCharacterSet characterSetWithCharactersInString:@"0123456789"] invertedSet];
+    *unfilteredString = [[*unfilteredString componentsSeparatedByCharactersInSet:notAllowedChars] componentsJoinedByString:@""];
+}
+
++ (NSData *) convertImageToCapacity:(UIImage *)image capacity:(int)capacity{
+    @autoreleasepool {
+        CGSize newSize=CGSizeMake(0, 0);
+        
+        CGFloat targetWid = image.size.width;
+        CGFloat targetHei = image.size.height;
+        int bit=1;
+        
+        if(targetWid > targetHei){
+            while (targetWid > 300) {
+                targetWid = image.size.width/++bit;
+            }
+            newSize.width = targetWid;
+            newSize.height = image.size.height/bit;
+        }
+        else{
+            while (targetHei > 300) {
+                targetHei = image.size.height/++bit;
+            }
+            newSize.height = targetHei;
+            newSize.width = image.size.width/bit;
+        }
+        
+        UIImage * img = [image imageByResizingToSize:newSize];
+        d_Data = UIImageJPEGRepresentation(img, 1);
+        
+//        [self CaculateImageKBs:img capacity:capacity];
+    }
+    return d_Data;
+}
+
++ (BOOL) validateIdentityCard: (NSString *)identityCard
+{
+    BOOL flag;
+    if (identityCard.length <= 0) {
+        flag = NO;
+        return flag;
+    }
+    NSString *regex2 = @"^(\\d{14}|\\d{17})(\\d|[xX])$";
+    NSPredicate *identityCardPredicate = [NSPredicate predicateWithFormat:@"SELF MATCHES %@",regex2];
+    return [identityCardPredicate evaluateWithObject:identityCard];
+}
+
+static NSData * d_Data = nil;
++ (void) CaculateImageKBs:(UIImage *)image capacity:(int)capacity{
+    CGFloat f=1;
+    
+    for(; f>0 && d_Data.length/1024>capacity ; f-=0.1){
+        d_Data = nil;
+        d_Data = UIImageJPEGRepresentation(image,f);
+    }
+    
+    if(d_Data.length/1024>capacity){
+        [self CaculateImageKBs:[UIImage imageWithData:d_Data] capacity:capacity] ;
+    }
+    else{
+        return ;
+    }
+}
+
++ (NSData *) compressImage:(UIImage *)image{
+    CGFloat compression = 0.9f;
+    CGFloat maxCompression = 0.1f;
+    int maxFileSize = 60*1024;
+    
+    NSData *imageData = UIImageJPEGRepresentation(image, compression);
+    
+    while ([imageData length] > maxFileSize && compression > maxCompression)
+    {
+        compression -= 0.1;
+        imageData = UIImageJPEGRepresentation(image, compression);
+    }
+    
+    return imageData;
+}
+
+
+
+
+
+@end
+
+
+
+
+
+
+
+
+
+

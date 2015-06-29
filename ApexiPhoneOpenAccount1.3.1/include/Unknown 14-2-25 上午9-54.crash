@@ -1,0 +1,13 @@
+Incident Identifier: E0897A45-B3AE-4745-B433-7E77288CC6E4
+CrashReporter Key:   96dd1846d17d8c4833d2fc8552d3d29a55bad3f4
+Date:                2014-02-25 09:54:38 +0800
+OS Version:          iPhone OS 6.0.1 (10A523)
+
+SpringBoard: com.apple.springboard.idle	NoIdleSleepAssertion == 255, held for 01:13:39
+
+Hardware Model: N90bAP
+Awake Time: 08:58:21 (32301)
+Standby Time: 16:37:39 (59859)
+Partial Charge: 0
+Capacity: 1
+Voltage: 3622 mV

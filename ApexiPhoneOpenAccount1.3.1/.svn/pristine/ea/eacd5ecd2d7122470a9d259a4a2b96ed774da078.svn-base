@@ -1,0 +1,331 @@
+Index: hasht.h
+===================================================================
+--- hasht.h	(版本 235644)
++++ hasht.h	(工作副本)
+@@ -24,6 +24,7 @@
+     HASH_AlgSHA384 = 5,
+     HASH_AlgSHA512 = 6,
+     HASH_AlgSHA224 = 7,
++    HASH_AlgSM3    = 8,    //add by liqiangqiang
+     HASH_AlgTOTAL
+ } HASH_HashType;
+ 
+@@ -37,6 +38,7 @@
+ #define SHA256_LENGTH 	32
+ #define SHA384_LENGTH 	48
+ #define SHA512_LENGTH 	64
++#define SM3_LENGTH 32              //add by liqiangqiang
+ #define HASH_LENGTH_MAX SHA512_LENGTH
+ 
+ /*
+Index: pkcs11n.h
+===================================================================
+--- pkcs11n.h	(版本 235644)
++++ pkcs11n.h	(工作副本)
+@@ -219,6 +219,16 @@
+ #define CKM_NSS_CHACHA20_KEY_GEN                (CKM_NSS + 25)
+ #define CKM_NSS_CHACHA20_POLY1305               (CKM_NSS + 26)
+ 
++//add by liqiangqiang from
++/* TLS 1.2 mechanisms sm3*/
++#define CKM_NSS_TLS_PRF_GENERAL_SM3		          (CKM_NSS + 121)
++#define CKM_NSS_TLS_MASTER_KEY_DERIVE_SM3	      (CKM_NSS + 122)
++#define CKM_NSS_TLS_KEY_AND_MAC_DERIVE_SM3	      (CKM_NSS + 123)
++#define CKM_NSS_TLS_MASTER_KEY_DERIVE_DH_SM3	  (CKM_NSS + 124)
++#define CKM_NSS_TLS_PRF_SM3		                  (CKM_NSS + 125)
++//add by liqiangqiang to
++
++
+ /*
+  * HISTORICAL:
+  * Do not attempt to use these. They are only used by NETSCAPE's internal
+Index: pkcs11t.h
+===================================================================
+--- pkcs11t.h	(版本 235644)
++++ pkcs11t.h	(工作副本)
+@@ -401,6 +401,100 @@
+ #define CKK_VENDOR_DEFINED  0x80000000
+ 
+ 
++//add by liqiangqiang from
++////SSF33
++//#define CKK_SSF33					(CKK_VENDOR_DEFINED + 0x01)
++//#define CKM_SSF33_KEY_GEN			(CKM_VENDOR_DEFINED + 0x01)
++//#define CKM_SSF33_ECB				(CKM_VENDOR_DEFINED + 0x02)
++//#define CKM_SSF33_CBC				(CKM_VENDOR_DEFINED + 0x03)
++//#define CKM_SSF33_CBC_PAD			(CKM_VENDOR_DEFINED + 0x04)
++//#define CKM_SSF33_ECB_PAD			(CKM_VENDOR_DEFINED + 0x05)
++////SM1
++//#define CKK_SM1						(CKK_VENDOR_DEFINED + 0x10)
++//#define CKM_SM1_KEY_GEN				(CKM_VENDOR_DEFINED + 0x10)
++//#define CKM_SM1_ECB					(CKM_VENDOR_DEFINED + 0x11)
++//#define CKM_SM1_CBC					(CKM_VENDOR_DEFINED + 0x12)
++//#define CKM_SM1_CBC_PAD				(CKM_VENDOR_DEFINED + 0x13)
++//#define CKM_SM1_ECB_PAD				(CKM_VENDOR_DEFINED + 0x14)
++//#define CKM_SM1_MAC                 (CKM_VENDOR_DEFINED + 0x15)
++//#define CKM_SM1_MAC_GENERAL         (CKM_VENDOR_DEFINED + 0x16)
++//
++////SMS4
++//#define CKK_SMS4					(CKK_VENDOR_DEFINED + 0x20)
++//#define CKM_SMS4_KEY_GEN			(CKM_VENDOR_DEFINED + 0x20)
++//#define CKM_SMS4_ECB				(CKM_VENDOR_DEFINED + 0x21)
++//#define CKM_SMS4_CBC				(CKM_VENDOR_DEFINED + 0x22)
++//#define CKM_SMS4_CBC_PAD			(CKM_VENDOR_DEFINED + 0x23)
++//#define CKM_SMS4_ECB_PAD			(CKM_VENDOR_DEFINED + 0x24)
++//#define CKM_SMS4_MAC                 (CKM_VENDOR_DEFINED + 0x25)
++//#define CKM_SMS4_MAC_GENERAL         (CKM_VENDOR_DEFINED + 0x26)
++///*
++// #define CKK_SM1					(CKK_VENDOR_DEFINED + 0x27)
++// #define CKM_SM1_KEY_GEN			(CKM_VENDOR_DEFINED + 0x28)
++// #define CKM_SM1_ECB				(CKM_VENDOR_DEFINED + 0x29)
++// #define CKM_SM1_CBC				(CKM_VENDOR_DEFINED + 0x30)
++// #define CKM_SM1_CBC_PAD			(CKM_VENDOR_DEFINED + 0x31)
++// #define CKM_SM1_ECB_PAD			(CKM_VENDOR_DEFINED + 0x32)
++// #define CKM_SM1_MAC                 (CKM_VENDOR_DEFINED + 0x33)
++// #define CKM_SM1_MAC_GENERAL         (CKM_VENDOR_DEFINED + 0x34)
++// */
++////SM2
++//#define CKM_SM2_KEY_PAIR_GEN        (CKM_VENDOR_DEFINED + CKM_EC_KEY_PAIR_GEN)
++//#define CKK_SM2						(CKM_VENDOR_DEFINED + CKM_ECDSA)
++//#define CKM_SM2		                CKK_SM2
++//#define CKM_SM2_SHA1				(CKM_VENDOR_DEFINED + CKM_ECDSA_SHA1)
++//#define CKM_SM2_SHA256				(CKM_VENDOR_DEFINED + CKM_ECDSA_SHA256)
++//#define CKM_SM2_MD5					(CKM_SM2_SHA256 + 1)
++//#define CKM_SM2_SM3					(CKM_SM2_SHA256 + 2)
++//
++////attributes
++//#define CKA_SM2_BITS				(CKM_VENDOR_DEFINED + 1)
++//#define CKA_SM2_PUBLIC_X			(CKM_VENDOR_DEFINED + 2)
++//#define CKA_SM2_PUBLIC_Y			(CKM_VENDOR_DEFINED + 3)
++//#define CKA_SM2_PRIVATE_KEY			(CKM_VENDOR_DEFINED + 4)
++//
++////SM3
++//#define CKM_SSL3_SM3_MAC           (CKM_VENDOR_DEFINED + CKM_SSL3_SHA1_MAC)
++//#define CKM_SM3                     (CKM_VENDOR_DEFINED + CKM_SHA256)
++//#define CKM_SM3_HMAC				(CKM_VENDOR_DEFINED + CKM_SHA256_HMAC)
++//#define CKM_SM3_HMAC_GENERAL		(CKM_VENDOR_DEFINED + CKM_SHA256_HMAC_GENERAL)
++
++
++#define CKM_SM2                        (CKM_VENDOR_DEFINED + 0x00440002)
++#define CKM_SM2_KEY_PAIR_GEN           (CKM_VENDOR_DEFINED + 0x00440012)
++#define CKM_SM2_SHA1                   (CKM_VENDOR_DEFINED + 0x00440022)
++#define CKM_SM2_SHA256                 (CKM_VENDOR_DEFINED + 0x00440032)
++#define CKM_SM2_SM3                    (CKM_VENDOR_DEFINED + 0x00440042)
++
++#define CKM_SM3                        (CKM_VENDOR_DEFINED + 0x00440003)
++#define CKM_SM3_KEY_DERIVATION         (CKM_VENDOR_DEFINED + 0x00440013)
++#define CKM_SSL3_SM3_MAC               (CKM_VENDOR_DEFINED + 0x00440023)
++#define CKM_SM3_HMAC                   (CKM_VENDOR_DEFINED + 0x00440043)
++#define CKM_SM3_HMAC_GENERAL           (CKM_VENDOR_DEFINED + 0x00440053)
++#define CKM_SM3_RSA_PKCS               (CKM_VENDOR_DEFINED + 0x00000083)
++
++#define CKK_SM4                        (CKM_VENDOR_DEFINED + 0x00440004)
++#define CKM_SM4_KEY_GEN                (CKM_VENDOR_DEFINED + 0x00440014)
++#define CKM_SM4_ECB                    (CKM_VENDOR_DEFINED + 0x00440024)
++#define CKM_SM4_CBC                    (CKM_VENDOR_DEFINED + 0x00440034)
++#define CKM_SM4_MAC                    (CKM_VENDOR_DEFINED + 0x00440044)
++#define CKM_SM4_MAC_GENERAL            (CKM_VENDOR_DEFINED + 0x00440054)
++#define CKM_SM4_CBC_PAD                (CKM_VENDOR_DEFINED + 0x00440064)
++#define CKM_SM4_ECB_PAD                (CKM_VENDOR_DEFINED + 0x00440074)
++
++
++#define CKK_SM1                        (CKM_VENDOR_DEFINED + 0x00440001)
++#define CKM_SM1_KEY_GEN                (CKM_VENDOR_DEFINED + 0x00440011)
++#define CKM_SM1_ECB                    (CKM_VENDOR_DEFINED + 0x00440021)
++#define CKM_SM1_CBC                    (CKM_VENDOR_DEFINED + 0x00440031)
++#define CKM_SM1_MAC                    (CKM_VENDOR_DEFINED + 0x00440041)
++#define CKM_SM1_MAC_GENERAL            (CKM_VENDOR_DEFINED + 0x00440051)
++#define CKM_SM1_CBC_PAD                (CKM_VENDOR_DEFINED + 0x00440061)
++#define CKM_SM1_ECB_PAD                (CKM_VENDOR_DEFINED + 0x00440071)
++
++//add by liqiangqiang to
++
++
+ /* CK_CERTIFICATE_TYPE is a value that identifies a certificate
+  * type */
+ /* CK_CERTIFICATE_TYPE was changed from CK_USHORT to CK_ULONG
+@@ -1231,6 +1325,8 @@
+ #define CKG_MGF1_SHA384       0x00000003
+ #define CKG_MGF1_SHA512       0x00000004
+ 
++#define CKG_MGF1_SM3          0x00440033
++
+ /* v2.20 amendment 3 */
+ #define CKG_MGF1_SHA224	      0x00000005
+ 
+Index: secalgid.c
+===================================================================
+--- secalgid.c	(版本 235644)
++++ secalgid.c	(工作副本)
+@@ -51,6 +51,7 @@
+       case SEC_OID_PKCS1_SHA256_WITH_RSA_ENCRYPTION:
+       case SEC_OID_PKCS1_SHA384_WITH_RSA_ENCRYPTION:
+       case SEC_OID_PKCS1_SHA512_WITH_RSA_ENCRYPTION:
++        case SEC_OID_SM3:  //add by liqiangqiang from
+ 	add_null_param = PR_TRUE;
+ 	break;
+       default:
+Index: secdig.c
+===================================================================
+--- secdig.c	(版本 235644)
++++ secdig.c	(工作副本)
+@@ -45,6 +45,7 @@
+       case SEC_OID_SHA256:
+       case SEC_OID_SHA384:
+       case SEC_OID_SHA512:
++            case SEC_OID_SM3:  //add by liqiangqiang from
+ 	break;
+       default:
+ 	PORT_SetError(SEC_ERROR_INVALID_ALGORITHM);
+Index: secoid.c
+===================================================================
+--- secoid.c	(版本 235644)
++++ secoid.c	(工作副本)
+@@ -46,6 +46,8 @@
+ #define SHAXXX      NISTALGS, 2
+ #define DSA2        NISTALGS, 3
+ 
++#define SM4         NISTALGS, 44  //add by liqiangqiang from
++
+ /**
+  ** The Netscape OID space is allocated by Terry Hayes.  If you need
+  ** a piece of the space, contact him at thayes@netscape.com.
+@@ -184,6 +186,7 @@
+ CONST_OID hmac_sha256[]				= { DIGEST, 9 };
+ CONST_OID hmac_sha384[]				= { DIGEST, 10 };
+ CONST_OID hmac_sha512[]				= { DIGEST, 11 };
++CONST_OID hmac_sm3[]				= { DIGEST, 12 };  //add by liqiangqiang from
+ 
+ CONST_OID rc2cbc[]     				= { CIPHER, 0x02 };
+ CONST_OID rc4[]        				= { CIPHER, 0x04 };
+@@ -216,6 +219,9 @@
+ CONST_OID pkcs1SHA512WithRSAEncryption[] 	= { PKCS1, 13 };
+ CONST_OID pkcs1SHA224WithRSAEncryption[] 	= { PKCS1, 14 };
+ 
++
++CONST_OID pkcs1SM3WithRSAEncryption[] 	= { PKCS1, 35 };  //add by liqiangqiang from
++
+ CONST_OID pkcs5PbeWithMD2AndDEScbc[]  		= { PKCS5, 0x01 };
+ CONST_OID pkcs5PbeWithMD5AndDEScbc[]  		= { PKCS5, 0x03 };
+ CONST_OID pkcs5PbeWithSha1AndDEScbc[] 		= { PKCS5, 0x0a };
+@@ -423,6 +429,9 @@
+ CONST_OID nistDSASignaturewithSHA224Digest[]	= { DSA2, 0x01 };
+ CONST_OID nistDSASignaturewithSHA256Digest[]	= { DSA2, 0x02 };
+ 
++CONST_OID nistDSASignaturewithSM3Digest[]	    = { DSA2, 0x43 };	//add by liqiangqiang
++
++CONST_OID ansix962SignaturewithSM3Digest[] = { ANSI_X962_SPECIFY_OID, 0x05 };  //add by liqiangqiang from
+ /* verisign OIDs */
+ CONST_OID verisignUserNotices[]     		= { VERISIGN, 1, 7, 1, 1 };
+ 
+@@ -534,6 +543,7 @@
+ CONST_OID secgECsecp224k1[] = { SECG_OID, 0x20 };
+ CONST_OID secgECsecp224r1[] = { SECG_OID, 0x21 };
+ CONST_OID secgECsecp256k1[] = { SECG_OID, 0x0a };
++CONST_OID secgECsm2[] = { SECG_OID, 0x0a };            //add by liqiangqiang from
+ CONST_OID secgECsecp384r1[] = { SECG_OID, 0x22 };
+ CONST_OID secgECsecp521r1[] = { SECG_OID, 0x23 };
+ 
+@@ -585,6 +595,11 @@
+ CONST_OID evIncorporationState[]        = { EV_NAME_ATTRIBUTE, 2 };
+ CONST_OID evIncorporationCountry[]      = { EV_NAME_ATTRIBUTE, 3 };
+ 
++
++CONST_OID sm3[]        				= { DIGEST, 0x33 };  //add by liqiangqiang from
++CONST_OID sm4_ECB[] 				= { SM4, 1 };  //add by liqiangqiang from
++CONST_OID sm4_CBC[] 				= { SM4, 2 };   //add by liqiangqiang from
++
+ #define OI(x) { siDEROID, (unsigned char *)x, sizeof x }
+ #ifndef SECOID_NO_STRINGS
+ #define OD(oid,tag,desc,mech,ext) { OI(oid), tag, desc, mech, ext }
+@@ -1649,6 +1664,41 @@
+ 	CKM_INVALID_MECHANISM, INVALID_CERT_EXTENSION ),
+     OD( x520Name, SEC_OID_AVA_NAME,
+     	"X520 Name",    CKM_INVALID_MECHANISM, INVALID_CERT_EXTENSION )
++    //add by liqiangqiang from
++    OD( secgECsm2, SEC_OID_EC_NIST_P256_SM2,
++       "SECG elliptic curve secp256k1",
++       CKM_INVALID_MECHANISM,
++       INVALID_CERT_EXTENSION ),
++    
++    OD( sm3, SEC_OID_SM3, "sm3", CKM_SM3, INVALID_CERT_EXTENSION ),
++    
++    OD( hmac_sm3, SEC_OID_HMAC_SM3, "HMAC SM3",
++       CKM_SM3_HMAC, INVALID_CERT_EXTENSION ),
++    
++    
++    OD( pkcs1SM3WithRSAEncryption, SEC_OID_PKCS1_SM3_WITH_RSA_ENCRYPTION,
++       "PKCS #1 SM3 With RSA Encryption", CKM_SM3_RSA_PKCS,
++       INVALID_CERT_EXTENSION ),
++    
++    OD( nistDSASignaturewithSM3Digest,
++       SEC_OID_NIST_DSA_SIGNATURE_WITH_SM3_DIGEST,
++       "DSA with SM3 Signature",
++       CKM_INVALID_MECHANISM /* not yet defined */, INVALID_CERT_EXTENSION),
++
++    
++	OD( ansix962SignaturewithSM3Digest,
++       SEC_OID_ANSIX962_ECDSA_SM3_SIGNATURE,
++       "X9.62 ECDSA signature with SM3", CKM_INVALID_MECHANISM,
++       INVALID_CERT_EXTENSION ),
++    
++    
++    OD( sm4_ECB, SEC_OID_SM4_ECB,
++       "SM4-ECB", CKM_AES_ECB, INVALID_CERT_EXTENSION ),
++    OD( sm4_CBC, SEC_OID_SM4_CBC,
++       "SM4-CBC", CKM_AES_CBC, INVALID_CERT_EXTENSION ),
++    //add by liqiangqiang to
++
++    
+ };
+ 
+ /* PRIVATE EXTENDED SECOID Table
+Index: secoidt.h
+===================================================================
+--- secoidt.h	(版本 235644)
++++ secoidt.h	(工作副本)
+@@ -442,6 +442,17 @@
+ 
+     /* The 'name' attribute type in X.520 */
+     SEC_OID_AVA_NAME                        = 317,
++    //add by liqiangqiang from
++	//-------------------------------------------------------
++	SEC_OID_EC_NIST_P256_SM2                      ,
++    SEC_OID_SM3						              ,
++	SEC_OID_HMAC_SM3				              ,
++	SEC_OID_PKCS1_SM3_WITH_RSA_ENCRYPTION         ,
++	SEC_OID_NIST_DSA_SIGNATURE_WITH_SM3_DIGEST	  ,
++	SEC_OID_ANSIX962_ECDSA_SM3_SIGNATURE 	      ,
++    SEC_OID_SM4_ECB                               ,
++    SEC_OID_SM4_CBC                               ,
++    //add by liqiangqiang to
+ 
+     SEC_OID_TOTAL
+ } SECOidTag;
+Index: utilmodt.h
+===================================================================
+--- utilmodt.h	(版本 235644)
++++ utilmodt.h	(工作副本)
+@@ -27,6 +27,9 @@
+ #define SECMOD_SHA512_FLAG	0x00008000L	/* also for SHA384 */
+ #define SECMOD_CAMELLIA_FLAG 	0x00010000L /* = PUBLIC_MECH_CAMELLIA_FLAG */
+ #define SECMOD_SEED_FLAG	0x00020000L
++
++#define SECMOD_SM3_FLAG     0x00040000L   //add by liqiangqiang from
++
+ /* reserved bit for future, do not use */
+ #define SECMOD_RESERVED_FLAG    0X08000000L
+ #define SECMOD_FRIENDLY_FLAG	0x10000000L
+Index: utilpars.c
+===================================================================
+--- utilpars.c	(版本 235644)
++++ utilpars.c	(工作副本)
+@@ -534,6 +534,8 @@
+ #define NSSUTIL_ARG_ENTRY(arg,flag) \
+ { #arg , sizeof(#arg)-1, flag }
+ static struct nssutilArgSlotFlagTable nssutil_argSlotFlagTable[] = {
++    
++    NSSUTIL_ARG_ENTRY(SM3,SECMOD_SM3_FLAG),  //add by liqiangqiang 
+ 	NSSUTIL_ARG_ENTRY(RSA,SECMOD_RSA_FLAG),
+ 	NSSUTIL_ARG_ENTRY(DSA,SECMOD_RSA_FLAG),
+ 	NSSUTIL_ARG_ENTRY(RC2,SECMOD_RC4_FLAG),

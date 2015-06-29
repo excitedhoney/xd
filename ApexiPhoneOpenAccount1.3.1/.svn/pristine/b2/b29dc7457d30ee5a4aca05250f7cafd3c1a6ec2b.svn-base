@@ -1,0 +1,24 @@
+//
+//  NoticeTimer.h
+//  O_All
+//
+//  Created by YXCD on 14-3-11.
+//  Copyright (c) 2014年 YXCD. All rights reserved.
+//
+
+#import <Foundation/Foundation.h>
+
+@interface NoticeTimer : NSObject
+{
+    NSTimer * iTimerRepeat;
+    NSTimer * iTimerShow;
+    float iTimerSpace;
+    float iTimerRemain;
+}
+
+-(void)timerFireMethod:(NSTimer*) theTimer;
+-(void)showAlert:(NSTimer*)theTimer;
+-(void)startTimer:(float)timerSpace withTimeRemain:(float)timerRemain;
+-(void)endTimer;
+
+@end

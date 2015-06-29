@@ -1,0 +1,322 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="5056" systemVersion="13B42" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES">
+    <dependencies>
+        <deployment version="1536" defaultVersion="1280" identifier="iOS"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="3733"/>
+    </dependencies>
+    <objects>
+        <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner" customClass="AccountTypeViewCtrl">
+            <connections>
+                <outlet property="centerView" destination="oml-nS-XdS" id="stY-ff-ntw"/>
+                <outlet property="headerFlowButton" destination="5fP-Z0-pbf" id="08u-vb-Jya"/>
+                <outlet property="hkfsjjButton" destination="HYN-SL-XqR" id="G6S-dP-NEM"/>
+                <outlet property="hkfsjjImage" destination="UiL-fy-Yja" id="Uhq-XT-KTr"/>
+                <outlet property="readAndUnderstandButton" destination="IMJ-sU-ll2" id="N5u-2Q-mj4"/>
+                <outlet property="readAndUnderstandImage" destination="sSP-J6-2Ql" id="HjD-YR-3dI"/>
+                <outlet property="scrollView" destination="rDj-Ev-JsR" id="sWw-ii-Qbq"/>
+                <outlet property="shAgButton" destination="XGB-JR-Oqc" id="wpy-A6-sES"/>
+                <outlet property="shAgImage" destination="uJ6-3T-DFN" id="jlc-kP-qUx"/>
+                <outlet property="skfsjjButton" destination="rAF-Gk-aKY" id="TNM-01-YAG"/>
+                <outlet property="skfsjjImage" destination="zXw-qZ-HxE" id="ZYC-25-bGC"/>
+                <outlet property="szAgButton" destination="GVm-yU-Z1O" id="jLC-ac-s7w"/>
+                <outlet property="szAgImage" destination="7xk-zt-NxR" id="MaF-SP-Q0f"/>
+                <outlet property="tipLabel" destination="GMY-iP-0Gp" id="Bg1-wG-7Sb"/>
+                <outlet property="view" destination="iN0-l3-epB" id="eHj-Ig-0yW"/>
+            </connections>
+        </placeholder>
+        <placeholder placeholderIdentifier="IBFirstResponder" id="-2" customClass="UIResponder"/>
+        <view contentMode="scaleToFill" id="iN0-l3-epB" propertyAccessControl="none">
+            <rect key="frame" x="0.0" y="0.0" width="320" height="568"/>
+            <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+            <subviews>
+                <scrollView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="rDj-Ev-JsR">
+                    <rect key="frame" x="0.0" y="0.0" width="320" height="568"/>
+                    <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                    <subviews>
+                        <button opaque="NO" userInteractionEnabled="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="5fP-Z0-pbf" userLabel="headerImageButton">
+                            <rect key="frame" x="0.0" y="0.0" width="321" height="44"/>
+                            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                            <constraints>
+                                <constraint firstAttribute="height" constant="44" id="W1X-3n-lac"/>
+                            </constraints>
+                            <state key="normal">
+                                <color key="titleShadowColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>
+                            </state>
+                        </button>
+                        <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="请您选择欲开通的帐户" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="GMY-iP-0Gp">
+                            <rect key="frame" x="10" y="45" width="302" height="44"/>
+                            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                            <constraints>
+                                <constraint firstAttribute="height" constant="44" id="qYu-aX-Tqd"/>
+                            </constraints>
+                            <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                            <color key="textColor" cocoaTouchSystemColor="darkTextColor"/>
+                            <nil key="highlightedColor"/>
+                        </label>
+                        <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="oml-nS-XdS" userLabel="centerView">
+                            <rect key="frame" x="10" y="88" width="300" height="120"/>
+                            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                            <subviews>
+                                <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="9Lv-qC-bW4" userLabel="上海A股">
+                                    <rect key="frame" x="0.0" y="0.0" width="149" height="60"/>
+                                    <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                                    <subviews>
+                                        <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="XGB-JR-Oqc">
+                                            <rect key="frame" x="40" y="12" width="119" height="36"/>
+                                            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                            <state key="normal" title="上海A股">
+                                                <color key="titleShadowColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>
+                                            </state>
+                                            <connections>
+                                                <action selector="onItemTouch:" destination="-1" eventType="touchUpInside" id="OCm-4N-Def"/>
+                                            </connections>
+                                        </button>
+                                        <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="uJ6-3T-DFN" userLabel="勾号">
+                                            <rect key="frame" x="4" y="12" width="36" height="36"/>
+                                            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                            <constraints>
+                                                <constraint firstAttribute="width" constant="36" id="fNe-z5-r73"/>
+                                            </constraints>
+                                            <state key="normal">
+                                                <color key="titleShadowColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>
+                                            </state>
+                                            <connections>
+                                                <action selector="onItemTouch:" destination="-1" eventType="touchUpInside" id="mJc-GR-SZw"/>
+                                            </connections>
+                                        </button>
+                                    </subviews>
+                                    <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
+                                    <constraints>
+                                        <constraint firstItem="uJ6-3T-DFN" firstAttribute="leading" secondItem="9Lv-qC-bW4" secondAttribute="leading" constant="4" id="2ic-Y2-mPM"/>
+                                        <constraint firstItem="XGB-JR-Oqc" firstAttribute="leading" secondItem="uJ6-3T-DFN" secondAttribute="trailing" id="FYy-ui-M5J"/>
+                                        <constraint firstAttribute="trailing" secondItem="XGB-JR-Oqc" secondAttribute="trailing" constant="-10" id="IcP-yz-MAa"/>
+                                        <constraint firstItem="uJ6-3T-DFN" firstAttribute="top" secondItem="9Lv-qC-bW4" secondAttribute="top" constant="12" id="POs-vC-wgG"/>
+                                        <constraint firstItem="XGB-JR-Oqc" firstAttribute="bottom" secondItem="uJ6-3T-DFN" secondAttribute="bottom" id="Xvf-x7-4Cc"/>
+                                        <constraint firstItem="uJ6-3T-DFN" firstAttribute="centerY" secondItem="9Lv-qC-bW4" secondAttribute="centerY" id="pW2-kM-c1s"/>
+                                        <constraint firstItem="XGB-JR-Oqc" firstAttribute="top" secondItem="uJ6-3T-DFN" secondAttribute="top" id="zwS-Th-Wx7"/>
+                                    </constraints>
+                                </view>
+                                <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="bBR-lE-H23" userLabel="深圳A股">
+                                    <rect key="frame" x="150" y="0.0" width="150" height="60"/>
+                                    <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                    <subviews>
+                                        <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="GVm-yU-Z1O">
+                                            <rect key="frame" x="40" y="12" width="120" height="36"/>
+                                            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                            <state key="normal" title="深圳A股">
+                                                <color key="titleShadowColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>
+                                            </state>
+                                            <connections>
+                                                <action selector="onItemTouch:" destination="-1" eventType="touchUpInside" id="jH3-hd-4BY"/>
+                                            </connections>
+                                        </button>
+                                        <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="7xk-zt-NxR" userLabel="勾号">
+                                            <rect key="frame" x="4" y="12" width="36" height="36"/>
+                                            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                            <constraints>
+                                                <constraint firstAttribute="width" constant="36" id="JQo-wr-9ed"/>
+                                            </constraints>
+                                            <state key="normal">
+                                                <color key="titleShadowColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>
+                                            </state>
+                                            <connections>
+                                                <action selector="onItemTouch:" destination="-1" eventType="touchUpInside" id="VeA-6j-GlA"/>
+                                            </connections>
+                                        </button>
+                                    </subviews>
+                                    <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
+                                    <constraints>
+                                        <constraint firstItem="GVm-yU-Z1O" firstAttribute="bottom" secondItem="7xk-zt-NxR" secondAttribute="bottom" id="4vC-d9-cdG"/>
+                                        <constraint firstItem="7xk-zt-NxR" firstAttribute="leading" secondItem="bBR-lE-H23" secondAttribute="leading" constant="4" id="FJP-Vj-3o6"/>
+                                        <constraint firstItem="GVm-yU-Z1O" firstAttribute="top" secondItem="7xk-zt-NxR" secondAttribute="top" id="RTS-xZ-SuW"/>
+                                        <constraint firstItem="7xk-zt-NxR" firstAttribute="centerY" secondItem="bBR-lE-H23" secondAttribute="centerY" id="Rds-iO-1s4"/>
+                                        <constraint firstAttribute="trailing" secondItem="GVm-yU-Z1O" secondAttribute="trailing" constant="-10" id="bE5-LH-TUL"/>
+                                        <constraint firstItem="7xk-zt-NxR" firstAttribute="top" secondItem="bBR-lE-H23" secondAttribute="top" constant="12" id="kHn-cQ-fYR"/>
+                                        <constraint firstItem="GVm-yU-Z1O" firstAttribute="leading" secondItem="7xk-zt-NxR" secondAttribute="trailing" id="pHi-V3-slo"/>
+                                    </constraints>
+                                </view>
+                                <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="ygo-MZ-HcV" userLabel="沪开放式基金">
+                                    <rect key="frame" x="0.0" y="60" width="149" height="60"/>
+                                    <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                    <subviews>
+                                        <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="HYN-SL-XqR">
+                                            <rect key="frame" x="40" y="12" width="119" height="36"/>
+                                            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                            <state key="normal" title="上海交易所开放式基金">
+                                                <color key="titleShadowColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>
+                                            </state>
+                                            <connections>
+                                                <action selector="onItemTouch:" destination="-1" eventType="touchUpInside" id="vja-K7-Lft"/>
+                                            </connections>
+                                        </button>
+                                        <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="UiL-fy-Yja" userLabel="勾号">
+                                            <rect key="frame" x="4" y="12" width="36" height="36"/>
+                                            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                            <constraints>
+                                                <constraint firstAttribute="width" constant="36" id="rFa-50-QiL"/>
+                                            </constraints>
+                                            <state key="normal">
+                                                <color key="titleShadowColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>
+                                            </state>
+                                            <connections>
+                                                <action selector="onItemTouch:" destination="-1" eventType="touchUpInside" id="lzY-XO-VrU"/>
+                                            </connections>
+                                        </button>
+                                    </subviews>
+                                    <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
+                                    <constraints>
+                                        <constraint firstItem="HYN-SL-XqR" firstAttribute="bottom" secondItem="UiL-fy-Yja" secondAttribute="bottom" id="3wY-If-9IO"/>
+                                        <constraint firstItem="UiL-fy-Yja" firstAttribute="top" secondItem="ygo-MZ-HcV" secondAttribute="top" constant="12" id="KJL-eB-77f"/>
+                                        <constraint firstItem="UiL-fy-Yja" firstAttribute="centerY" secondItem="ygo-MZ-HcV" secondAttribute="centerY" id="ftW-o1-gBG"/>
+                                        <constraint firstItem="HYN-SL-XqR" firstAttribute="top" secondItem="UiL-fy-Yja" secondAttribute="top" id="gNG-Tm-8jg"/>
+                                        <constraint firstItem="UiL-fy-Yja" firstAttribute="leading" secondItem="ygo-MZ-HcV" secondAttribute="leading" constant="4" id="ogd-ns-lLK"/>
+                                        <constraint firstAttribute="trailing" secondItem="HYN-SL-XqR" secondAttribute="trailing" constant="-10" id="ssF-FE-LCq"/>
+                                        <constraint firstItem="HYN-SL-XqR" firstAttribute="leading" secondItem="UiL-fy-Yja" secondAttribute="trailing" id="x81-oN-Cds"/>
+                                    </constraints>
+                                </view>
+                                <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="ZH0-4P-QCW" userLabel="深开放式基金">
+                                    <rect key="frame" x="150" y="60" width="150" height="60"/>
+                                    <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                    <subviews>
+                                        <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="zXw-qZ-HxE">
+                                            <rect key="frame" x="4" y="12" width="36" height="36"/>
+                                            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                            <constraints>
+                                                <constraint firstAttribute="width" constant="36" id="8Oe-eq-lOn"/>
+                                            </constraints>
+                                            <state key="normal">
+                                                <color key="titleShadowColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>
+                                            </state>
+                                            <connections>
+                                                <action selector="onItemTouch:" destination="-1" eventType="touchUpInside" id="MXi-o8-ySI"/>
+                                            </connections>
+                                        </button>
+                                        <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="rAF-Gk-aKY">
+                                            <rect key="frame" x="40" y="12" width="119" height="36"/>
+                                            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                            <state key="normal" title="深圳交易所开放式基金">
+                                                <color key="titleShadowColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>
+                                            </state>
+                                            <connections>
+                                                <action selector="onItemTouch:" destination="-1" eventType="touchUpInside" id="zf5-vf-OVt"/>
+                                            </connections>
+                                        </button>
+                                    </subviews>
+                                    <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
+                                    <constraints>
+                                        <constraint firstItem="zXw-qZ-HxE" firstAttribute="leading" secondItem="ZH0-4P-QCW" secondAttribute="leading" constant="4" id="FzI-Ac-7eA"/>
+                                        <constraint firstAttribute="trailing" secondItem="rAF-Gk-aKY" secondAttribute="trailing" constant="-9" id="NEJ-jq-LEs"/>
+                                        <constraint firstItem="rAF-Gk-aKY" firstAttribute="top" secondItem="zXw-qZ-HxE" secondAttribute="top" id="SZc-pS-tQy"/>
+                                        <constraint firstItem="rAF-Gk-aKY" firstAttribute="bottom" secondItem="zXw-qZ-HxE" secondAttribute="bottom" id="VDx-s5-ae6"/>
+                                        <constraint firstItem="rAF-Gk-aKY" firstAttribute="leading" secondItem="zXw-qZ-HxE" secondAttribute="trailing" id="kPj-io-Xyr"/>
+                                        <constraint firstItem="zXw-qZ-HxE" firstAttribute="top" secondItem="ZH0-4P-QCW" secondAttribute="top" constant="12" id="lVN-IE-j2H"/>
+                                        <constraint firstItem="zXw-qZ-HxE" firstAttribute="centerY" secondItem="ZH0-4P-QCW" secondAttribute="centerY" id="t7v-l5-5iH"/>
+                                    </constraints>
+                                </view>
+                            </subviews>
+                            <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="calibratedWhite"/>
+                            <constraints>
+                                <constraint firstAttribute="bottom" secondItem="ygo-MZ-HcV" secondAttribute="bottom" id="0sx-Af-tHU"/>
+                                <constraint firstItem="9Lv-qC-bW4" firstAttribute="top" secondItem="oml-nS-XdS" secondAttribute="top" id="73F-ZS-ohG"/>
+                                <constraint firstItem="ygo-MZ-HcV" firstAttribute="top" secondItem="9Lv-qC-bW4" secondAttribute="bottom" id="7dK-vc-P2o"/>
+                                <constraint firstAttribute="trailing" secondItem="bBR-lE-H23" secondAttribute="trailing" id="8ZW-a4-TpG"/>
+                                <constraint firstItem="ygo-MZ-HcV" firstAttribute="top" secondItem="ZH0-4P-QCW" secondAttribute="top" id="A6f-hE-CGW"/>
+                                <constraint firstItem="bBR-lE-H23" firstAttribute="leading" secondItem="ZH0-4P-QCW" secondAttribute="leading" id="HxD-Fz-yYG"/>
+                                <constraint firstItem="9Lv-qC-bW4" firstAttribute="leading" secondItem="oml-nS-XdS" secondAttribute="leading" id="Jpf-aA-WJm"/>
+                                <constraint firstItem="9Lv-qC-bW4" firstAttribute="trailing" secondItem="ygo-MZ-HcV" secondAttribute="trailing" id="UFn-c7-hEI"/>
+                                <constraint firstItem="ZH0-4P-QCW" firstAttribute="trailing" secondItem="bBR-lE-H23" secondAttribute="trailing" id="cE5-Nn-yRG"/>
+                                <constraint firstItem="bBR-lE-H23" firstAttribute="leading" secondItem="oml-nS-XdS" secondAttribute="leading" constant="150" id="eNf-dr-1R0"/>
+                                <constraint firstItem="bBR-lE-H23" firstAttribute="leading" secondItem="9Lv-qC-bW4" secondAttribute="trailing" constant="1" id="hhk-Vm-uFu"/>
+                                <constraint firstItem="bBR-lE-H23" firstAttribute="bottom" secondItem="9Lv-qC-bW4" secondAttribute="bottom" id="hiA-lW-ALk"/>
+                                <constraint firstItem="ygo-MZ-HcV" firstAttribute="leading" secondItem="9Lv-qC-bW4" secondAttribute="leading" id="ja5-C0-0EW"/>
+                                <constraint firstAttribute="height" constant="120" id="mGL-Uk-VQE"/>
+                                <constraint firstItem="bBR-lE-H23" firstAttribute="top" secondItem="9Lv-qC-bW4" secondAttribute="top" id="nhu-SM-hTa"/>
+                                <constraint firstItem="ygo-MZ-HcV" firstAttribute="top" secondItem="oml-nS-XdS" secondAttribute="top" constant="60" id="tuO-hg-GPc"/>
+                                <constraint firstItem="ygo-MZ-HcV" firstAttribute="bottom" secondItem="ZH0-4P-QCW" secondAttribute="bottom" id="vvz-2k-3gy"/>
+                            </constraints>
+                        </view>
+                        <view hidden="YES" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="8MP-co-uNx" userLabel="protocolView" propertyAccessControl="none">
+                            <rect key="frame" x="10" y="280" width="300" height="44"/>
+                            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                            <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="calibratedWhite"/>
+                            <constraints>
+                                <constraint firstAttribute="height" constant="44" id="Sg2-sv-LRY"/>
+                            </constraints>
+                        </view>
+                        <button hidden="YES" opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="mkg-6Y-ESA" propertyAccessControl="none">
+                            <rect key="frame" x="10" y="344" width="300" height="44"/>
+                            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                            <constraints>
+                                <constraint firstAttribute="height" constant="44" id="3gS-Fb-Xig"/>
+                            </constraints>
+                            <state key="normal" title="下一步">
+                                <color key="titleShadowColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>
+                            </state>
+                            <connections>
+                                <action selector="onItemTouch:" destination="-1" eventType="touchUpInside" id="yGH-0U-lxM"/>
+                            </connections>
+                        </button>
+                        <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="IMJ-sU-ll2">
+                            <rect key="frame" x="55" y="228" width="270" height="50"/>
+                            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                            <state key="normal" title="我已阅读并同意签署以下合同协议">
+                                <color key="titleShadowColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>
+                            </state>
+                            <connections>
+                                <action selector="onItemTouch:" destination="-1" eventType="touchUpInside" id="4g3-un-h22"/>
+                            </connections>
+                        </button>
+                        <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="sSP-J6-2Ql">
+                            <rect key="frame" x="10" y="233" width="40" height="40"/>
+                            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                            <constraints>
+                                <constraint firstAttribute="height" constant="40" id="Aue-st-LaG"/>
+                                <constraint firstAttribute="width" constant="40" id="oHy-2g-JES"/>
+                            </constraints>
+                            <state key="normal">
+                                <color key="titleShadowColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>
+                            </state>
+                            <connections>
+                                <action selector="onItemTouch:" destination="-1" eventType="touchUpInside" id="SbL-Wu-vWL"/>
+                            </connections>
+                        </button>
+                    </subviews>
+                    <constraints>
+                        <constraint firstItem="mkg-6Y-ESA" firstAttribute="top" secondItem="8MP-co-uNx" secondAttribute="bottom" constant="20" id="345-g0-6KT"/>
+                        <constraint firstItem="oml-nS-XdS" firstAttribute="centerX" secondItem="5fP-Z0-pbf" secondAttribute="centerX" id="9fN-AL-PA1"/>
+                        <constraint firstItem="IMJ-sU-ll2" firstAttribute="centerY" secondItem="sSP-J6-2Ql" secondAttribute="centerY" id="9sR-t5-9Dt"/>
+                        <constraint firstItem="8MP-co-uNx" firstAttribute="leading" secondItem="mkg-6Y-ESA" secondAttribute="leading" id="C9d-lJ-Fm6"/>
+                        <constraint firstItem="IMJ-sU-ll2" firstAttribute="top" secondItem="oml-nS-XdS" secondAttribute="bottom" constant="20" id="Caa-D3-Syy"/>
+                        <constraint firstAttribute="trailing" secondItem="GMY-iP-0Gp" secondAttribute="trailing" constant="8" id="MtF-YR-7vF"/>
+                        <constraint firstItem="5fP-Z0-pbf" firstAttribute="leading" secondItem="rDj-Ev-JsR" secondAttribute="leading" id="PQF-Vj-0yi"/>
+                        <constraint firstItem="GMY-iP-0Gp" firstAttribute="top" secondItem="5fP-Z0-pbf" secondAttribute="bottom" constant="1" id="RDP-dL-SRx"/>
+                        <constraint firstAttribute="trailing" secondItem="5fP-Z0-pbf" secondAttribute="trailing" constant="-1" id="RWi-DU-ATA"/>
+                        <constraint firstItem="8MP-co-uNx" firstAttribute="top" secondItem="sSP-J6-2Ql" secondAttribute="bottom" constant="7" id="WU9-4x-bVu"/>
+                        <constraint firstItem="GMY-iP-0Gp" firstAttribute="leading" secondItem="rDj-Ev-JsR" secondAttribute="leading" constant="10" id="WXI-bA-sjQ"/>
+                        <constraint firstItem="IMJ-sU-ll2" firstAttribute="leading" secondItem="sSP-J6-2Ql" secondAttribute="trailing" constant="5" id="Z1T-kc-b8e"/>
+                        <constraint firstItem="oml-nS-XdS" firstAttribute="trailing" secondItem="8MP-co-uNx" secondAttribute="trailing" id="Zuo-Dh-VAn"/>
+                        <constraint firstItem="8MP-co-uNx" firstAttribute="top" secondItem="IMJ-sU-ll2" secondAttribute="bottom" constant="2" id="aKw-Nd-SMh"/>
+                        <constraint firstItem="oml-nS-XdS" firstAttribute="leading" secondItem="GMY-iP-0Gp" secondAttribute="leading" id="aw5-P3-tBK"/>
+                        <constraint firstItem="8MP-co-uNx" firstAttribute="centerX" secondItem="rDj-Ev-JsR" secondAttribute="centerX" id="eJN-OP-zsU"/>
+                        <constraint firstItem="sSP-J6-2Ql" firstAttribute="leading" secondItem="8MP-co-uNx" secondAttribute="leading" id="hEJ-Be-RRm"/>
+                        <constraint firstAttribute="bottom" secondItem="mkg-6Y-ESA" secondAttribute="bottom" constant="180" id="pa9-VC-CMQ"/>
+                        <constraint firstItem="5fP-Z0-pbf" firstAttribute="top" secondItem="rDj-Ev-JsR" secondAttribute="top" id="s01-ws-ZH2"/>
+                        <constraint firstItem="oml-nS-XdS" firstAttribute="top" secondItem="5fP-Z0-pbf" secondAttribute="bottom" constant="44" id="uJQ-Yk-8Wq"/>
+                        <constraint firstItem="8MP-co-uNx" firstAttribute="trailing" secondItem="mkg-6Y-ESA" secondAttribute="trailing" id="ycs-NC-7Yr"/>
+                        <constraint firstItem="sSP-J6-2Ql" firstAttribute="leading" secondItem="oml-nS-XdS" secondAttribute="leading" id="yf3-bP-1sL"/>
+                    </constraints>
+                    <inset key="scrollIndicatorInsets" minX="0.0" minY="40" maxX="0.0" maxY="0.0"/>
+                </scrollView>
+            </subviews>
+            <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="calibratedWhite"/>
+            <constraints>
+                <constraint firstItem="rDj-Ev-JsR" firstAttribute="leading" secondItem="iN0-l3-epB" secondAttribute="leading" id="FY4-vC-kxy"/>
+                <constraint firstAttribute="trailing" secondItem="rDj-Ev-JsR" secondAttribute="trailing" id="NyP-67-sK9"/>
+                <constraint firstAttribute="bottom" secondItem="rDj-Ev-JsR" secondAttribute="bottom" id="TvO-qq-AfD"/>
+                <constraint firstItem="rDj-Ev-JsR" firstAttribute="top" secondItem="iN0-l3-epB" secondAttribute="top" id="WSG-dk-eyX"/>
+            </constraints>
+            <simulatedStatusBarMetrics key="simulatedStatusBarMetrics"/>
+            <simulatedScreenMetrics key="simulatedDestinationMetrics" type="retina4"/>
+        </view>
+    </objects>
+</document>

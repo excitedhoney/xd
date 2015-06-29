@@ -1,0 +1,48 @@
+Index: certvfy.c
+===================================================================
+--- certvfy.c	(版本 235644)
++++ certvfy.c	(工作副本)
+@@ -26,6 +26,9 @@
+ #include "pki3hack.h"
+ #include "base.h"
+ 
++
++extern unsigned int itrus_global_check_cert;
++
+ #ifdef NSS_DISABLE_LIBPKIX
+ SECStatus
+ cert_VerifyCertChainPkix(
+@@ -1345,9 +1348,12 @@
+ 	PORT_SetError(SEC_ERROR_INADEQUATE_KEY_USAGE);
+ 	LOG_ERROR_OR_EXIT(log,cert,0,requiredKeyUsage);
+     }
+-    if ( !( certType & requiredCertType ) ) {
+-	PORT_SetError(SEC_ERROR_INADEQUATE_CERT_TYPE);
+-	LOG_ERROR_OR_EXIT(log,cert,0,requiredCertType);
++    
++    if (itrus_global_check_cert) {
++        if ( !( certType & requiredCertType ) ) {
++            PORT_SetError(SEC_ERROR_INADEQUATE_CERT_TYPE);
++            LOG_ERROR_OR_EXIT(log,cert,0,requiredCertType);
++        }
+     }
+ 
+     rv = cert_CheckLeafTrust(cert,certUsage, &flags, &trusted);
+@@ -1358,11 +1364,12 @@
+ 	goto done;
+     }
+ 
+-
+-    rv = CERT_VerifyCertChain(handle, cert, checkSig, certUsage,
+-			      t, wincx, log);
+-    if (rv != SECSuccess) {
+-	EXIT_IF_NOT_LOGGING(log);
++    if (itrus_global_check_cert) {
++        rv = CERT_VerifyCertChain(handle, cert, checkSig, certUsage,
++                                  t, wincx, log);
++        if (rv != SECSuccess) {
++            EXIT_IF_NOT_LOGGING(log);
++        }
+     }
+ 
+     /*

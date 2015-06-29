@@ -1,0 +1,272 @@
+//
+//  InstallProfileViewCtrl.m
+//  ApexiPhoneOpenAccount
+//
+//  Created by mac  on 14-3-11.
+//  Copyright (c) 2014年 mac . All rights reserved.
+//
+
+#import "InstallProfileViewCtrl.h"
+#import "AccountTypeViewCtrl.h"
+#import "func_def.h"
+
+#define INSTALLPROFILETEXT @"安装数字证书"
+#define NEXTSTEPTEXT @"下一步"
+
+@interface InstallProfileViewCtrl (){
+    UIButton * encourageBtn;
+    UIButton * installProfileBtn;
+    BOOL bQueryOK;
+    BOOL bQueryFinish;
+    BOOL bInstallOK;            // 安装成功
+    CGRect installRect;
+}
+
+@end
+
+#ifdef HAOYTEST
+#else
+#endif
+
+@implementation InstallProfileViewCtrl
+
+- (id)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil
+{
+    self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil];
+    if (self) {
+        
+    }
+    return self;
+}
+
+- (void)viewDidLoad
+{
+    [self InitConfig];
+    [self InitWidgets];
+    [super viewDidLoad];
+}
+
+- (void)viewDidAppear:(BOOL)animated{
+    [super viewDidAppear:animated];
+    [[SJKHEngine Instance] dispatchMessage:RELEASE_PRE_VIEWCTRL];
+}
+
+- (void)InitConfig{
+    [self.view setBackgroundColor:PAGE_BG_COLOR];
+    self.view.bounds = CGRectMake(0, 0, screenWidth, self.view.bounds.size.height);
+    [self.navigationItem setHidesBackButton:YES];
+    bQueryOK = NO;
+    bQueryFinish = NO;
+    bInstallOK = NO;
+}
+
+- (void)InitWidgets{
+    [self InitScrollView];
+    scrollView.delegate=self;
+    [scrollView setContentSize:CGSizeMake(screenWidth, screenHeight - UpHeight)];
+    
+    int labelHeight = 50;
+    CGSize encourageButtonSize = CGSizeMake(130, 130);
+    CGSize installButtonSize = CGSizeMake(150, 44);
+    
+    UIButton * headerFlowButton = [UIButton buttonWithType:UIButtonTypeCustom];
+    [headerFlowButton setFrame:CGRectMake(0, 0 , screenWidth, ButtonHeight)];
+    [headerFlowButton setImage:[[UIImage imageNamed:@"flow_1"] imageByResizingToSize:CGSizeMake(screenWidth, headerFlowButton.frame.size.height)]
+                      forState:UIControlStateNormal];
+    [headerFlowButton setUserInteractionEnabled:NO];
+    [scrollView addSubview: headerFlowButton];
+    
+    UILabel *la=[[UILabel alloc]initWithFrame: CGRectMake(levelSpace, ButtonHeight *2, screenWidth - 2*levelSpace, labelHeight)];
+	la.backgroundColor = [UIColor clearColor];
+    [la setText:@"请点击安装数字证书"];
+	[la setFont: [UIFont boldSystemFontOfSize:18]];
+    la.numberOfLines = 0;
+    la.textAlignment = NSTextAlignmentCenter;
+	[la setTextColor: [UIColor blackColor]];
+    la.lineBreakMode = NSLineBreakByTruncatingTail;
+    [scrollView addSubview:la];
+    
+    encourageBtn = [[UIButton alloc]initWithFrame:CGRectMake (screenWidth/2 - encourageButtonSize.width/2,
+                                                              ButtonHeight *2 + labelHeight ,
+                                                              encourageButtonSize.width,
+                                                              encourageButtonSize.height)];
+    [encourageBtn setImage:[UIImage imageNamed:@"icon_szzs"] forState:UIControlStateNormal];
+    [encourageBtn setUserInteractionEnabled:NO];
+    [scrollView addSubview:encourageBtn];
+    
+    installProfileBtn = [[UIButton alloc]initWithFrame:CGRectMake (screenWidth/2 - installButtonSize.width/2,
+                                                              encourageBtn.frame.origin.y + encourageBtn.frame.size.height + 7,
+                                                              installButtonSize.width,
+                                                              installButtonSize.height)];
+    installRect = installProfileBtn.frame;
+    
+//    [installProfileBtn setBackgroundImage:[UIImage imageWithColor:[UIColor colorWithWhite:0.8 alpha:1] size:installProfileBtn.frame.size] forState:UIControlStateNormal];
+//    [installProfileBtn setBackgroundImage:[UIImage imageWithColor:LightGrayTipColor size:installProfileBtn.frame.size] forState:UIControlStateHighlighted];
+    
+    UIImage * kaihuImage = [UIImage imageNamed: [NSString stringWithFormat:@"button_gray_default"]];
+    kaihuImage = [kaihuImage stretchableImageWithLeftCapWidth: 9 topCapHeight: 9];
+    [installProfileBtn setBackgroundImage:kaihuImage forState:UIControlStateNormal];
+    
+    [installProfileBtn setTitleColor:[UIColor blackColor] forState:UIControlStateNormal];
+    [installProfileBtn setTitle:INSTALLPROFILETEXT forState:UIControlStateNormal];
+    [installProfileBtn addTarget:self action:@selector(onInstallButton:) forControlEvents:UIControlEventTouchUpInside];
+    [scrollView addSubview:installProfileBtn];
+    
+    [self InitNextStepButton:CGRectMake(levelSpace,
+                                        installProfileBtn.frame.origin.y + installButtonSize.height + verticalHeight,
+                                        screenWidth - 2 * levelSpace ,
+                                        44)
+                         tag:0
+                       title:@"下一步"];
+    [nextStepBtn setHidden:YES];
+    [self chageNextStepButtonStype:NO];
+    [scrollView addSubview:nextStepBtn];
+    
+    [self.view addSubview:scrollView];
+    [scrollView setContentSize:CGSizeMake(screenWidth, nextStepBtn.frame.origin.y + 44 + 2 * verticalHeight)];
+    [super InitWidgets];
+}
+
+- (void)showInstallSuccess{
+    dispatch_async(dispatch_get_main_queue(), ^{
+        NSString * title = @"安装成功";
+        if([SJKHEngine Instance]->bVideoAccess){
+            title = @"安装真实证书成功";
+        }
+        [self activityIndicate:NO tipContent:title MBProgressHUD:nil target:nil];
+        bInstallOK = YES;
+        [self chageNextStepButtonStype:YES];
+    });
+}
+
+/*haoyee alert downsite*/
+- (void)onInstallButton:(UIButton *)btn{
+    if ([installProfileBtn.titleLabel.text isEqualToString:INSTALLPROFILETEXT]) {
+        [self activityIndicate:YES tipContent:@"安装证书..." MBProgressHUD:nil target:self.navigationController.view];
+        
+        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+            CertHandle *certClass = [CertHandle defaultCertHandle];
+            certClass.delegate = self;
+            YEorNO resault = nop;
+            resault = [certClass certToHandle];
+            
+            [self toSaveStepDataAndPushAccountTypePage:resault];
+        });
+    }
+    else{
+        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+            [self toSaveStepDataAndPushAccountTypePage:YES];
+        });
+    }
+}
+
+- (void)toSaveStepDataAndPushAccountTypePage:(BOOL)resault{
+    if (resault) {
+        if ([[CertHandle defaultCertHandle] toSaveProfileStepData]) {
+            AccountTypeViewCtrl * accountVC = [[AccountTypeViewCtrl alloc]initWithNibName:@"AccountTypeView" bundle:nil];
+            [self activityIndicate:YES tipContent:@"加载帐户信息..." MBProgressHUD:nil target:self.navigationController.view];
+            [self dispatchAccountTypeVC:accountVC];
+        }
+        else{
+            [self activityIndicate:NO tipContent:@"保存证书数据失败" MBProgressHUD:nil target:nil];
+            
+            if ([installProfileBtn.titleLabel.text isEqualToString:INSTALLPROFILETEXT]) {
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    [installProfileBtn setTitle:NEXTSTEPTEXT forState:UIControlStateNormal];
+                    [CATransaction begin];
+                    [CATransaction setAnimationDuration:0.2];
+                    installProfileBtn.frame = CGRectMake(10,
+                                                         installRect.origin.y,
+                                                         screenWidth - 2*10,
+                                                         installRect.size.height);
+                    [CATransaction commit];
+                });
+            }
+        }
+    }
+}
+
+- (void)saveSuccessContinueOpetion:(BOOL)bSaveSuccess{
+    bSaveStepFinish = YES;
+    bSaveStepSuccess = bSaveSuccess;
+}
+
+- (void)updateUI{
+    [super updateUI];
+    dispatch_async(dispatch_get_main_queue(), ^{
+        
+    });
+}
+
+- (void)onButtonClick:(UIButton *)btn{
+    if(!bInstallOK){
+        UIAlertView * alertview = [[UIAlertView alloc] initWithTitle:@"提示" message:@"请先安装数字证书" delegate:self cancelButtonTitle:nil otherButtonTitles:@"确定", nil];
+        [alertview show];
+        return ;
+    }
+    [self activityIndicate:YES tipContent:@"加载帐户信息..." MBProgressHUD:nil target:self.navigationController.view];
+    
+    AccountTypeViewCtrl * accountVC = [[AccountTypeViewCtrl alloc]init];
+    
+    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+        [self dispatchAccountTypeVC:accountVC];
+    });
+}
+
+- (void) dispatchAccountTypeVC:(AccountTypeViewCtrl *)accountVC{
+    NSDictionary * stepDictionary = nil;
+    if([self sendSaveCurrentStepKey:ZQZH_STEP dataDictionary:&stepDictionary]){
+        BOOL ok = [self sendGoToStep:ZQZH_STEP dataDictionary:&stepDictionary];
+        if(ok){
+            [SJKHEngine Instance]->zqzh_step_Dic = [[stepDictionary objectForKey:KhxyArr_ZQZH] mutableCopy];
+            dispatch_async(dispatch_get_main_queue(), ^{
+                if ([SJKHEngine Instance]->zqzh_step_Dic &&
+                    [SJKHEngine Instance]->zqzh_step_Dic.count > 0)
+                {
+                    [self activityIndicate:NO tipContent:nil MBProgressHUD:nil target:nil];
+                    [self.navigationController pushViewController:accountVC animated:YES];
+                    [accountVC updateUI];
+                }
+                else{
+                    [self activityIndicate:NO tipContent:@"加载帐户信息失败" MBProgressHUD:nil target:nil];
+                }
+            });
+        }
+        else {
+            [self activityIndicate:NO tipContent:@"加载帐户信息失败" MBProgressHUD:nil target:nil];
+            [[SJKHEngine Instance] dispatchMessage:POP_MESSAGE];
+        }
+    }
+}
+
+- (void)popToLastPage{
+    dispatch_async(dispatch_get_main_queue(), ^{
+//        [self activityIndicate:YES tipContent:@"加载失败" MBProgressHUD:nil];
+        hud.mode = MBProgressHUDModeText;
+        sleep(1);
+        [hud hide:YES];
+        [self.navigationController popViewControllerAnimated:YES];
+    });
+}
+
+- (void)didReceiveMemoryWarning
+{
+    [super didReceiveMemoryWarning];
+}
+
+- (void)dealloc{
+    NSLog(@"证书安装回收");
+}
+
+- (void)certHandleResault:(NSString *)resaultString{
+    [self activityIndicate:NO tipContent:resaultString MBProgressHUD:nil target:nil];
+}
+
+@end
+
+
+
+
+
+
+
